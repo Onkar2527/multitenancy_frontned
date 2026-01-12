@@ -1,0 +1,36 @@
+<div>
+
+    <nz-tabset [(nzSelectedIndex)]="selectedIndex" (nzSelectChange)="log([$event])">
+        <nz-tab *ngFor="let tab of Tabs;let i=index" [nzTitle]="titleTemplate33" [nzDisabled]="tab.disabled">
+
+            <ng-template #titleTemplate33>
+
+                <i nz-icon nzType="exclamation-circle" nzTheme="fill" style="color: #f18304;"
+                    *ngIf="!Tabs[i].IS_PROVIDED && i!=5"></i>
+
+                <i nz-icon nzType="check-circle" nzTheme="fill" style="color: #00b963;"
+                    *ngIf="Tabs[i].IS_PROVIDED && i!=5"></i>
+
+                <span> {{tab.TAB_NAME}}</span>
+            </ng-template>
+
+            <app-personal [basicInfo]="BasicInfo" [APPLICANT_ID]="APPLICANT_ID" *ngIf="tab.TAB_ID == 1"></app-personal>
+
+            <app-deposit *ngIf="tab.TAB_ID == 2"></app-deposit>
+
+            <app-nomination *ngIf="tab.TAB_ID == 3"></app-nomination>
+
+            <app-services *ngIf="tab.TAB_ID == 4"></app-services>
+
+            <app-applicant-details *ngIf="tab.TAB_ID == 5"></app-applicant-details>
+
+            <app-remark-comp *ngIf="tab.TAB_ID == 6"></app-remark-comp>
+
+            <!-- <app-verifier-verification *ngIf="tab.TAB_ID == 7"></app-verifier-verification> -->
+
+        </nz-tab>
+
+
+    </nz-tabset>
+
+</div>

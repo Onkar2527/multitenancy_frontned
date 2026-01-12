@@ -1,0 +1,36 @@
+<!-- <div class="box">
+    <nz-divider nzText="Property Details"></nz-divider>
+    <div nz-row class="content-box">
+        <nz-form-item nz-col nzSpan="24">
+            <nz-form-control>
+                <label nz-checkbox [(ngModel)]="allChecked" (ngModelChange)="updateAllChecked()"
+                    [nzIndeterminate]="indeterminate">Select All</label>
+                <nz-checkbox-group [(ngModel)]="checkOptionsOne" (ngModelChange)="changeInOption()"></nz-checkbox-group>
+            </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item nz-col nzSpan="24" *ngIf="propertyInfo.IS_FOUR_WHEELER">
+            <nz-form-label [nzNoColon]="true">Four Wheeler Model and Year</nz-form-label>
+            <nz-form-control>
+                <input nz-input name="fwmy" [(ngModel)]="propertyInfo.FOUR_WHEELER_MODEL"
+                    placeholder="Enter Four Wheeler Model and Year" />
+            </nz-form-control>
+        </nz-form-item>
+
+    </div>
+</div> -->
+
+<div class="box">
+    <nz-divider nzText="Resident Type"></nz-divider>
+    <div nz-row class="content-box">
+        <nz-form-item nz-col nzSpan="24">
+            <nz-form-control>
+                <nz-radio-group [(ngModel)]="propertyInfo.HOUSE_DETAIL">
+                    <label nz-radio [nzValue]="'A'">Owned</label>
+                    <label nz-radio [nzValue]="'B'">Rented</label>
+                    <label nz-radio [nzValue]="'C'">Occupied</label>
+                </nz-radio-group>
+            </nz-form-control>
+        </nz-form-item>
+    </div>
+</div>

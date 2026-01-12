@@ -1,0 +1,44 @@
+/* .page{
+  page-break-after: always !important;
+  margin-top: 15px;
+} */
+
+/* #page6{
+  margin-top: 10px;
+} */
+
+.page-margin-top{
+  margin-top:15px;
+}
+.border-all{
+  border:1px solid black;
+  /* font-size: 12px; */
+  padding: 5px;
+  padding-left: 10px;
+}
+
+.heading{
+  text-align: center;
+  background-color: rgb(237, 2, 140);
+  color:white;
+  font-weight: bold;
+}
+
+.margin{
+  margin-bottom: 10px;
+}
+
+.data{
+  font-weight: bold;
+  text-align: center;
+}
+
+.data-heading{
+  background-color: rgb(252, 233, 241);
+}
+
+#contentToConvert{
+  font-weight:bold;
+  font-size: 11px;
+}
+

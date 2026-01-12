@@ -1,0 +1,22 @@
+nz-tabset{
+    height: 100%;
+    overflow-y: hidden;
+    /* padding: 20px; */
+    
+}
+nz-tab{
+    height: 100%;
+    overflow-y: hidden;
+    /* padding: 20px; */
+    
+}
+nz-footer{
+    height:10%;
+    background-color: #e9e6e600;
+    padding: 0px !important;
+    text-align:right;
+}
+button{
+    margin: 10px;
+}
+
