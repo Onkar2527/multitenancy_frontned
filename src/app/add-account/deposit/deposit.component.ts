@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { Subject, lastValueFrom } from 'rxjs';
 import { TermDeposite } from 'src/app/models/term-deposite';
@@ -10,14 +10,17 @@ import { ApiService } from 'src/app/service/api.service';
   styleUrls: ['./deposit.component.css'],
 })
 export class DepositComponent implements OnInit {
-  APPLICANT_ID!: number;
+  @Input() APPLICANT_ID!: number;
   depositInfo: TermDeposite = new TermDeposite();
   constructor(
     private api: ApiService,
     private message: NzNotificationService
-  ) {}
+  ) { }
   ngOnInit(): void {
     this.getMasters();
+    if (this.APPLICANT_ID) {
+      this.getDepositInfo();
+    }
   }
 
   mendetory_all = [
@@ -92,30 +95,30 @@ export class DepositComponent implements OnInit {
   // }
 
   async getMasters() {
-  for (let i = 0; i < this.MASTERS.length; i++) {
-    try {
-      const result = await lastValueFrom(
-        this.api.getMasters(this.MASTERS[i].id)
-      );
+    for (let i = 0; i < this.MASTERS.length; i++) {
+      try {
+        const result = await lastValueFrom(
+          this.api.getMasters(this.MASTERS[i].id)
+        );
 
-      if (result?.code === 200 && result?.data?.length > 0) {
-        this.MASTERS[i].data = result.data;
-      } else {
-        this.MASTERS[i].data = []; // safe default
+        if (result?.code === 200 && result?.data?.length > 0) {
+          this.MASTERS[i].data = result.data;
+        } else {
+          this.MASTERS[i].data = []; // safe default
+        }
+
+      } catch (error) {
+        console.error(
+          `Error loading master ID ${this.MASTERS[i].id}`,
+          error
+        );
+        this.MASTERS[i].data = []; // important: UI break होऊ नये
       }
-
-    } catch (error) {
-      console.error(
-        `Error loading master ID ${this.MASTERS[i].id}`,
-        error
-      );
-      this.MASTERS[i].data = []; // important: UI break होऊ नये
     }
-  }
 
-  this.changeScheme(); // 🔥 existing flow untouched
-  console.log('MASTERS', this.MASTERS);
-}
+    this.changeScheme(); // 🔥 existing flow untouched
+    console.log('MASTERS', this.MASTERS);
+  }
 
 
   schemes: any = [];
@@ -267,161 +270,161 @@ export class DepositComponent implements OnInit {
 
 
   save() {
-  let deposit: Subject<any> = new Subject();
-  let isOk = true;
+    let deposit: Subject<any> = new Subject();
+    let isOk = true;
 
-  // ✅ IMPORTANT: set APPLICANT_ID (JWT + Bank DB flow)
-  this.depositInfo.APPLICANT_ID = this.APPLICANT_ID;
+    // ✅ IMPORTANT: set APPLICANT_ID (JWT + Bank DB flow)
+    this.depositInfo.APPLICANT_ID = this.APPLICANT_ID;
 
-  /* ---------------- VALIDATIONS ---------------- */
+    /* ---------------- VALIDATIONS ---------------- */
 
-  for (let field of this.mendetory_all) {
-    if (!this.depositInfo[field.field as keyof TermDeposite]) {
-      this.message.error(`${field.message} is Mandatory`, '');
-      isOk = false;
-    }
-  }
-
-  if (this.depositInfo.ACCOUNT_TYPE === 'A') {
-    for (let field of this.mendetory_saving) {
+    for (let field of this.mendetory_all) {
       if (!this.depositInfo[field.field as keyof TermDeposite]) {
         this.message.error(`${field.message} is Mandatory`, '');
         isOk = false;
       }
     }
-  }
 
-  if (this.depositInfo.MODE_OF_PAYMENT === 'T') {
-    for (let field of this.mendetory_saving_cheque) {
-      if (!this.depositInfo[field.field as keyof TermDeposite]) {
-        this.message.error(`${field.message} is Mandatory`, '');
-        isOk = false;
+    if (this.depositInfo.ACCOUNT_TYPE === 'A') {
+      for (let field of this.mendetory_saving) {
+        if (!this.depositInfo[field.field as keyof TermDeposite]) {
+          this.message.error(`${field.message} is Mandatory`, '');
+          isOk = false;
+        }
       }
     }
-  }
 
-  if (this.catagoryB) {
-    for (let field of this.mendetory_non_saving) {
-      if (!this.depositInfo[field.field as keyof TermDeposite]) {
-        this.message.error(`${field.message} is Mandatory`, '');
-        isOk = false;
+    if (this.depositInfo.MODE_OF_PAYMENT === 'T') {
+      for (let field of this.mendetory_saving_cheque) {
+        if (!this.depositInfo[field.field as keyof TermDeposite]) {
+          this.message.error(`${field.message} is Mandatory`, '');
+          isOk = false;
+        }
       }
     }
-  }
 
-  if (this.depositInfo.ACCOUNT_TYPE === 'F') {
-    this.depositInfo.AUTO_RENEWAL = false;
-  }
-
-  /* ---------------- API CALL ---------------- */
-
-  if (isOk) {
-
-    // 🔁 UPDATE
-    if (this.depositInfo.ID) {
-      this.api.updateDeposite(this.depositInfo).subscribe({
-        next: (res) => {
-          if (res.code === 200) {
-            this.getDepositInfo();
-            this.message.success(
-              'Deposit Information updated successfully!',
-              ''
-            );
-            deposit.next(res);
-          } else {
-            this.message.error('Failed to update Deposit info', '');
-            deposit.next(res);
-          }
-        },
-        error: (err) => {
-          this.message.error('Internal Server Error!', err);
-          deposit.error(err);
-        },
-        complete: () => {
-          console.info('Update Deposit Request Completed!');
-          deposit.complete();
-        },
-      });
-    }
-
-    // ➕ CREATE
-    else {
-      this.api.addDeposite(this.depositInfo).subscribe({
-        next: (res) => {
-          // if (res.code === 200) {
-          //   this.getDepositInfo();
-          //   this.message.success(
-          //     'Deposit Information added successfully!',
-          //     ''
-          //   );
-          //   deposit.next(res);
-          // } else {
-          //   this.message.error('Failed to add Deposit info', '');
-          //   deposit.next(res);
-          // }
-
-
-          if (res.code === 200) {
-
-  // 🔥 Backend कडून आलेला ID set कर
-  if (res.data && res.data.ID) {
-    this.depositInfo.ID = res.data.ID;
-  }
-
-  this.getDepositInfo();
-
-  this.message.success(
-    'Deposit Information added successfully!',
-    ''
-  );
-
-  deposit.next(res);
-
-} else {
-  this.message.error('Failed to add Deposit info', '');
-  deposit.next(res);
-}
-
-
-        },
-        error: (err) => {
-          this.message.error('Internal Server Error!', err);
-          deposit.error(err);
-        },
-        complete: () => {
-          console.info('Add Deposit Request Completed!');
-          deposit.complete();
-        },
-      });
-    }
-
-  } else {
-    deposit.error('All mandatory fields are not filled');
-  }
-
-  return deposit;
-}
-
-/* ---------------- GET DEPOSIT ---------------- */
-
-getDepositInfo() {
-  if (!this.APPLICANT_ID) return;
-
-  this.api.getDeposite(this.APPLICANT_ID).subscribe({
-    next: (res) => {
-      if (res.code === 200 && res.data.length > 0) {
-        // this.depositInfo = res.data[0];
-        this.depositInfo = {
-          ...this.depositInfo,
-          ...res.data[0]
-        };
-        this.changeCatagory();
+    if (this.catagoryB) {
+      for (let field of this.mendetory_non_saving) {
+        if (!this.depositInfo[field.field as keyof TermDeposite]) {
+          this.message.error(`${field.message} is Mandatory`, '');
+          isOk = false;
+        }
       }
-    },
-    error: () => {},
-    complete: () => {},
-  });
-}
+    }
+
+    if (this.depositInfo.ACCOUNT_TYPE === 'F') {
+      this.depositInfo.AUTO_RENEWAL = false;
+    }
+
+    /* ---------------- API CALL ---------------- */
+
+    if (isOk) {
+
+      // 🔁 UPDATE
+      if (this.depositInfo.ID) {
+        this.api.updateDeposite(this.depositInfo).subscribe({
+          next: (res) => {
+            if (res.code === 200) {
+              this.getDepositInfo();
+              this.message.success(
+                'Deposit Information updated successfully!',
+                ''
+              );
+              deposit.next(res);
+            } else {
+              this.message.error('Failed to update Deposit info', '');
+              deposit.next(res);
+            }
+          },
+          error: (err) => {
+            this.message.error('Internal Server Error!', err);
+            deposit.error(err);
+          },
+          complete: () => {
+            console.info('Update Deposit Request Completed!');
+            deposit.complete();
+          },
+        });
+      }
+
+      // ➕ CREATE
+      else {
+        this.api.addDeposite(this.depositInfo).subscribe({
+          next: (res) => {
+            // if (res.code === 200) {
+            //   this.getDepositInfo();
+            //   this.message.success(
+            //     'Deposit Information added successfully!',
+            //     ''
+            //   );
+            //   deposit.next(res);
+            // } else {
+            //   this.message.error('Failed to add Deposit info', '');
+            //   deposit.next(res);
+            // }
+
+
+            if (res.code === 200) {
+
+              // 🔥 Backend कडून आलेला ID set कर
+              if (res.data && res.data.ID) {
+                this.depositInfo.ID = res.data.ID;
+              }
+
+              this.getDepositInfo();
+
+              this.message.success(
+                'Deposit Information added successfully!',
+                ''
+              );
+
+              deposit.next(res);
+
+            } else {
+              this.message.error('Failed to add Deposit info', '');
+              deposit.next(res);
+            }
+
+
+          },
+          error: (err) => {
+            this.message.error('Internal Server Error!', err);
+            deposit.error(err);
+          },
+          complete: () => {
+            console.info('Add Deposit Request Completed!');
+            deposit.complete();
+          },
+        });
+      }
+
+    } else {
+      deposit.error('All mandatory fields are not filled');
+    }
+
+    return deposit;
+  }
+
+  /* ---------------- GET DEPOSIT ---------------- */
+
+  getDepositInfo() {
+    if (!this.APPLICANT_ID) return;
+
+    this.api.getDeposite(this.APPLICANT_ID).subscribe({
+      next: (res) => {
+        if (res.code === 200 && res.data.length > 0) {
+          // this.depositInfo = res.data[0];
+          this.depositInfo = {
+            ...this.depositInfo,
+            ...res.data[0]
+          };
+          this.changeCatagory();
+        }
+      },
+      error: () => { },
+      complete: () => { },
+    });
+  }
 
 
 }

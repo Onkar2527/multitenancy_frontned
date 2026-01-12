@@ -73,11 +73,11 @@ export class AddAccountComponent implements OnInit, OnDestroy {
 
   // }
   ngOnInit(): void {
-  if (this.BasicInfo?.ID) {
-    this.APPLICANT_ID = this.BasicInfo.ID;
-    this.getTabs(this.BasicInfo.ID);
+    if (this.BasicInfo?.ID) {
+      this.APPLICANT_ID = this.BasicInfo.ID;
+      this.getTabs(this.BasicInfo.ID);
+    }
   }
-}
 
   ngOnDestroy() {
 
@@ -256,18 +256,18 @@ export class AddAccountComponent implements OnInit, OnDestroy {
   // }
 
   getTabs(applicant_id: number) {
-  this.api.getTabs(applicant_id).subscribe({
-    next: (res) => {
-      if (res.code === 200 && res.data) {
-        this.Tabs = res.data;
-        this.reset();
+    this.api.getTabs(applicant_id).subscribe({
+      next: (res) => {
+        if (res.code === 200 && res.data) {
+          this.Tabs = res.data;
+          this.reset();
+        }
+      },
+      error: () => {
+        this.message.error('Failed to load tabs', '');
       }
-    },
-    error: () => {
-      this.message.error('Failed to load tabs', '');
-    }
-  });
-}
+    });
+  }
 
 
 
@@ -292,29 +292,29 @@ export class AddAccountComponent implements OnInit, OnDestroy {
   // }
 
   updateTabsProvided(index: number) {
-  this.Tabs[index].IS_PROVIDED = true;
+    this.Tabs[index].IS_PROVIDED = true;
 
-  // 🔐 send only required fields
-  const payload = {
-    ID: this.Tabs[index].ID,
-    IS_PROVIDED: true
-  };
+    // 🔐 send only required fields
+    const payload = {
+      ID: this.Tabs[index].ID,
+      IS_PROVIDED: true
+    };
 
-  this.api.updateTab(payload).subscribe({
-    next: (res) => {
-      if (res.code === 200) {
-        this.selectedIndex = index + 1;
-        this.changeIndex();
-      } else {
+    this.api.updateTab(payload).subscribe({
+      next: (res) => {
+        if (res.code === 200) {
+          this.selectedIndex = index + 1;
+          this.changeIndex();
+        } else {
+          this.Tabs[index].IS_PROVIDED = false;
+        }
+      },
+      error: () => {
         this.Tabs[index].IS_PROVIDED = false;
       }
-    },
-    error: () => {
-      this.Tabs[index].IS_PROVIDED = false;
-    }
-  });
-  this.moveNextTab();
-}
+    });
+    this.moveNextTab();
+  }
 
 
   nextTab_noaction(index: number) {
@@ -488,90 +488,66 @@ export class AddAccountComponent implements OnInit, OnDestroy {
   // }
 
   moveNextTab() {
-  const idx = this.selectedIndex;
-
-  if (idx === 0) {
-    this.depositeComp.APPLICANT_ID = this.BasicInfo.ID;
-    this.depositeComp.getDepositInfo();
-  } 
-  else if (idx === 1) {
-    this.nomineeComp.APPLICANT_ID = this.BasicInfo.ID;
-    this.nomineeComp.getNominationInfo();
+    this.Tabs[this.selectedIndex].disabled = true;
+    this.Tabs[this.selectedIndex + 1].disabled = false;
+    this.selectedIndex++;
+    this.changeIndex();
   }
-  else if (idx === 2) {
-    this.serviceComp.APPLICANT_ID = this.BasicInfo.ID;
-    this.serviceComp.getServiceInfo();
-  }
-  else if (idx === 3) {
-    this.applicantDetail.APPLICANT_ID = this.BasicInfo.ID;
-    this.applicantDetail.getAllApplicant();
-  }
-  else if (idx === 4) {
-    this.remarkComp.APPLICAT_ID = this.BasicInfo.ID;
-    this.remarkComp.show_remark = true;
-    this.remarkComp.getRemarkData();
-  }
-
-  this.Tabs[idx].disabled = true;
-  this.Tabs[idx + 1].disabled = false;
-  this.selectedIndex++;
-  this.changeIndex();
-}
 
 
   sendToRefill(index: number, remark: string, user: string) {
 
-  const payload: Partial<ExtraInfo> = {
-    ID: this.Tabs[index].ID,
-    SEND_TO_REFILL: true,
-    SEND_TO_REFILL_COUNT: this.Tabs[index].SEND_TO_REFILL_COUNT + 1,
-    REFILL_BY: Number(sessionStorage.getItem('ROLE_ID')),
-  };
+    const payload: Partial<ExtraInfo> = {
+      ID: this.Tabs[index].ID,
+      SEND_TO_REFILL: true,
+      SEND_TO_REFILL_COUNT: this.Tabs[index].SEND_TO_REFILL_COUNT + 1,
+      REFILL_BY: Number(sessionStorage.getItem('ROLE_ID')),
+    };
 
-  if (user === 'C') {
-    payload.IS_CHECKED = false;
-    payload.CHECKER_REMARK = remark;
-  }
-
-  if (user === 'V') {
-    payload.IS_VERIFIED = false;
-    payload.VERIFIER_REMARK = remark;
-  }
-
-  this.api.updateTab(payload).subscribe({
-    next: (res) => {
-      if (res.code === 200) {
-        this.moveNextTab();
-      }
+    if (user === 'C') {
+      payload.IS_CHECKED = false;
+      payload.CHECKER_REMARK = remark;
     }
-  });
-}
 
-Accept(index: number, user: string) {
-
-  const payload: Partial<ExtraInfo> = {
-    ID: this.Tabs[index].ID,
-    SEND_TO_REFILL: false
-  };
-
-  if (user === 'C') {
-    payload.IS_CHECKED = true;
-    payload.CHECKER_REMARK = '';
-  }
-
-  if (user === 'V') {
-    payload.IS_VERIFIED = true;
-    payload.VERIFIER_REMARK = '';
-  }
-
-  this.api.updateTab(payload).subscribe({
-    next: (res) => {
-      if (res.code === 200) {
-        this.moveNextTab();
-      }
+    if (user === 'V') {
+      payload.IS_VERIFIED = false;
+      payload.VERIFIER_REMARK = remark;
     }
-  });
-}
+
+    this.api.updateTab(payload).subscribe({
+      next: (res) => {
+        if (res.code === 200) {
+          this.moveNextTab();
+        }
+      }
+    });
+  }
+
+  Accept(index: number, user: string) {
+
+    const payload: Partial<ExtraInfo> = {
+      ID: this.Tabs[index].ID,
+      SEND_TO_REFILL: false
+    };
+
+    if (user === 'C') {
+      payload.IS_CHECKED = true;
+      payload.CHECKER_REMARK = '';
+    }
+
+    if (user === 'V') {
+      payload.IS_VERIFIED = true;
+      payload.VERIFIER_REMARK = '';
+    }
+
+    this.api.updateTab(payload).subscribe({
+      next: (res) => {
+        if (res.code === 200) {
+          this.moveNextTab();
+        }
+      }
+    });
+  }
 
 
 
@@ -695,113 +671,92 @@ Accept(index: number, user: string) {
   // }
 
 
-  saveANext() {
+  async saveANext() {
+    this.loadSaveButton = true;
 
-  // TAB 0 → PERSONAL
-  // if (this.selectedIndex === 0) {
-
-  //   this.personalComp.save().subscribe({
-  //     next: (res) => {
-  //       this.APPLICANT_ID = res.APPLICANT_ID || this.APPLICANT_ID;
-
-  //       this.depositeComp.APPLICANT_ID = this.APPLICANT_ID;
-  //       this.depositeComp.getDepositInfo();
-
-  //       this.Tabs[0].IS_PROVIDED = true;
-  //       this.Tabs[1].disabled = false;
-
-  //       this.selectedIndex = 1;
-  //       this.changeIndex();
-  //     },
-  //     error: () => {
-  //       this.message.error('Personal save failed', '');
-  //     }
-  //   });
-
-  // }
-  console.log('🔥 saveANext CALLED, index =', this.selectedIndex);
-
-  if (this.selectedIndex === 0) {
-    if (!this.personalComp) {
-      console.error('❌ personalComp undefined');
-      return;
+    // TAB 0 → PERSONAL
+    if (this.selectedIndex === 0) {
+      this.personalComp.save().subscribe({
+        next: (res) => {
+          if (res.code === 200) {
+            if (res.APPLICANT_ID) this.APPLICANT_ID = res.APPLICANT_ID;
+            this.updateTabsProvided(0);
+          }
+          this.loadSaveButton = false;
+        },
+        error: () => {
+          this.loadSaveButton = false;
+        }
+      });
     }
 
-    this.personalComp.save().subscribe({
-      next: (res) => {
-        if (res.code === 200) {
-          this.selectedIndex++;
+    // TAB 1 → DEPOSIT
+    else if (this.selectedIndex === 1) {
+      this.depositeComp.save().subscribe({
+        next: (res) => {
+          if (res.code === 200) {
+            this.updateTabsProvided(1);
+          }
+          this.loadSaveButton = false;
+        },
+        error: () => {
+          this.loadSaveButton = false;
         }
+      });
+    }
+
+    // TAB 2 → NOMINEE
+    else if (this.selectedIndex === 2) {
+      this.nomineeComp.save().subscribe({
+        next: (res) => {
+          if (res.code === 200) {
+            this.updateTabsProvided(2);
+          }
+          this.loadSaveButton = false;
+        },
+        error: () => {
+          this.loadSaveButton = false;
+        }
+      });
+    }
+
+    // TAB 3 → SERVICES
+    else if (this.selectedIndex === 3) {
+      this.serviceComp.save().subscribe({
+        next: (res) => {
+          if (res.code === 200) {
+            this.updateTabsProvided(3);
+          }
+          this.loadSaveButton = false;
+        },
+        error: () => {
+          this.loadSaveButton = false;
+        }
+      });
+    }
+
+    // TAB 4 → APPLICANT DETAILS (FINAL AUDIT)
+    else if (this.selectedIndex === 4) {
+      try {
+        const res = await lastValueFrom(this.api.getProperty(this.APPLICANT_ID, 1));
+        if (res['data'] && res['data'].length > 0) {
+          this.updateTabsProvided(4);
+        } else {
+          this.message.error("Incomplete Profile", "Please ensure Personal, Financial and Property details are filled.");
+        }
+      } catch (err) {
+        this.message.error("Error", "Failed to verify applicant details completion.");
+      } finally {
+        this.loadSaveButton = false;
       }
-    });
+    }
 
-    return;
+    // TAB 5 → FINAL REMARK & COMPLETE
+    else if (this.selectedIndex === 5) {
+      this.saveAsComplete();
+      this.loadSaveButton = false;
+    }
   }
-
-  // TAB 1 → DEPOSIT
-  else if (this.selectedIndex === 1) {
-
-    this.depositeComp.save().subscribe({
-      next: () => {
-        this.nomineeComp.APPLICANT_ID = this.APPLICANT_ID;
-        this.nomineeComp.getNominationInfo();
-
-        this.Tabs[1].IS_PROVIDED = true;
-        this.Tabs[2].disabled = false;
-
-        this.selectedIndex = 2;
-        this.changeIndex();
-      },
-      error: () => {
-        this.message.error('Deposit save failed', '');
-      }
-    });
-
-  }
-
-  // TAB 2 → NOMINEE
-  else if (this.selectedIndex === 2) {
-
-    this.nomineeComp.save().subscribe({
-      next: () => {
-        this.serviceComp.APPLICANT_ID = this.APPLICANT_ID;
-        this.serviceComp.getServiceInfo();
-
-        this.Tabs[2].IS_PROVIDED = true;
-        this.Tabs[3].disabled = false;
-
-        this.selectedIndex = 3;
-        this.changeIndex();
-      },
-      error: () => {
-        this.message.error('Nominee save failed', '');
-      }
-    });
-
-  }
-
-  // TAB 3 → SERVICES
-  else if (this.selectedIndex === 3) {
-
-    this.serviceComp.save().subscribe({
-      next: () => {
-        this.applicantDetail.APPLICANT_ID = this.APPLICANT_ID;
-        this.applicantDetail.getAllApplicant();
-
-        this.Tabs[3].IS_PROVIDED = true;
-        this.Tabs[4].disabled = false;
-
-        this.selectedIndex = 4;
-        this.changeIndex();
-      },
-      error: () => {
-        this.message.error('Service save failed', '');
-      }
-    });
-
-  }
-
-}
 
 
   previous() {
@@ -1011,58 +966,37 @@ Accept(index: number, user: string) {
     this.loadSaveButton = true;
 
     if (this.selectedIndex == 0) {
-      this.APPLICANT_ID = this.BasicInfo.ID;
-      this.depositeComp.APPLICANT_ID = this.APPLICANT_ID;
-      this.depositeComp.getDepositInfo();
       this.Tabs[0].disabled = true;
       this.Tabs[1].disabled = false;
       this.nextTab_noaction(this.selectedIndex);
       this.loadSaveButton = false;
-
     }
     else if (this.selectedIndex == 1) {
-      this.depositeComp.depositInfo.APPLICANT_ID = this.APPLICANT_ID;
-      this.nomineeComp.APPLICANT_ID = this.APPLICANT_ID;
-      this.nomineeComp.getNominationInfo();
       this.Tabs[1].disabled = true;
       this.Tabs[2].disabled = false;
       this.nextTab_noaction(this.selectedIndex);
       this.loadSaveButton = false;
-
     }
     else if (this.selectedIndex == 2) {
-      this.nomineeComp.nomineeInfo.APPLICANT_ID = this.APPLICANT_ID;
-      this.serviceComp.APPLICANT_ID = this.APPLICANT_ID;
-      this.serviceComp.getServiceInfo();
       this.Tabs[2].disabled = true;
       this.Tabs[3].disabled = false;
       this.nextTab_noaction(this.selectedIndex);
       this.loadSaveButton = false;
-
     }
-
     else if (this.selectedIndex == 3) {
-
-      this.serviceComp.serviceInfo.APPLICANT_ID = this.APPLICANT_ID;
       this.Tabs[3].disabled = true;
       this.Tabs[4].disabled = false;
-      this.applicantDetail.APPLICANT_ID = this.APPLICANT_ID;
-      this.applicantDetail.getAllApplicant();
       this.applicantDetail.basicInfo = this.BasicInfo;
       this.nextTab_noaction(this.selectedIndex);
       this.loadSaveButton = false;
-
     }
     else if (this.selectedIndex == 4) {
       this.Tabs[4].disabled = true;
       this.Tabs[5].disabled = false;
       this.remarkComp.Tabs = this.Tabs.filter(value => value.INDEX != 5);
-      this.remarkComp.APPLICAT_ID = this.APPLICANT_ID;
       this.remarkComp.show_remark = false;
-      this.remarkComp.getRemarkData();
       this.nextTab_noaction(this.selectedIndex);
       this.loadSaveButton = false;
-
     }
 
     else if (this.selectedIndex == 5) {

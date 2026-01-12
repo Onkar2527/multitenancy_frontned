@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { Subject } from 'rxjs';
 import { Facilities } from 'src/app/models/facilities';
@@ -12,8 +12,9 @@ import { ApiService } from 'src/app/service/api.service';
 export class ServicesComponent implements OnInit {
   serviceInfo: Facilities = new Facilities();
 
-  APPLICANT_ID!: number
+  @Input() APPLICANT_ID!: number;
   AccountType: string = 'S';
+
   //checkOptionsOne is a temprary veriable (leter use much better alternative)
   checkOptionsOne: checkInterface[] = [
     { label: 'Cheque Book', checked: this.serviceInfo.CHEQUE_BOOK, value: 'CHEQUE_BOOK' },
@@ -26,59 +27,21 @@ export class ServicesComponent implements OnInit {
     { label: 'UPI', checked: this.serviceInfo.UPI, value: 'UPI' },
     { label: 'Mobile Banking', checked: this.serviceInfo.MOBILE_BANKING, value: 'MOBILE_BANKING' }
   ]
-  changeInOption() {
 
-    let count = 0;
-    console.log(this.checkOptionsOne);
-    for (let option of this.checkOptionsOne) {
-
-
-
-      this.serviceInfo[option.value] = option.checked;
-
-      if (option.checked) {
-        count++;
-      }
-      if (count == this.checkOptionsOne.length) {
-        this.indeterminate = false;
-        this.allChecked = true;
-      } else if (count == 0) {
-        this.allChecked = false;
-        this.indeterminate = false;
-      } else {
-        this.allChecked = false;
-        this.indeterminate = true;
-      }
-      if (!this.serviceInfo.ATM_CARD) {
-        this.checkOptionsOne[6]['checked'] = false;
-        this.serviceInfo.ADDON_CARD = false;
-
-      }
-
-    }
-  }
   indeterminate = false;
   allChecked = false;
-  updateAllChecked() {
-    if (this.allChecked) {
-      for (let option of this.checkOptionsOne) {
-        option.checked = true
-        this.changeInOption();
-      }
-    } else {
-      for (let option of this.checkOptionsOne) {
-        option.checked = false
-        this.changeInOption();
-      }
-    }
-  }
+
   constructor(private api: ApiService, private message: NzNotificationService) { }
 
   ngOnInit(): void {
+    if (this.APPLICANT_ID) {
+      this.getServiceInfo();
+    }
   }
 
   save() {
     let service: Subject<any> = new Subject();
+    this.serviceInfo.APPLICANT_ID = this.APPLICANT_ID;
 
     if (this.serviceInfo.ID) {
       this.api.updateService(this.serviceInfo).subscribe({
@@ -142,7 +105,7 @@ export class ServicesComponent implements OnInit {
       { label: 'Add on  Card', checked: this.serviceInfo.ADDON_CARD ? true : false, value: 'ADDON_CARD' },
       { label: 'UPI', checked: this.serviceInfo.UPI ? true : false, value: 'UPI' },
       { label: 'Mobile Banking', checked: this.serviceInfo.MOBILE_BANKING ? true : false, value: 'MOBILE_BANKING' },
-   
+
     ]
   }
 
@@ -154,17 +117,46 @@ export class ServicesComponent implements OnInit {
           this.updateChacked();
           this.changeInOption();
         }
-        else {
-
-        }
-      },
-      error: (err) => {
-
-      },
-      complete: () => {
-
       }
     });
+  }
+
+  updateAllChecked(): void {
+    this.indeterminate = false;
+    if (this.allChecked) {
+      this.checkOptionsOne = this.checkOptionsOne.map(item => ({
+        ...item,
+        checked: true
+      }));
+    } else {
+      this.checkOptionsOne = this.checkOptionsOne.map(item => ({
+        ...item,
+        checked: false
+      }));
+    }
+    this.changeInOption();
+  }
+
+  changeInOption() {
+    this.serviceInfo.CHEQUE_BOOK = this.checkOptionsOne[0].checked;
+    this.serviceInfo.PASS_BOOK = this.checkOptionsOne[1].checked;
+    this.serviceInfo.STATEMENT_BY_EMAIL = this.checkOptionsOne[2].checked;
+    this.serviceInfo.SMS_ALERT = this.checkOptionsOne[3].checked;
+    this.serviceInfo.ATM_CARD = this.checkOptionsOne[4].checked;
+    this.serviceInfo.CONSENT_NEW_PRODUCT = this.checkOptionsOne[5].checked;
+    this.serviceInfo.ADDON_CARD = this.checkOptionsOne[6].checked;
+    this.serviceInfo.UPI = this.checkOptionsOne[7].checked;
+    this.serviceInfo.MOBILE_BANKING = this.checkOptionsOne[8].checked;
+
+    if (this.checkOptionsOne.every(item => !item.checked)) {
+      this.allChecked = false;
+      this.indeterminate = false;
+    } else if (this.checkOptionsOne.every(item => item.checked)) {
+      this.allChecked = true;
+      this.indeterminate = false;
+    } else {
+      this.indeterminate = true;
+    }
   }
 
 }

@@ -27,7 +27,7 @@ export class ApplicantDetailsComponent implements OnInit {
   @Input() dataList: any[] = [];
 
 
-  APPLICANT_ID?: number;
+  @Input() APPLICANT_ID!: number;
   ApplicantData: PersonalInfo[] = new Array<PersonalInfo>;
   drawerReferance: any
   saveButtonLoading: boolean = false;
@@ -40,7 +40,9 @@ export class ApplicantDetailsComponent implements OnInit {
   constructor(private api: ApiService, private message: NzNotificationService, private drawerService: NzDrawerService) { }
 
   ngOnInit(): void {
-
+    if (this.APPLICANT_ID) {
+      this.getAllApplicant();
+    }
   }
 
   convertToNumber() {

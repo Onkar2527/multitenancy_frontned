@@ -138,18 +138,18 @@ export class ProposalComponent implements OnInit {
 
 
   getTabs(applicant_id: number) {
-  this.api.getTabs(applicant_id).subscribe({
-    next: (res) => {
-      if (res.code === 200 && res.data) {
-        this.Tabs = res.data;
-        console.log('tabs = ', this.Tabs);
+    this.api.getTabs(applicant_id).subscribe({
+      next: (res) => {
+        if (res.code === 200 && res.data) {
+          this.Tabs = res.data;
+          console.log('tabs = ', this.Tabs);
+        }
+      },
+      error: () => {
+        console.error('Failed to load tabs');
       }
-    },
-    error: () => {
-      console.error('Failed to load tabs');
-    }
-  });
-}
+    });
+  }
 
 
 
@@ -194,10 +194,10 @@ export class ProposalComponent implements OnInit {
       this.footer = this.TabFooterTemplate;
     }
 
-     if (role_id == 1 && data.TRACK_ID != 1) {
+    if (role_id == 1 && data.TRACK_ID != 1) {
       this.header = this.tabHeaderMakerTamplete;
       this.footer = this.TabFooterTemplate;
-      
+
     }
 
     else if (role_id == 2 && data.TRACK_ID != 2) {
@@ -373,88 +373,88 @@ export class ProposalComponent implements OnInit {
   // }
 
 
-//   getDrafts() {
-//   this.TableLoading = true;
+  //   getDrafts() {
+  //   this.TableLoading = true;
 
-//   if (this.dateRange.length > 0) {
-//     this.cpcFilter.START_DATE = this.dateRange[0].toISOString().split('T')[0];
-//     this.cpcFilter.END_DATE = this.dateRange[1].toISOString().split('T')[0];
-//   } else {
-//     this.cpcFilter.START_DATE = '';
-//     this.cpcFilter.END_DATE = '';
-//   }
+  //   if (this.dateRange.length > 0) {
+  //     this.cpcFilter.START_DATE = this.dateRange[0].toISOString().split('T')[0];
+  //     this.cpcFilter.END_DATE = this.dateRange[1].toISOString().split('T')[0];
+  //   } else {
+  //     this.cpcFilter.START_DATE = '';
+  //     this.cpcFilter.END_DATE = '';
+  //   }
 
-//   this.api.getDraft(this.pageSize, this.pageIndex, this.cpcFilter).subscribe({
-//     next: (res) => {
-//       if (res.code === 200) {
-//         this.DraftsData = res.data;
-//         this.dataCount = res.count;
-//       }
-//       this.TableLoading = false;
-//     },
-//     error: () => {
-//       this.TableLoading = false;
-//     }
-//   });
-// }
-
-
-
-// getDrafts() {
-//   this.TableLoading = true;
-
-//   if (this.dateRange.length > 0) {
-//     this.cpcFilter.START_DATE = this.dateRange[0].toISOString().split('T')[0];
-//     this.cpcFilter.END_DATE = this.dateRange[1].toISOString().split('T')[0];
-//   } else {
-//     this.cpcFilter.START_DATE = '';
-//     this.cpcFilter.END_DATE = '';
-//   }
-
-//   this.api
-//     .getDraft(this.pageSize, this.pageIndex, this.cpcFilter)
-//     .subscribe({
-//       next: (res) => {
-//         if (res.code === 200) {
-//           this.DraftsData = res.data;
-//           this.dataCount = res.count;
-//         }
-//         this.TableLoading = false;
-//       },
-//       error: () => {
-//         this.TableLoading = false;
-//       }
-//     });
-// }
+  //   this.api.getDraft(this.pageSize, this.pageIndex, this.cpcFilter).subscribe({
+  //     next: (res) => {
+  //       if (res.code === 200) {
+  //         this.DraftsData = res.data;
+  //         this.dataCount = res.count;
+  //       }
+  //       this.TableLoading = false;
+  //     },
+  //     error: () => {
+  //       this.TableLoading = false;
+  //     }
+  //   });
+  // }
 
 
-getDrafts() {
-  this.TableLoading = true;
 
-  if (this.dateRange.length > 0) {
-    this.cpcFilter.START_DATE = this.dateRange[0].toISOString().split('T')[0];
-    this.cpcFilter.END_DATE = this.dateRange[1].toISOString().split('T')[0];
-  } else {
-    this.cpcFilter.START_DATE = '';
-    this.cpcFilter.END_DATE = '';
-  }
+  // getDrafts() {
+  //   this.TableLoading = true;
 
-  this.api
-    .getDraft(this.pageSize, this.pageIndex, this.cpcFilter)
-    .subscribe({
-      next: (res :any) => {
-        if (res.code === 200) {
-          this.DraftsData = res.data;
-          this.dataCount = res.count;
+  //   if (this.dateRange.length > 0) {
+  //     this.cpcFilter.START_DATE = this.dateRange[0].toISOString().split('T')[0];
+  //     this.cpcFilter.END_DATE = this.dateRange[1].toISOString().split('T')[0];
+  //   } else {
+  //     this.cpcFilter.START_DATE = '';
+  //     this.cpcFilter.END_DATE = '';
+  //   }
+
+  //   this.api
+  //     .getDraft(this.pageSize, this.pageIndex, this.cpcFilter)
+  //     .subscribe({
+  //       next: (res) => {
+  //         if (res.code === 200) {
+  //           this.DraftsData = res.data;
+  //           this.dataCount = res.count;
+  //         }
+  //         this.TableLoading = false;
+  //       },
+  //       error: () => {
+  //         this.TableLoading = false;
+  //       }
+  //     });
+  // }
+
+
+  getDrafts() {
+    this.TableLoading = true;
+
+    if (this.dateRange.length > 0) {
+      this.cpcFilter.START_DATE = this.dateRange[0].toISOString().split('T')[0];
+      this.cpcFilter.END_DATE = this.dateRange[1].toISOString().split('T')[0];
+    } else {
+      this.cpcFilter.START_DATE = '';
+      this.cpcFilter.END_DATE = '';
+    }
+
+    this.api
+      .getDraft(this.pageSize, this.pageIndex, this.cpcFilter)
+      .subscribe({
+        next: (res: any) => {
+          if (res.code === 200) {
+            this.DraftsData = res.data;
+            this.dataCount = res.count;
+          }
+          this.TableLoading = false;
+          this.getDepositeInfo()
+        },
+        error: () => {
+          this.TableLoading = false;
         }
-        this.TableLoading = false;
-        this.getDepositeInfo()
-      },
-      error: () => {
-        this.TableLoading = false;
-      }
-    });
-}
+      });
+  }
 
 
 
@@ -757,16 +757,19 @@ getDrafts() {
   }
 
   openDrawer(title: string, footer: any, content: any, close_back: any, extra?: any) {
-
-
-    let width = window.innerWidth;
+    let width: string | number = '100%';
+    if (window.innerWidth > 1095) {
+      width = 1095;
+    }
 
     const drawerRef = this.drawerService.create({
       nzTitle: title,
       nzFooter: footer,
       nzContent: content,
       nzWidth: width,
-      nzExtra: extra
+      nzExtra: extra,
+      nzPlacement: 'right',
+      nzMaskClosable: false
     });
     this.drawerReferance = drawerRef;
     drawerRef.afterClose.subscribe(() => {

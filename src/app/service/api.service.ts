@@ -79,7 +79,7 @@ export class ApiService implements HttpInterceptor {
     );
   }
 
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpClient: HttpClient) { }
 
   httpHeaders = new HttpHeaders();
   options = {
@@ -116,36 +116,42 @@ export class ApiService implements HttpInterceptor {
     Gtn+xtdDWM9Jw3Q1AgMBAAE=
     -----END PUBLIC KEY-----`;
 
-  httpHeaderMain = new HttpHeaders({
-    APIKEY: 'prasad',
-    SUPPORTKEY: 'hejUJJSK99gg',
-    TOKEN:
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7IlVTRVJfSUQiOjkwfSwiaWF0IjoxNjc2ODk1MzgzfQ.V80hoP9N4BRhC-hqrVtLz45hWTVWZrZR5FZD34YcLZE',
-  });
+  get optionMain() {
+    const token = sessionStorage.getItem('JWT_TOKEN');
+    let headers = new HttpHeaders({
+      APIKEY: 'prasad',
+      SUPPORTKEY: 'hejUJJSK99gg',
+    });
+    if (token) {
+      headers = headers.set('Authorization', 'Bearer ' + token);
+    }
+    return { headers };
+  }
 
   encryptWithPublicKey(valueToEncrypt: any): string {
     const rsa = Forge.pki.publicKeyFromPem(this.server_publickey);
     return window.btoa(rsa.encrypt(valueToEncrypt.toString()));
   }
 
-  optionMain = {
-    headers: this.httpHeaderMain,
-  };
+  //   optionMain1 = {
+  //   headers: new HttpHeaders({
+  //     'Content-Type': 'application/json',
+  //     'Authorization': 'Bearer ' + sessionStorage.getItem('JWT_TOKEN'),
+  //     'supportkey': 'hejUJJSK99gg'
+  //   })
+  // };
 
-//   optionMain1 = {
-//   headers: new HttpHeaders({
-//     'Content-Type': 'application/json',
-//     'Authorization': 'Bearer ' + localStorage.getItem('JWT_TOKEN'),
-//     'supportkey': 'hejUJJSK99gg'
-//   })
-// };
-
-optionMain1 = {
-  headers: new HttpHeaders({
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + localStorage.getItem('JWT_TOKEN')
-  })
-};
+  get optionMain1() {
+    const token = sessionStorage.getItem('JWT_TOKEN');
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'supportkey': 'hejUJJSK99gg'
+    });
+    if (token) {
+      headers = headers.set('Authorization', 'Bearer ' + token);
+    }
+    return { headers };
+  }
 
 
   verifyPanUrl = 'https://kyc-api.aadhaarkyc.io/api/v1/pan/pan';
@@ -571,40 +577,40 @@ optionMain1 = {
   // }
 
 
-//   getDraft(pageSize: number, pageIndex: number, filter: any) {
-//   return this.httpClient.post<any>(
-//     this.baseUrl + 'basicDetails/getAll',
-//     {
-//       pageSize,
-//       pageIndex,
-//       filter
-//     },
-//     this.optionMain1 // contains Authorization Bearer token
-//   );
-// }
+  //   getDraft(pageSize: number, pageIndex: number, filter: any) {
+  //   return this.httpClient.post<any>(
+  //     this.baseUrl + 'basicDetails/getAll',
+  //     {
+  //       pageSize,
+  //       pageIndex,
+  //       filter
+  //     },
+  //     this.optionMain1 // contains Authorization Bearer token
+  //   );
+  // }
 
-getDraft(
-  pageSize: number,
-  pageIndex: number,
-  filter: any
-) {
-  const data = {
-    pageSize,
-    pageIndex,
-    filter
-  };
+  getDraft(
+    pageSize: number,
+    pageIndex: number,
+    filter: any
+  ) {
+    const data = {
+      pageSize,
+      pageIndex,
+      filter
+    };
 
-  return this.httpClient.post(
-    this.baseUrl + 'basicDetails/getAll',
-    data,
-    this.optionMain1
-  );
-}
-
-
+    return this.httpClient.post(
+      this.baseUrl + 'basicDetails/getAll',
+      data,
+      this.optionMain1
+    );
+  }
 
 
-  
+
+
+
   // aadhaar
 
   // GetAllAadhaarData(): Observable<any> {
@@ -718,17 +724,17 @@ getDraft(
   // }
 
   getSideMenu() {
-  return this.httpClient.post<any>(
-    this.baseUrl + 'componunts/getComponunts',
-    {}, // 👈 body empty
-    {
-      headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('JWT_TOKEN'),
-        'Content-Type': 'application/json'
+    return this.httpClient.post<any>(
+      this.baseUrl + 'componunts/getComponunts',
+      {}, // 👈 body empty
+      {
+        headers: {
+          'Authorization': 'Bearer ' + sessionStorage.getItem('JWT_TOKEN'),
+          'Content-Type': 'application/json'
+        }
       }
-    }
-  );
-}
+    );
+  }
 
 
   getUser(arg: { role_id?: number; branch_id?: number; user_id?: number }) {
@@ -760,16 +766,16 @@ getDraft(
   // }
 
   getTabs(applicant_id: number) {
-  const data = {
-    APPLICANT_ID: applicant_id
-  };
+    const data = {
+      APPLICANT_ID: applicant_id
+    };
 
-  return this.httpClient.post<any>(
-    this.baseUrl + 'tabs/getTabs',
-    data,
-    this.optionMain1   // Authorization header with JWT
-  );
-}
+    return this.httpClient.post<any>(
+      this.baseUrl + 'tabs/getTabs',
+      data,
+      this.optionMain1   // Authorization header with JWT
+    );
+  }
 
 
   updateTab(data: Partial<ExtraInfo>) {
@@ -1074,30 +1080,30 @@ getDraft(
   }
 
   getUserBranch1() {
-  return this.httpClient.post<any>(
-    this.baseUrl + 'user/getUserBranch',
-    {},
-    {
-      headers: {
-        Authorization: 'Bearer ' + localStorage.getItem('JWT_TOKEN'),
-        'Content-Type': 'application/json'
+    return this.httpClient.post<any>(
+      this.baseUrl + 'user/getUserBranch',
+      {},
+      {
+        headers: {
+          Authorization: 'Bearer ' + sessionStorage.getItem('JWT_TOKEN'),
+          'Content-Type': 'application/json'
+        }
       }
-    }
-  );
-}
+    );
+  }
 
-getUserRole1() {
-  return this.httpClient.post<any>(
-    this.baseUrl + 'user/getUserRole',
-    {},
-    {
-      headers: {
-        Authorization: 'Bearer ' + localStorage.getItem('JWT_TOKEN'),
-        'Content-Type': 'application/json'
+  getUserRole1() {
+    return this.httpClient.post<any>(
+      this.baseUrl + 'user/getUserRole',
+      {},
+      {
+        headers: {
+          Authorization: 'Bearer ' + sessionStorage.getItem('JWT_TOKEN'),
+          'Content-Type': 'application/json'
+        }
       }
-    }
-  );
-}
+    );
+  }
 
 
 
@@ -1251,17 +1257,17 @@ getUserRole1() {
   // }
 
   getMasters(code: number, filter: string = '') {
-  const data = {
-    code: code,
-    filter: filter || ''
-  };
+    const data = {
+      code: code,
+      filter: filter || ''
+    };
 
-  return this.httpClient.post<any>(
-    this.baseUrl + 'list_api/getMasters',
-    data,
-    this.optionMain1
-  );
-}
+    return this.httpClient.post<any>(
+      this.baseUrl + 'list_api/getMasters',
+      data,
+      this.optionMain1
+    );
+  }
 
 
   searchCustomer(
@@ -1387,6 +1393,14 @@ getUserRole1() {
       this.baseUrl + 'user/resetPassword',
       data,
       this.optionMain
+    );
+  }
+
+  getBankDetails(): Observable<any> {
+    return this.httpClient.post<any>(
+      this.baseUrl + 'bank/get',
+      {},
+      this.optionMain1
     );
   }
 }

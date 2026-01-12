@@ -16,15 +16,15 @@
 
             <app-personal [basicInfo]="BasicInfo" [APPLICANT_ID]="APPLICANT_ID" *ngIf="tab.TAB_ID == 1"></app-personal>
 
-            <app-deposit *ngIf="tab.TAB_ID == 2"></app-deposit>
+            <app-deposit [APPLICANT_ID]="APPLICANT_ID" *ngIf="tab.TAB_ID == 2"></app-deposit>
 
-            <app-nomination *ngIf="tab.TAB_ID == 3"></app-nomination>
+            <app-nomination [APPLICANT_ID]="APPLICANT_ID" *ngIf="tab.TAB_ID == 3"></app-nomination>
 
-            <app-services *ngIf="tab.TAB_ID == 4"></app-services>
+            <app-services [APPLICANT_ID]="APPLICANT_ID" *ngIf="tab.TAB_ID == 4"></app-services>
 
-            <app-applicant-details *ngIf="tab.TAB_ID == 5"></app-applicant-details>
+            <app-applicant-details [APPLICANT_ID]="APPLICANT_ID" *ngIf="tab.TAB_ID == 5"></app-applicant-details>
 
-            <app-remark-comp *ngIf="tab.TAB_ID == 6"></app-remark-comp>
+            <app-remark-comp [APPLICANT_ID]="APPLICANT_ID" *ngIf="tab.TAB_ID == 6"></app-remark-comp>
 
             <!-- <app-verifier-verification *ngIf="tab.TAB_ID == 7"></app-verifier-verification> -->
 

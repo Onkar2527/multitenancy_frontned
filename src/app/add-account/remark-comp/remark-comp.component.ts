@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { ExtraInfo } from 'src/app/models/extra-info';
 import { RemarkModel } from 'src/app/models/remark-model';
@@ -11,7 +11,13 @@ import { ApiService } from 'src/app/service/api.service';
 })
 export class RemarkCompComponent implements OnInit {
 
-  APPLICAT_ID!: number;
+  @Input() APPLICANT_ID!: number;
+
+  ngOnInit(): void {
+    if (this.APPLICANT_ID) {
+      this.getRemarkData();
+    }
+  }
   TableLoading: boolean = false;
   remark_table_loading: boolean = false;
   Tabs: ExtraInfo[] = []
@@ -37,7 +43,7 @@ export class RemarkCompComponent implements OnInit {
   REMARK: string = '';
 
   getRemarkData() {
-    this.api.getAllRemark(this.APPLICAT_ID).subscribe({
+    this.api.getAllRemark(this.APPLICANT_ID).subscribe({
       next: (res) => {
         if (res['code'] == 200 && res['data'].length > 0) {
           this.REMARK_DATA = res['data'];
@@ -57,8 +63,5 @@ export class RemarkCompComponent implements OnInit {
   }
 
   constructor(private api: ApiService, private message: NzNotificationService) { }
-
-  ngOnInit(): void {
-  }
 
 }

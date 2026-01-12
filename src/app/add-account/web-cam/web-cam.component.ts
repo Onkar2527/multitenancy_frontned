@@ -94,7 +94,7 @@ export class WebCamComponent implements OnInit {
     const drawerRef = this.drawerService.create({
       nzTitle: "Webcam",
       nzContent: this.webCamDrawerTemp,
-      nzWidth: window.screen.availWidth
+      nzWidth: '100%'
     });
 
     this.drawerReferance = drawerRef;
@@ -210,7 +210,7 @@ export class WebCamComponent implements OnInit {
     const drawerRef = this.drawerService.create({
       nzTitle: "Create Documents",
       nzContent: this.documentAddTpl,
-      nzWidth: window.screen.availWidth,
+      nzWidth: '100%',
       nzFooter: footer
     });
 
@@ -371,7 +371,7 @@ export class WebCamComponent implements OnInit {
     const drawerRef = this.drawerService.create({
       nzTitle: "Document",
       nzContent: this.documentShowTpl,
-      nzWidth: window.screen.availWidth,
+      nzWidth: '100%',
       nzFooter: footer,
       nzExtra: header
     });
@@ -501,12 +501,12 @@ export class WebCamComponent implements OnInit {
     let rotation = 0;
 
     if (transform) {
-      rotation = Number(transform.match(/rotate\((.*?)\)/)[1].replace('deg',''));
+      rotation = Number(transform.match(/rotate\((.*?)\)/)[1].replace('deg', ''));
 
       console.log(rotation);
     }
 
-    if(rotation+90 > 360){
+    if (rotation + 90 > 360) {
       rotation = 0;
     }
 
@@ -524,12 +524,12 @@ export class WebCamComponent implements OnInit {
     let rotation = 0;
 
     if (transform) {
-      rotation = Number(transform.match(/rotate\((.*?)\)/)[1].replace('deg',''));
+      rotation = Number(transform.match(/rotate\((.*?)\)/)[1].replace('deg', ''));
 
       console.log(rotation);
     }
 
-    if(rotation-90 < -360){
+    if (rotation - 90 < -360) {
       rotation = 0;
     }
 
@@ -542,7 +542,7 @@ export class WebCamComponent implements OnInit {
   removeFilters() {
     let img_ref: any = document.getElementById('img');
     img_ref.style.transform = `rotate(0deg)`;
-    img_ref.style.width = img_ref.naturalWidth +'px';
+    img_ref.style.width = img_ref.naturalWidth + 'px';
   }
 
   download() {

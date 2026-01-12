@@ -33,6 +33,11 @@ export class AppComponent implements OnInit {
     USER_ID: ''
   }
 
+  bankDetails = {
+    BANK_NAME: '',
+    BANK_LOGO_URL: ''
+  }
+
   userExtraInformation = {
     ROLE: '',
     BRANCH: ""
@@ -93,6 +98,7 @@ export class AppComponent implements OnInit {
     console.log("userDetails", this.userDetails);
     this.getUser();
     this.getSideMenu();
+    this.fetchBankDetails();
     this.router.navigate(['/dashboard']);
     this.route = 'tabs';
   }
@@ -132,22 +138,37 @@ export class AppComponent implements OnInit {
 
 
   getUser() {
-  this.api.getUserBranch1().subscribe({
-    next: (res) => {
-      if (res.code === 200 && res.data.length > 0) {
-        this.userExtraInformation.BRANCH = res.data[0].BRANCH_NAME;
+    this.userDetails = SessionUserDetails.getSessionStorage();
+    this.api.getUserBranch1().subscribe({
+      next: (res) => {
+        if (res.code === 200 && res.data.length > 0) {
+          this.userExtraInformation.BRANCH = res.data[0].BRANCH_NAME;
+        }
       }
-    }
-  });
+    });
 
-  this.api.getUserRole1().subscribe({
-    next: (res) => {
-      if (res.code === 200 && res.data.length > 0) {
-        this.userExtraInformation.ROLE = res.data[0].NAME;
+    this.api.getUserRole1().subscribe({
+      next: (res) => {
+        if (res.code === 200 && res.data.length > 0) {
+          this.userExtraInformation.ROLE = res.data[0].NAME;
+        }
       }
-    }
-  });
-}
+    });
+  }
+
+  fetchBankDetails() {
+    this.api.getBankDetails().subscribe({
+      next: (res) => {
+        if (res.code === 200 && res.data) {
+          this.bankDetails = res.data;
+        }
+      },
+      error: (err) => {
+        console.error("❌ Error fetching bank details:", err);
+      }
+    });
+
+  }
 
 
   logout() {
@@ -183,7 +204,6 @@ export class AppComponent implements OnInit {
       error: (err) => {
         if (err.status === 401) {
           // 🔐 Token expired / invalid
-          localStorage.clear();
           sessionStorage.clear();
           this.router.navigate(['login']);
         } else {

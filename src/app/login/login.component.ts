@@ -22,8 +22,6 @@ export class LoginComponent implements OnInit {
   isloginSpinning: boolean = false;
   isLogedIn: boolean = false;
 
-  passwordPolicy: any;
-
   passwordVisible = false
 
   constructor(private api: ApiService, private router: Router, private message: NzNotificationService) { }
@@ -40,156 +38,60 @@ export class LoginComponent implements OnInit {
     }
     this.checkScreenSize();
 
-    this.getPasswordPolicy();
-
-
-  }
-
-  getPasswordPolicy() {
-    this.api.getPasswordPolicyData().subscribe({
-      next: (res) => {
-        if (res['code'] == 200) {
-          this.passwordPolicy = res['data'];
-        }
-      }
-    })
   }
 
   checkScreenSize(): void {
     this.isMobileView = window.innerWidth <= 768;
   }
 
-  // login(): void {
-  //   sessionStorage.clear();
-  //   this.isloginSpinning = true;
-  //   this.api.login(this.USER_NAME, this.PASSWORD).subscribe({
-  //     next: (data) => {
-  //       if (data['code'] == 200 && data['data']) {
-
-  //         let passwordPatternStr = `^(?=(.*[A-Z]){${this.passwordPolicy.FR_CAPITAL_LETTERS},})(?=(.*[a-z]){${this.passwordPolicy.FR_SMALL_LETTERS},})(?=(.*\\d){${this.passwordPolicy.FR_NUMBERS},})(?=(.*[\\W_]){${this.passwordPolicy.FR_SYMBOLS},}).{${this.passwordPolicy.PASSWORD_LENGTH},}$`
-  //         let passwordPatternRegex = new RegExp(String.raw`${passwordPatternStr}`);
-
-  //         if (!data['data']['PASSWORD_RESET_DATE']) {
-  //           this.message.warning("Please reset the password to something secure", "");
-  //           this.passwordReset.emit(true);
-  //           return;
-  //         }
-  //         else if (!passwordPatternRegex.test(this.PASSWORD)) {
-  //           this.message.warning("Password policy has been updated", "Please reset the password");
-  //           this.passwordReset.emit(true);
-  //           return;
-  //         }
-  //         else if (data['data']['DAYS_OF_RESET_PASS'] >= this.passwordPolicy.FR_PASSWORD_RESET) {
-  //           this.message.warning("Your password has been expired", "Please reset the password");
-  //           this.passwordReset.emit(true);
-  //           return;
-  //         }
-
-  //         else {
-  //           SessionUserDetails.setSessionStorage(data['data']);
-  //           this.logined.emit(true);
-  //           this.isloginSpinning = false
-  //         }
-
-  //       }
-  //       else if (data['code'] == 404) {
-  //         this.message.error("Username or Password not found!", '');
-  //         this.isloginSpinning = false
-
-  //       }
-  //       else {
-  //         this.message.error("Something went wrong!", '');
-  //         this.isloginSpinning = false
-  //       }
-
-  //     },
-  //     error: () => {
-  //       this.isloginSpinning = false
-
-  //     }
-
-  //   })
-
-  // }
-
-
 
   login(): void {
-  sessionStorage.clear();
-  this.isloginSpinning = true;
+    sessionStorage.clear();
+    this.isloginSpinning = true;
 
-  this.api.login(this.USER_NAME, this.PASSWORD).subscribe({
-    next: (data) => {
-
-      if (data['code'] == 200 && data['data']) {
-
-        //  Password policy regex
-        let passwordPatternStr =
-          `^(?=(.*[A-Z]){${this.passwordPolicy.FR_CAPITAL_LETTERS},})` +
-          `(?=(.*[a-z]){${this.passwordPolicy.FR_SMALL_LETTERS},})` +
-          `(?=(.*\\d){${this.passwordPolicy.FR_NUMBERS},})` +
-          `(?=(.*[\\W_]){${this.passwordPolicy.FR_SYMBOLS},}).{${this.passwordPolicy.PASSWORD_LENGTH},}$`;
-
-        let passwordPatternRegex = new RegExp(passwordPatternStr);
-
-        //  Password reset date missing
-        if (!data['data']['PASSWORD_RESET_DATE']) {
-          this.message.warning("Please reset the password to something secure", "");
-          this.passwordReset.emit(true);
-          this.isloginSpinning = false;
-          return;
-        }
-
-        // Password policy mismatch
-        else if (!passwordPatternRegex.test(this.PASSWORD)) {
-          this.message.warning("Password policy has been updated", "Please reset the password");
-          this.passwordReset.emit(true);
-          this.isloginSpinning = false;
-          return;
-        }
-
-        // Password expired
-        else if (data['data']['DAYS_OF_RESET_PASS'] >= this.passwordPolicy.FR_PASSWORD_RESET) {
-          this.message.warning("Your password has been expired", "Please reset the password");
-          this.passwordReset.emit(true);
-          this.isloginSpinning = false;
-          return;
-        }
-
-        //  SUCCESS LOGIN
-        else {
-
-          //  SAVE JWT TOKEN
-          if (data['token']) {
-            localStorage.setItem('JWT_TOKEN', data['token']);
+    this.api.login(this.USER_NAME, this.PASSWORD).subscribe({
+      next: (data) => {
+        if (data['code'] == 200) {
+          if (data['forcePasswordReset']) {
+            this.message.warning("Password Reset Required", data['message'] || "Please reset your password.");
+            // Store minimal info needed for reset if necessary, or just emit reset
+            SessionUserDetails.setSessionStorage(data['data']);
+            this.passwordReset.emit(true);
+            this.isloginSpinning = false;
+            return;
           }
 
-          //  SAVE USER CONTEXT (optional but useful)
-          localStorage.setItem('USER_ID', data['data']['ID']);
-          localStorage.setItem('ROLE_ID', data['data']['ROLE_ID']);
-          localStorage.setItem('BRANCH_ID', data['data']['BRANCH_ID']);
+          if (data['data']) {
+            //  SAVE JWT TOKEN
+            if (data['token']) {
+              sessionStorage.setItem('JWT_TOKEN', data['token']);
+            }
 
-          // Existing logic
-          SessionUserDetails.setSessionStorage(data['data']);
-          this.logined.emit(true);
+            //  SAVE USER CONTEXT
+            sessionStorage.setItem('USER_ID', data['data']['ID']);
+            sessionStorage.setItem('ROLE_ID', data['data']['ROLE_ID']);
+            sessionStorage.setItem('BRANCH_ID', data['data']['BRANCH_ID']);
+
+            SessionUserDetails.setSessionStorage(data['data']);
+            this.logined.emit(true);
+            this.isloginSpinning = false;
+          }
+        }
+        else if (data['code'] == 404) {
+          this.message.error("Username or Password not found!", '');
           this.isloginSpinning = false;
         }
-
-      }
-      else if (data['code'] == 404) {
-        this.message.error("Username or Password not found!", '');
+        else {
+          this.message.error(data['message'] || "Something went wrong!", '');
+          this.isloginSpinning = false;
+        }
+      },
+      error: (err) => {
+        this.message.error("Server connection failed", '');
         this.isloginSpinning = false;
       }
-      else {
-        this.message.error("Something went wrong!", '');
-        this.isloginSpinning = false;
-      }
-    },
-    error: () => {
-      this.isloginSpinning = false;
-    }
-  });
-}
+    });
+  }
 
   passwordResetFn() {
     this.passwordReset.emit(true);

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { Subject } from 'rxjs';
 import { NomineeDetails } from 'src/app/models/nominee-details';
@@ -100,9 +100,13 @@ export class NominationComponent implements OnInit {
   ]
 
   constructor(private api: ApiService, private message: NzNotificationService) { }
-  APPLICANT_ID!: number
+  @Input() APPLICANT_ID!: number;
   nomineeInfo: NomineeDetails = new NomineeDetails();
+
   ngOnInit(): void {
+    if (this.APPLICANT_ID) {
+      this.getNominationInfo();
+    }
   }
 
   mendetory_all = [
@@ -139,6 +143,7 @@ export class NominationComponent implements OnInit {
     }
 
     if (isOk) {
+      this.nomineeInfo.APPLICANT_ID = this.APPLICANT_ID;
       if (this.nomineeInfo.ID) {
         this.api.updateNominee(this.nomineeInfo).subscribe({
           next: (res) => {

@@ -13,11 +13,11 @@ export class AuthGuard implements CanActivate {
   // }
 
 
-   constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   canActivate(): boolean {
 
-    const token = localStorage.getItem('JWT_TOKEN');
+    const token = sessionStorage.getItem('JWT_TOKEN');
 
     //  Token नाही
     if (!token) {
@@ -33,7 +33,7 @@ export class AuthGuard implements CanActivate {
 
       //  Token expire झाला
       if (payload.exp < currentTime) {
-        localStorage.clear();
+        sessionStorage.clear();
         this.router.navigate(['/login']);
         return false;
       }
@@ -43,10 +43,10 @@ export class AuthGuard implements CanActivate {
 
     } catch (error) {
       // Token corrupt असेल
-      localStorage.clear();
+      sessionStorage.clear();
       this.router.navigate(['/login']);
       return false;
     }
   }
-  
+
 }
