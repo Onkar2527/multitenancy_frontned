@@ -187,39 +187,23 @@ export class ProposalComponent implements OnInit {
 
     let role_id = Number(sessionStorage.getItem('ROLE_ID'))
 
+    console.log("data", data, role_id);
     this.title = this.getStatusName(data.TRACK_ID);
+
+    this.header = null;
+    this.footer = null;
 
     if (role_id == 1 && data.TRACK_ID == 1) {
       this.header = this.tabHeaderMakerTamplete;
       this.footer = this.TabFooterTemplate;
-    }
-
-    if (role_id == 1 && data.TRACK_ID != 1) {
-      this.header = this.tabHeaderMakerTamplete;
-      this.footer = this.TabFooterTemplate;
-
-    }
-
-    else if (role_id == 2 && data.TRACK_ID != 2) {
-      this.footer = this.noActionFooter;
-    }
-
-    else if (role_id == 3 && data.TRACK_ID != 3) {
-      this.footer = this.noActionFooter;
-    }
-
-    else if (role_id == 2 && data.TRACK_ID == 2) {
+    } else if (role_id == 2 && data.TRACK_ID == 2) {
       this.header = this.TabHeaderTemplate;
       this.footer = this.TabFooterTplChecker;
-    }
-
-    else if (role_id == 3 && data.TRACK_ID == 3) {
+    } else if (role_id == 3 && data.TRACK_ID == 3) {
       this.header = this.tabHeaderVerifierTamplete;
       this.footer = this.TabFooterTplVerifier;
       this.title = 'Verify All Information';
-    }
-
-    else {
+    } else {
       this.footer = this.noActionFooter;
     }
 
@@ -448,7 +432,9 @@ export class ProposalComponent implements OnInit {
             this.dataCount = res.count;
           }
           this.TableLoading = false;
-          this.getDepositeInfo()
+          this.getDepositeInfo();
+          this.getStatusList();
+          this.getBranchList();
         },
         error: () => {
           this.TableLoading = false;
@@ -473,6 +459,7 @@ export class ProposalComponent implements OnInit {
     if (!track_id)
       return ''
 
+    // console.log("Status List", this.STATUS_LIST);
     let our_status = this.STATUS_LIST.filter((value: any) => {
       return value.ID == track_id
     });
@@ -758,9 +745,6 @@ export class ProposalComponent implements OnInit {
 
   openDrawer(title: string, footer: any, content: any, close_back: any, extra?: any) {
     let width: string | number = '100%';
-    if (window.innerWidth > 1095) {
-      width = 1095;
-    }
 
     const drawerRef = this.drawerService.create({
       nzTitle: title,

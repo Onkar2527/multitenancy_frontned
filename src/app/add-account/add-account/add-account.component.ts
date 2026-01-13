@@ -46,6 +46,7 @@ export class AddAccountComponent implements OnInit, OnDestroy {
   @Input() Tabs: ExtraInfo[] = []
 
   selectedIndex: number = 0;
+  previousIndex: number = -1;
 
   changeIndex() {
     console.log(this.selectedIndex, "is selected index")
@@ -57,6 +58,9 @@ export class AddAccountComponent implements OnInit, OnDestroy {
   buttonTitle: string = 'Save & Next'
   APPLICANT_ID!: number;
   log(event: any) {
+    if (this.selectedIndex == this.previousIndex) return;
+    this.previousIndex = this.selectedIndex;
+
     if (this.selectedIndex == 4) {
       this.buttonTitle = 'Download Pdf'
     }
@@ -64,6 +68,9 @@ export class AddAccountComponent implements OnInit, OnDestroy {
       this.buttonTitle = 'Save & Next'
     }
 
+    if (this.APPLICANT_ID) {
+      this.getTabs(this.APPLICANT_ID, false);
+    }
   }
   // ngOnInit(): void {
   //   if (this.BasicInfo.ID) {
@@ -75,7 +82,7 @@ export class AddAccountComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (this.BasicInfo?.ID) {
       this.APPLICANT_ID = this.BasicInfo.ID;
-      this.getTabs(this.BasicInfo.ID);
+      // this.getTabs(this.BasicInfo.ID);
     }
   }
 
@@ -255,12 +262,14 @@ export class AddAccountComponent implements OnInit, OnDestroy {
   //   })
   // }
 
-  getTabs(applicant_id: number) {
+  getTabs(applicant_id: number, shouldReset: boolean = true) {
     this.api.getTabs(applicant_id).subscribe({
       next: (res) => {
         if (res.code === 200 && res.data) {
           this.Tabs = res.data;
-          this.reset();
+          if (shouldReset) {
+            this.reset();
+          }
         }
       },
       error: () => {

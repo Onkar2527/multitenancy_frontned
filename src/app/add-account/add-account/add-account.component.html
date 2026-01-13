@@ -22,9 +22,10 @@
 
             <app-services [APPLICANT_ID]="APPLICANT_ID" *ngIf="tab.TAB_ID == 4"></app-services>
 
-            <app-applicant-details [APPLICANT_ID]="APPLICANT_ID" *ngIf="tab.TAB_ID == 5"></app-applicant-details>
+            <app-applicant-details [basicInfo]="BasicInfo" [APPLICANT_ID]="APPLICANT_ID"
+                *ngIf="tab.TAB_ID == 5"></app-applicant-details>
 
-            <app-remark-comp [APPLICANT_ID]="APPLICANT_ID" *ngIf="tab.TAB_ID == 6"></app-remark-comp>
+            <app-remark-comp [Tabs]="Tabs" [APPLICANT_ID]="APPLICANT_ID" *ngIf="tab.TAB_ID == 6"></app-remark-comp>
 
             <!-- <app-verifier-verification *ngIf="tab.TAB_ID == 7"></app-verifier-verification> -->
 

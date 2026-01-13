@@ -183,7 +183,7 @@
 
 <ng-template #addAccountDrawerTemp let-drawerRef="drawerRef">
     <app-add-account (AccountCreationStatus)="accountCreationEvent($event)" (ChangeIndex)="changeIndex($event)"
-        (CloseDrawer)="closeDrawer()" [BasicInfo]="drawerDraftData"></app-add-account>
+        (CloseDrawer)="closeDrawer()" [BasicInfo]="drawerDraftData" [Tabs]="Tabs"></app-add-account>
 </ng-template>
 
 <ng-template #footerTpl2>

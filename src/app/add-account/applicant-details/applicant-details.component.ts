@@ -35,7 +35,7 @@ export class ApplicantDetailsComponent implements OnInit {
   DrawerVisible: boolean = false;
   personalInfo: PersonalInfo = new PersonalInfo();
 
-  basicInfo: BasicInfo = new BasicInfo();
+  @Input() basicInfo: BasicInfo = new BasicInfo();
 
   constructor(private api: ApiService, private message: NzNotificationService, private drawerService: NzDrawerService) { }
 
@@ -84,7 +84,7 @@ export class ApplicantDetailsComponent implements OnInit {
       nzTitle: title,
       nzFooter: footer,
       nzContent: this.applicantTamplate,
-      nzWidth: window.innerWidth
+      nzWidth: "100%"
     });
 
     this.drawerReferance = drawerRef;

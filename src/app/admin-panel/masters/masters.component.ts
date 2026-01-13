@@ -26,7 +26,7 @@ export class MastersComponent implements OnInit {
     drawerRef: NzDrawerRef<any>;
   }>;
 
-   @ViewChild('editFieldFooter', { static: false }) editFieldFooter?: TemplateRef<{}>;
+  @ViewChild('editFieldFooter', { static: false }) editFieldFooter?: TemplateRef<{}>;
 
   constructor(private api: ApiService, private message: NzNotificationService, private drawerService: NzDrawerService) { }
 
@@ -44,7 +44,7 @@ export class MastersComponent implements OnInit {
   editItemDrawer: Drawer = new Drawer();
 
 
-  drawerReferance:any;
+  drawerReferance: any;
 
   getAllDropdownData(search: boolean = false) {
     this.DROPDOWN_TABLE.LOADING = true;
@@ -92,8 +92,7 @@ export class MastersComponent implements OnInit {
       nzTitle: this.editDrawer.TITLE,
       nzFooter: this.editFieldFooter,
       nzContent: this.editFields,
-      // nzExtra: this.header,
-      nzWidth: window.screen.availWidth,
+      nzWidth: '100%',
 
     });
 
@@ -122,8 +121,7 @@ export class MastersComponent implements OnInit {
       nzTitle: this.editDrawer.TITLE,
       nzFooter: this.editFieldFooter,
       nzContent: this.editFields,
-      // nzExtra: this.header,
-      nzWidth: window.screen.availWidth,
+      nzWidth: '100%',
 
     });
 
@@ -145,7 +143,7 @@ export class MastersComponent implements OnInit {
 
   }
 
-  saveEditField(){
+  saveEditField() {
     this.dropdownEditComp.save();
   }
 
@@ -176,8 +174,7 @@ export class MastersComponent implements OnInit {
       nzTitle: this.editItemDrawer.TITLE,
       // nzFooter: this.footer,
       nzContent: this.editItem,
-      // nzExtra: this.header,
-      nzWidth: window.screen.availWidth,
+      nzWidth: '100%',
 
     });
 
