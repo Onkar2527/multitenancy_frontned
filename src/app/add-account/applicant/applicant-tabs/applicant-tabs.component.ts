@@ -21,13 +21,12 @@ export class ApplicantTabsComponent implements OnInit {
   @ViewChild(ApplicantLoanInfoComponent) loanInfoComp!: ApplicantLoanInfoComponent;
   @ViewChild(ApplicantOtherBankAccountComponent) otherBankAccountComp!: ApplicantOtherBankAccountComponent;
 
-  @Input() personalInfo!:PersonalInfo
+  @Input() personalInfo!: PersonalInfo
 
   selectedTab: number = 0;
 
   disabledTabs = [
     { title: 'Personal Information', disabled: false },
-    { title: 'Guarantor Information', disabled: false },
     { title: 'Financial Information', disabled: true },
     { title: 'Property Information', disabled: true },
     // { title: 'Loan Information', disabled: true },

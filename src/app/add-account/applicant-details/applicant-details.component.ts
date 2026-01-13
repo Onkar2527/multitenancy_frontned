@@ -135,7 +135,7 @@ export class ApplicantDetailsComponent implements OnInit {
             this.tabComp.selectedTab = 2;
             this.tabComp.disabledTabs[1].disabled = true;
             this.tabComp.disabledTabs[2].disabled = false;
-            this.saveButtonTitle = 'Save and Next';
+            this.saveButtonTitle = 'Save and Close';
 
             this.saveButtonLoading = false;
           }
@@ -157,7 +157,7 @@ export class ApplicantDetailsComponent implements OnInit {
           if (res.code == 200) {
             // this.tabComp.loanInfoComp.getApplicantLoanInfo();
             // this.tabComp.selectedTab = 3;
-            this.saveButtonTitle = 'Save and Next';
+            this.saveButtonTitle = 'Save and Close';
             this.tabComp.disabledTabs[2].disabled = true;
             // this.tabComp.disabledTabs[3].disabled = false;
             this.drawerReferance.close();
@@ -248,7 +248,7 @@ export class ApplicantDetailsComponent implements OnInit {
 
       this.tabComp.disabledTabs[2].disabled = true;
       this.tabComp.disabledTabs[1].disabled = false;
-
+      this.saveButtonTitle = 'Save and Next';
       this.saveButtonLoading = false;
     }
 
@@ -295,7 +295,7 @@ export class ApplicantDetailsComponent implements OnInit {
       this.tabComp.selectedTab = 2;
       this.tabComp.disabledTabs[1].disabled = true;
       this.tabComp.disabledTabs[2].disabled = false;
-      this.saveButtonTitle = 'Save and Next';
+      this.saveButtonTitle = 'Save and Close';
 
       this.saveButtonLoading = false;
 

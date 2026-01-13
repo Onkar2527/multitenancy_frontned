@@ -367,7 +367,7 @@ export class PersonalComponent implements OnInit, OnChanges {
   constructor(
     private api: ApiService,
     private message: NzNotificationService
-  ) {}
+  ) { }
 
   // -----------------------------
   // LIFE CYCLE
@@ -506,21 +506,21 @@ export class PersonalComponent implements OnInit, OnChanges {
         APPLICANT_NO: i,
         FIRST_NAME:
           this.basicInfo[
-            i === 1
-              ? 'PRIMARY_APPLICANT_FIRST_NAME'
-              : `APPLICANT${i}_FIRST_NAME`
+          i === 1
+            ? 'PRIMARY_APPLICANT_FIRST_NAME'
+            : `APPLICANT${i}_FIRST_NAME`
           ],
         MIDDLE_NAME:
           this.basicInfo[
-            i === 1
-              ? 'PRIMARY_APPLICANT_MIDDLE_NAME'
-              : `APPLICANT${i}_MIDDLE_NAME`
+          i === 1
+            ? 'PRIMARY_APPLICANT_MIDDLE_NAME'
+            : `APPLICANT${i}_MIDDLE_NAME`
           ],
         LAST_NAME:
           this.basicInfo[
-            i === 1
-              ? 'PRIMARY_APPLICANT_LAST_NAME'
-              : `APPLICANT${i}_LAST_NAME`
+          i === 1
+            ? 'PRIMARY_APPLICANT_LAST_NAME'
+            : `APPLICANT${i}_LAST_NAME`
           ],
         AADHAAR_NO: this.basicInfo[`AADHAAR_NO_${i}`],
         PAN_NUMBER: this.basicInfo[`PAN_NUMBER${i > 1 ? i : ''}`],
@@ -545,6 +545,12 @@ export class PersonalComponent implements OnInit, OnChanges {
     };
 
     const isUpdate = !!payload.ID;
+
+    if (!isUpdate) {
+      payload.MAKER_USER_ID = Number(sessionStorage.getItem('USER_ID'));
+      payload.CREATED_BRANCH_ID = Number(sessionStorage.getItem('BRANCH_ID'));
+      payload.TRACK_ID = 1;
+    }
 
     const apiCall = isUpdate
       ? this.api.updateBasic(payload)
