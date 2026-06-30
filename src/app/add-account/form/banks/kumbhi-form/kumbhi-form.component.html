@@ -1,0 +1,814 @@
+<nz-spin [nzSpinning]="formSpinning">
+    <div class="main-container" id="contentToConvert">
+
+        <!-- ================= PAGE 1: APPLICANT 1 PERSONAL DETAILS ================= -->
+        <div class="form-page">
+            <!-- Header Section -->
+            <div class="header-section">
+                <div class="logo-section">
+                    <img *ngIf="base64Image" [src]="base64Image" alt="Logo">
+                    <div *ngIf="!base64Image" class="logo-circle">LOGO</div>
+                </div>
+
+                <div class="title-section">
+                    <h1>कुंभी कासारी सहकारी बँक लि., कुडित्रे.</h1>
+                    <h2>ता. करवीर, जि. कोल्हापूर.</h2>
+                    <h3>खाते उघडण्याचा फॉर्म</h3>
+                </div>
+
+                <div class="risk-section">
+                    <table class="risk-table">
+                        <tr>
+                            <td>HIGH RISK</td>
+                            <td><span *ngIf="ApplicantPersonal.length > 0 && (applicantPersonalMasterData.risk_cat === 'HIGH' || applicantPersonalMasterData.risk_cat === 'High')">✔</span></td>
+                        </tr>
+                        <tr>
+                            <td>MEDIUM RISK</td>
+                            <td><span *ngIf="ApplicantPersonal.length > 0 && (applicantPersonalMasterData.risk_cat === 'MEDIUM' || applicantPersonalMasterData.risk_cat === 'Medium')">✔</span></td>
+                        </tr>
+                        <tr>
+                            <td>LOW RISK</td>
+                            <td><span *ngIf="ApplicantPersonal.length > 0 && (applicantPersonalMasterData.risk_cat === 'LOW' || applicantPersonalMasterData.risk_cat === 'Low')">✔</span></td>
+                        </tr>
+                        <tr>
+                            <td class="sign-td">Br. Manager Sign.</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Account & CIF Digit boxes -->
+            <div class="flex-row justify-between align-center mt-10">
+                <div class="flex-row align-center">
+                    <span class="bold mr-8" style="font-size: 11px; color: #0082c3;">खाते क्र.</span>
+                    <div class="box-row">
+                        <div class="digit-box" *ngFor="let item of [].constructor(15); let idx = index">
+                            {{ basicInfo['ACCOUNT_NUMBER']?.[idx] }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-row align-center">
+                    <span class="bold mr-8" style="font-size: 11px; color: #0082c3;">सी.आय.डी. नं.</span>
+                    <div class="box-row">
+                        <div class="digit-box" *ngFor="let item of [].constructor(12); let idx = index">
+                            {{ basicInfo.CUSTOMER_ID_1?.[idx] }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manager Address & Photo/Sign Layout -->
+            <div class="flex-row justify-between align-start mt-15" style="min-height: 140px;">
+                <div class="flex-col flex-1 gap-10">
+                    <div class="field-row">
+                        <span class="field-label">मा. व्यवस्थापक,</span>
+                    </div>
+                    <div class="field-row">
+                        <span class="field-label">शाखा</span>
+                        <span class="field-line">{{ branchData?.BRANCH_NAME }} ({{ branchData?.BRANCH_CODE }})</span>
+                        <span class="field-label ml-10">दिनांक:</span>
+                        <span class="mini-line">{{ basicInfo.APPLICATION_DATE | date:"dd/MM/yyyy" }}</span>
+                    </div>
+                    <p class="paragraph-section mt-10">
+मी/आम्ही आपल्या बँकेत सेव्हींग / चालू / मुदतबंद / रिकरींग / पिग्मी ठेव खाते उघडण्यासाठी विनंती करीत आहोत. मी/आम्ही आपल्या बँकेचे ठेवीबाबतचे नियम व पोटनियम वाचून पाहिले आहेत. व त्याप्रमाणे वागण्यास मी/आम्ही कबुल केले आहे. मला / आम्हाला ठेवीदार करून घेणेत यावे. मी/आम्ही मान्य करतो की, ठेवीसंबंधीचे बँकेचे सध्याचे अस्तित्वात असणारे नियम व व्याज दर व पुढे वेळोवेळी नियमात / व्याज दरात होणारे बदल मला / आम्हाला मान्य असून आम्हांवर बंधनकारक राहतील. त्याप्रमाणे मी/आम्ही बांधील आहे / आहोत.
+माझी / आमची संपूर्ण माहिती खालीलप्रमाणे :-                    </p>
+                    <div class="bold" *ngIf="depositInfo.ACCOUNT_TYPE" style="font-size: 10px; color: #0082c3; margin-top: 5px;">
+                        खात्याचा प्रकार: <span style="color:#000;">{{ account_type[depositInfo.ACCOUNT_TYPE] }} ({{ depositInfo.SCHEME_CODE }})</span>
+                    </div>
+                </div>
+
+                <div class="photo-sig-container ml-15">
+                    <div class="photo-box">
+                        <img *ngIf="PHOTOS.length > 0" [src]="PHOTOS[0]" alt="Applicant 1">
+                        <span *ngIf="PHOTOS.length == 0">फोटो (Photo)</span>
+                    </div>
+                    <div class="sign-box"></div>
+                    <div class="sig-label">खातेदाराची सही</div>
+                </div>
+            </div>
+
+            <div class="double-divider"></div>
+
+            <!-- APPLICANT 1 PERSONAL DETAILS -->
+            <div class="flex-col gap-6" *ngIf="ApplicantPersonal.length > 0">
+                <!-- Name -->
+                <div class="field-row">
+                    <span class="field-label">* १. खातेदाराचे नाव श्री. / सौ. / कु.</span>
+                    <span class="field-line">{{ ApplicantPersonal[0].FIRST_NAME }} {{ ApplicantPersonal[0].MIDDLE_NAME }} {{ ApplicantPersonal[0].LAST_NAME }}</span>
+                </div>
+                <div class="flex-row sub-labels">
+                    <div style="width: 25%; text-align: left;">(ओळख पुरावा कागदपत्राप्रमाणे लिहावे)</div>
+                    <div style="width: 25%; text-align: center;">(प्रथम नाव)</div>
+                    <div style="width: 25%; text-align: center;">(वडील / पती यांचे नाव)</div>
+                    <div style="width: 25%; text-align: right;">(आडनाव)</div>
+                </div>
+
+                <!-- Father/Husband Name -->
+                <div class="field-row">
+                    <span class="field-label">* वडिलांचे / पतीचे पूर्ण नाव श्री.</span>
+                    <span class="field-line">{{ ApplicantPersonal[0].F_OR_H_FIRST_NAME }} {{ ApplicantPersonal[0].F_OR_H_MIDDLE_NAME }} {{ ApplicantPersonal[0].F_OR_H_LAST_NAME }}</span>
+                </div>
+
+                <!-- Mother Name -->
+                <div class="field-row">
+                    <span class="field-label">* आईचे सध्याचे नाव</span>
+                    <span class="field-line">{{ ApplicantPersonal[0].MOTHERS_LAST_NAME }} {{ ApplicantPersonal[0].MOTHERS_NAME }} {{ ApplicantPersonal[0].MOTHERS_MIDDLE_NAME }}</span>
+                </div>
+
+                <!-- Mother Maiden Name -->
+                <div class="field-row">
+                    <span class="field-label">* आईचे पूर्वीचे नाव</span>
+                    <span class="field-line"></span>
+                </div>
+                <div class="flex-row sub-labels">
+                    <div style="width: 25%;"></div>
+                    <div style="width: 25%; text-align: center;">(प्रथम नाव)</div>
+                    <div style="width: 25%; text-align: center;">(वडील / पती यांचे नाव)</div>
+                    <div style="width: 25%; text-align: right;">(आडनाव)</div>
+                </div>
+
+                <!-- Current Address -->
+                <div class="field-row mt-4">
+                    <span class="field-label">* सध्याचा पत्ता (पत्ता पुरावा कागदपत्राप्रमाणे लिहावा)</span>
+                    <span class="field-line">{{ ApplicantPersonal[0].CURRENT_ADDRESS }} {{ ApplicantPersonal[0].CURRENT_LANDMARK }}</span>
+                </div>
+                <div class="flex-row justify-between align-center mt-4">
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">ता.</span>
+                        <span class="mini-line" style="min-width: 90px;">{{ applicantPersonalMasterData.current_taluka }}</span>
+                        <span class="bold ml-10" style="font-size: 11px; color: #0082c3;">जि.</span>
+                        <span class="mini-line" style="min-width: 90px;">{{ applicantPersonalMasterData.current_dist }}</span>
+                        <span class="bold ml-10" style="font-size: 11px; color: #0082c3;">राज्य</span>
+                        <span class="mini-line" style="min-width: 100px;">{{ applicantPersonalMasterData.current_state }}</span>
+                    </div>
+                    <div class="flex-row align-center">
+                        <span class="bold mr-4" style="font-size: 11px; color: #0082c3;">पिन नं.</span>
+                        <div class="box-row">
+                            <div class="small-box" *ngFor="let item of [].constructor(6); let idx = index">
+                                {{ ApplicantPersonal[0].CURRENT_PINCODE?.[idx] }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Permanent Address -->
+                <div class="field-row mt-4">
+                    <span class="field-label">* कायमचा पत्ता (पत्ता पुरावा कागदपत्राप्रमाणे लिहावा)</span>
+                    <span class="field-line">{{ ApplicantPersonal[0].PERMANENT_ADDRESS }} {{ ApplicantPersonal[0].PERMANENT_LANDMARK }}</span>
+                </div>
+                <div class="flex-row justify-between align-center mt-4">
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">ता.</span>
+                        <span class="mini-line" style="min-width: 90px;">{{ applicantPersonalMasterData.permanent_taluka }}</span>
+                        <span class="bold ml-10" style="font-size: 11px; color: #0082c3;">जि.</span>
+                        <span class="mini-line" style="min-width: 90px;">{{ applicantPersonalMasterData.permanent_dist }}</span>
+                        <span class="bold ml-10" style="font-size: 11px; color: #0082c3;">राज्य</span>
+                        <span class="mini-line" style="min-width: 100px;">{{ applicantPersonalMasterData.permanent_state }}</span>
+                    </div>
+                    <div class="flex-row align-center">
+                        <span class="bold mr-4" style="font-size: 11px; color: #0082c3;">पिन नं.</span>
+                        <div class="box-row">
+                            <div class="small-box" *ngFor="let item of [].constructor(6); let idx = index">
+                                {{ ApplicantPersonal[0].PERMANENT_PINCODE?.[idx] }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- DOB, Age, Senior, Birthplace -->
+                <div class="flex-row justify-between align-center mt-4 flex-wrap gap-10">
+                    <div class="flex-row align-center">
+                        <span class="bold mr-4" style="font-size: 11px; color: #0082c3;">* जन्म तारीख</span>
+                        <div class="box-row">
+                            <div class="small-box" *ngFor="let item of [].constructor(8); let idx = index">
+                                {{ getCleanDate(ApplicantPersonal[0].DATE_OF_BIRTH)?.[idx] }}
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* वय</span>
+                        <span class="mini-line short">{{ basicInfo.AGE_1 }}</span>
+                    </div>
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* ज्येष्ठ नागरिक:</span>
+                        <span class="bold" style="color: #000;">{{ ApplicantPersonal[0].IS_MINOR ? "नाही" : "होय" }}</span>
+                    </div>
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* जन्मस्थळ</span>
+                        <span class="mini-line"></span>
+                    </div>
+                </div>
+
+                <!-- Mobiles -->
+                <div class="flex-row justify-between align-center mt-4">
+                    <div class="flex-row align-center">
+                        <span class="bold mr-4" style="font-size: 11px; color: #0082c3;">* मोबाईल नं.</span>
+                        <div class="box-row">
+                            <div class="small-box" *ngFor="let item of [].constructor(10); let idx = index">
+                                {{ ApplicantPersonal[0].MOBILE_NUMBER?.[idx] }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-row align-center">
+                        <span class="bold mr-4" style="font-size: 11px; color: #0082c3;">* वैकल्पिक मोबाईल नं.</span>
+                        <div class="box-row">
+                            <div class="small-box" *ngFor="let item of [].constructor(10); let idx = index">
+                                {{ ApplicantPersonal[0].MOBILE_NUMBER_2?.[idx] }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Member No, PAN, Form 60/61 -->
+                <div class="flex-row justify-between align-center mt-4 flex-wrap gap-10">
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* सभासद क्र.</span>
+                        <span class="mini-line">{{ basicInfo.CUSTOMER_ID_1 }}</span>
+                    </div>
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* पॅन कार्ड नं.</span>
+                        <span class="mini-line" style="min-width: 120px;">{{ ApplicantPersonal[0]?.PAN_NO || basicInfo.PAN_NUMBER }}</span>
+                    </div>
+                    <div>
+                        <span class="checkbox-label">
+                            <span class="check-box">{{ !(ApplicantPersonal[0]?.PAN_NO || basicInfo.PAN_NUMBER) ? '✔' : '' }}</span> पॅन नंबर नसल्यास ६०/६१ फॉर्म भरणे
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Aadhaar, Email -->
+                <div class="flex-row justify-between align-center mt-4">
+                    <div class="flex-row align-center">
+                        <span class="bold mr-4" style="font-size: 11px; color: #0082c3;">* आधार/OVD नं.</span>
+                        <div class="box-row">
+                            <div class="small-box" *ngFor="let item of [].constructor(12); let idx = index">
+                                {{ (ApplicantPersonal[0]?.AADHAAR_NUMBER || basicInfo.AADHAAR_NO_1 || ApplicantPersonal[0]?.OVD_DOC_NO)?.[idx] }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 flex-row align-center ml-15">
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* ई-मेल:</span>
+                        <span class="field-line" style="min-height: 14px;">{{ ApplicantPersonal[0].EMAIL_ID }}</span>
+                    </div>
+                </div>
+
+                <!-- Gender, Religion, Caste, Subcaste -->
+                <div class="flex-row justify-between align-center mt-4 flex-wrap gap-10">
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* लिंग:</span>
+                        <span class="bold" style="color: #000;">{{ gender[ApplicantPersonal[0].GENDER] }}</span>
+                    </div>
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* धर्म:</span>
+                        <span class="mini-line">{{ applicantPersonalMasterData.religion }}</span>
+                    </div>
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* जात:</span>
+                        <span class="mini-line">{{ applicantPersonalMasterData.caste }}</span>
+                    </div>
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* पोट जात (वर्ग):</span>
+                        <span class="mini-line"></span>
+                    </div>
+                </div>
+
+                <!-- Minority, Marital Status -->
+                <div class="flex-row justify-between align-center mt-4 flex-wrap gap-10">
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* अल्पसंख्याक:</span>
+                        <span class="bold" style="color: #000;">{{ (ApplicantPersonal[0].RELIGION !== 'A') ? "होय" : "नाही" }}</span>
+                    </div>
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* वैवाहिक स्थिती:</span>
+                        <span class="bold" style="color: #000;">{{ ApplicantPersonal[0].MARITAL_STATUS === 'M' ? 'Married' : 'Unmarried' }}</span>
+                    </div>
+                </div>
+
+                <!-- Occupation, Service -->
+                <div class="flex-row justify-between align-center mt-4 flex-wrap gap-10">
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* व्यवसाय:</span>
+                        <span class="mini-line" style="min-width: 150px;">{{ applicantPersonalMasterData.occupation }} ({{ profession[ApplicantPersonal[0].PROFESSION] }})</span>
+                    </div>
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* शेती / नोकरी:</span>
+                        <span class="mini-line" style="min-width: 150px;">{{ nature_of_service[ApplicantPersonal[0].NATURE_OF_SERVICE] || 'इतर' }}</span>
+                    </div>
+                </div>
+
+                <!-- Income, Education -->
+                <div class="flex-row justify-between align-center mt-4">
+                    <div class="flex-row align-center flex-1">
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* वार्षिक उत्पन्न:</span>
+                        <span class="field-line"><span *ngIf="ApplicantFinancial.length > 0">₹ {{ ApplicantFinancial[0].INCOME }}</span></span>
+                    </div>
+                    <div class="flex-row align-center flex-1 ml-15">
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* शैक्षणिक पात्रता:</span>
+                        <span class="field-line">{{ education[ApplicantPersonal[0].EDUCATION] }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-note">* सदर माहिती भरणे बंधनकारक आहे *</div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- ================= PAGE 2: APPLICANT 2 DETAILS & ACCOUNT SERVICES ================= -->
+        <div class="form-page">
+            <!-- Header section applicant 2 -->
+            <div class="flex-row justify-between align-start" style="min-height: 140px;">
+                <div class="flex-col flex-1 gap-6">
+                    <div class="field-row">
+                        <span class="field-label">* २. खातेदाराचे नाव (अर्जदार २) श्री. / सौ. / कु.</span>
+                        <span class="field-line">
+                            <span *ngIf="ApplicantPersonal.length > 1">{{ ApplicantPersonal[1].FIRST_NAME }} {{ ApplicantPersonal[1].MIDDLE_NAME }} {{ ApplicantPersonal[1].LAST_NAME }}</span>
+                        </span>
+                    </div>
+                    <div class="flex-row sub-labels">
+                        <div style="width: 25%; text-align: left;">(ओळख पुरावा कागदपत्राप्रमाणे लिहावे)</div>
+                        <div style="width: 25%; text-align: center;">(प्रथम नाव)</div>
+                        <div style="width: 25%; text-align: center;">(वडील / पती यांचे नाव)</div>
+                        <div style="width: 25%; text-align: right;">(आडनाव)</div>
+                    </div>
+
+                    <div class="field-row mt-6">
+                        <span class="field-label">* वडिलांचे / पतीचे पूर्ण नाव श्री.</span>
+                        <span class="field-line">
+                            <span *ngIf="ApplicantPersonal.length > 1">{{ ApplicantPersonal[1].F_OR_H_FIRST_NAME }} {{ ApplicantPersonal[1].F_OR_H_MIDDLE_NAME }} {{ ApplicantPersonal[1].F_OR_H_LAST_NAME }}</span>
+                        </span>
+                    </div>
+
+                    <div class="field-row mt-6">
+                        <span class="field-label">* आईचे सध्याचे नाव</span>
+                        <span class="field-line">
+                            <span *ngIf="ApplicantPersonal.length > 1">{{ ApplicantPersonal[1].MOTHERS_LAST_NAME }} {{ ApplicantPersonal[1].MOTHERS_NAME }} {{ ApplicantPersonal[1].MOTHERS_MIDDLE_NAME }}</span>
+                        </span>
+                    </div>
+
+                    <div class="field-row mt-6">
+                        <span class="field-label">ग्राहक ओळख क्रमांक (Customer ID 2)</span>
+                        <span class="field-line">
+                            <span *ngIf="ApplicantPersonal.length > 1">{{ basicInfo.CUSTOMER_ID_2 }}</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="photo-sig-container ml-15">
+                    <div class="photo-box">
+                        <img *ngIf="PHOTOS.length > 1" [src]="PHOTOS[1]" alt="Applicant 2">
+                        <span *ngIf="PHOTOS.length <= 1">फोटो (Photo)</span>
+                    </div>
+                    <div class="sign-box"></div>
+                    <div class="sig-label">खातेदाराची सही</div>
+                </div>
+            </div>
+
+            <!-- Second Applicant Details Continued if present -->
+            <div class="flex-col gap-6 mt-10" *ngIf="ApplicantPersonal.length > 1 && ApplicantPersonal[1].FIRST_NAME">
+                <div class="field-row">
+                    <span class="field-label">* सध्याचा पत्ता (अर्जदार २):</span>
+                    <span class="field-line">{{ ApplicantPersonal[1].CURRENT_ADDRESS }} {{ ApplicantPersonal[1].CURRENT_LANDMARK }}</span>
+                </div>
+                <div class="flex-row justify-between align-center mt-4">
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">ता.</span>
+                        <span class="mini-line" style="min-width: 90px;">{{ applicantPersonalMasterData.current_taluka }}</span>
+                        <span class="bold ml-10" style="font-size: 11px; color: #0082c3;">जिल्हा:</span>
+                        <span class="mini-line" style="min-width: 90px;">{{ applicantPersonalMasterData.current_dist }}</span>
+                        <span class="bold ml-10" style="font-size: 11px; color: #0082c3;">राज्य:</span>
+                        <span class="mini-line" style="min-width: 100px;">{{ applicantPersonalMasterData.current_state }}</span>
+                    </div>
+                    <div class="flex-row align-center">
+                        <span class="bold mr-4" style="font-size: 11px; color: #0082c3;">पिन:</span>
+                        <div class="box-row">
+                            <div class="small-box" *ngFor="let item of [].constructor(6); let idx = index">
+                                {{ ApplicantPersonal[1].CURRENT_PINCODE?.[idx] }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-row justify-between align-center mt-4 flex-wrap gap-10">
+                    <div class="flex-row align-center">
+                        <span class="bold mr-4" style="font-size: 11px; color: #0082c3;">* जन्म तारीख:</span>
+                        <div class="box-row">
+                            <div class="small-box" *ngFor="let item of [].constructor(8); let idx = index">
+                                {{ getCleanDate(ApplicantPersonal[1].DATE_OF_BIRTH)?.[idx] }}
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* लिंग:</span>
+                        <span class="bold" style="color: #000;">{{ gender[ApplicantPersonal[1].GENDER] }}</span>
+                    </div>
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* पॅन:</span>
+                        <span class="mini-line">{{ ApplicantPersonal[1]?.PAN_NO || basicInfo.PAN_NUMBER2 }}</span>
+                    </div>
+                    <div>
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">* मोबाईल:</span>
+                        <span class="mini-line" style="min-width: 90px;">{{ ApplicantPersonal[1].MOBILE_NUMBER }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="double-divider" style="margin-top: 15px;"></div>
+
+            <!-- ACCOUNT OPTIONS SECTION -->
+            <div class="flex-col gap-10">
+                <div class="flex-row align-stretch">
+                    <div class="flex-1 flex-col">
+                        <div class="section-header-strip">३. खाते प्रकार (Account Type)</div>
+                        <div class="section-content-box flex-row flex-wrap" style="min-height: 50px; align-content: center;">
+                            <label class="checkbox-label"><span class="check-box">{{ depositInfo.ACCOUNT_TYPE === 'A' ? '✔' : '' }}</span> सेव्हिंग्ज खाते</label>
+                            <label class="checkbox-label"><span class="check-box">{{ depositInfo.ACCOUNT_TYPE === 'C' ? '✔' : '' }}</span> चालू खाते</label>
+                            <label class="checkbox-label"><span class="check-box">{{ (depositInfo.ACCOUNT_TYPE === 'D' || depositInfo.ACCOUNT_TYPE === 'E') ? '✔' : '' }}</span> मुदत ठेव खाते</label>
+                            <label class="checkbox-label"><span class="check-box">{{ depositInfo.ACCOUNT_TYPE === 'F' ? '✔' : '' }}</span> रिकरींग</label>
+                            <label class="checkbox-label"><span class="check-box">{{ depositInfo.ACCOUNT_TYPE === 'G' ? '✔' : '' }}</span> विमी</label>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 flex-col ml-15">
+                        <div class="section-header-strip">४. कॅटेगरी / ग्राहक प्रकार</div>
+                        <div class="section-content-box flex-row flex-wrap" style="min-height: 50px; align-content: center;">
+                            <label class="checkbox-label"><span class="check-box">{{ basicInfo.CUSTOMER_TYPE_1 == 'Public' ? '✔' : '' }}</span> पब्लिक</label>
+                            <label class="checkbox-label"><span class="check-box">{{ basicInfo.CUSTOMER_TYPE_1 == 'Staff' ? '✔' : '' }}</span> स्टाफ</label>
+                            <label class="checkbox-label"><span class="check-box">{{ basicInfo.CUSTOMER_TYPE_1 == 'Coop' ? '✔' : '' }}</span> को-ऑप संस्था</label>
+                            <label class="checkbox-label"><span class="check-box">{{ basicInfo.CUSTOMER_TYPE_1 == 'Senior' ? '✔' : '' }}</span> ज्येष्ठ नागरिक</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-row align-stretch">
+                    <div class="flex-1 flex-col">
+                        <div class="section-header-strip">५. सेवा / बँक अलर्ट बाबत</div>
+                        <div class="section-content-box flex-col gap-5" style="min-height: 200px; justify-content: flex-start;">
+                            <div class="checkbox-line">
+                                <span class="check-box">{{ serviceInfo.CHEQUE_BOOK == true ? '✔' : '' }}</span> चेक पुस्तिका / Cheque Book
+                            </div>
+                            <div class="checkbox-line">
+                                <span class="check-box">{{ serviceInfo.ATM_CARD == true ? '✔' : '' }}</span> डेबिट कम एटीएम कार्ड / ATM Card
+                            </div>
+                            <div class="checkbox-line">
+                                <span class="check-box">{{ serviceInfo.SMS_ALERT == true ? '✔' : '' }}</span> एसएमएस सुविधा / SMS Alerts
+                            </div>
+                            <div class="checkbox-line">
+                                <span class="check-box">{{ serviceInfo.PASS_BOOK == true ? '✔' : '' }}</span> पासबुक / Passbook
+                            </div>
+
+                            <div class="bold mt-10" style="font-size: 10px; color: #0082c3;">७. व्याज खात्यात जमा करण्याविषयी (Desired Interest Payout)</div>
+                            <div class="flex-row flex-wrap gap-5 mt-2">
+                                <label class="checkbox-label"><span class="check-box">{{ depositInfo.INTEREST_PAYOUT === 'M' ? '✔' : '' }}</span> मासिक</label>
+                                <label class="checkbox-label"><span class="check-box">{{ depositInfo.INTEREST_PAYOUT === 'Q' ? '✔' : '' }}</span> तिमाही</label>
+                                <label class="checkbox-label"><span class="check-box">{{ depositInfo.INTEREST_PAYOUT === 'H' ? '✔' : '' }}</span> सहामाही</label>
+                                <label class="checkbox-label"><span class="check-box">{{ depositInfo.INTEREST_PAYOUT === 'Y' ? '✔' : '' }}</span> वार्षिक</label>
+                                <label class="checkbox-label"><span class="check-box">{{ depositInfo.INTEREST_PAYOUT === 'O' ? '✔' : '' }}</span> मुदतीअंती</label>
+                            </div>
+
+                            <div class="bold mt-10" style="font-size: 10px; color: #0082c3;">८. पेमेंटबाबत सूचना / खात्यावर व्यवहार करण्याचे अधिकार</div>
+                            <div class="mt-4 bold" style="font-size: 10px; color: #000;">
+                                Mode of Operation: {{ applicantPersonalMasterData.operation || 'स्वयं' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 flex-col ml-15">
+                        <div class="section-header-strip">६. मुदत बंद ठेव तपशील (If Applicable)</div>
+                        <div class="section-content-box flex-col gap-10" style="min-height: 200px; justify-content: flex-start;">
+                            <div class="field-row">
+                                <span class="field-label">ठेव प्रकार:</span>
+                                <span class="field-line">{{ account_type[depositInfo.ACCOUNT_TYPE] }}</span>
+                            </div>
+                            <div class="flex-row justify-between">
+                                <div class="field-row flex-1">
+                                    <span class="field-label">व्याज दर:</span>
+                                    <span class="field-line">{{ depositInfo.RATE_OF_INTEREST }}</span>
+                                    <span class="bold ml-2">%</span>
+                                </div>
+                            </div>
+                            <div class="field-row">
+                                <span class="field-label">मुदत ठेव रक्कम रु.:</span>
+                                <span class="field-line"><span *ngIf="catagoryB">₹ {{ depositInfo.DEPOSIT_AMOUNT }}</span></span>
+                            </div>
+                            <div class="flex-row gap-5 flex-wrap">
+                                <span class="bold" style="font-size:11px; color:#0082c3;">मुदत :</span>
+                                <span class="bold" style="font-size:11px; color:#0082c3;">वर्ष</span> <span class="mini-line short">{{ depositInfo.TANURE_YEARS || '0' }}</span>
+                                <span class="bold" style="font-size:11px; color:#0082c3;">महिने</span> <span class="mini-line short">{{ depositInfo.TANURE_MONTHS || '0' }}</span>
+                                <span class="bold" style="font-size:11px; color:#0082c3;">दिवस</span> <span class="mini-line short">{{ depositInfo.TANURE_DAYS || '0' }}</span>
+                            </div>
+                            <div class="divider"></div>
+                            <div class="bold" style="font-size: 10px; color: #0082c3;">
+                                ठेव आपोआप नूतनीकरण (Auto Renewal) : <span style="color:#000;">{{ depositInfo.AUTO_RENEWAL ? "YES" : "NO" }}</span>
+                            </div>
+                            <div style="font-size: 9px; color: gray;" class="mt-4">
+                                प्रारंभिक जमा रक्कम: ₹ {{ depositInfo.INITIAL_AMOUNT }} ({{ depositInfo.MODE_OF_PAYMENT == 'C' ? 'Cash' : 'Cheque' }})
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-note">* सदर माहिती भरणे बंधनकारक आहे *</div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- ================= PAGE 3: MEMBER SIGN, KYC CHECKLIST & OFFICE USE ================= -->
+        <div class="form-page">
+            <!-- Signature area -->
+            <div class="section-header-strip">९. सभासदाची स्वाक्षरी / अंगठा</div>
+            <div class="section-content-box flex-row justify-between align-start" style="min-height: 140px;">
+                <div class="flex-col flex-1 gap-10">
+                    <p class="paragraph-section" style="font-size: 11px;">
+                        मी/आम्ही याद्वारे घोषित करतो की वर दिलेली माहिती माझ्या/आमच्या ज्ञान आणि विश्वासानुसार खरी आणि अचूक आहे. मी बँकेचे नियम, अटी व शर्ती वाचल्या असून त्या मला/आम्हाला मान्य आहेत.
+                    </p>
+                    <div class="flex-row justify-between mt-15">
+                        <div class="bold" style="font-size: 11px; color:#0082c3;">
+                            सही - १) <span class="mini-line" style="min-width: 150px;"></span>
+                        </div>
+                        <div class="bold" style="font-size: 11px; color:#0082c3;">
+                            २) <span class="mini-line" style="min-width: 150px;"></span>
+                        </div>
+                    </div>
+                    <div class="mt-10">
+                        <span class="bold" style="font-size: 11px; color:#0082c3;">दिनांक:</span>
+                        <span class="mini-line"></span>
+                    </div>
+                </div>
+
+                <div class="photo-sig-container ml-15">
+                    <div class="photo-box">
+                        <img *ngIf="PHOTOS.length > 0" [src]="PHOTOS[0]" alt="Applicant Photo">
+                        <span *ngIf="PHOTOS.length == 0">फोटो (Photo)</span>
+                    </div>
+                    <div class="sign-box"></div>
+                    <div class="sig-label">सही नमुना</div>
+                </div>
+            </div>
+
+            <!-- KYC Proof checklist -->
+            <div class="section-header-strip">१०. ओळखपत्र व पत्ता पुरावा (KYC Proofs Checklist)</div>
+            <div class="section-content-box">
+                <div class="kyc-checklist-container">
+                    <div class="kyc-checklist-box">
+                        <div class="bold text-center mb-6" style="font-size: 11px; color: #0082c3; border-bottom: 1px solid #0082c3; padding-bottom: 2px;">ओळखपत्राबाबत</div>
+                        <div class="kyc-grid">
+                            <label class="checkbox-label"><span class="check-box">{{ ApplicantPersonal[0]?.OVD_DOC ? '✔' : '' }}</span> जन्म तारखेचा दाखला / जन्म दाखला</label>
+                            <label class="checkbox-label"><span class="check-box">{{ (ApplicantPersonal[0]?.PAN_NO || basicInfo.PAN_NUMBER) ? '✔' : '' }}</span> पॅन कार्ड</label>
+                            <label class="checkbox-label"><span class="check-box">{{ ApplicantPersonal[0]?.OVD_DOC === 'Driving License' ? '✔' : '' }}</span> ड्रायव्हिंग लायसन्स</label>
+                            <label class="checkbox-label"><span class="check-box">{{ (ApplicantPersonal[0]?.OVD_DOC === 'Aadhaar' || ApplicantPersonal[0]?.AADHAAR_NUMBER || basicInfo.AADHAAR_NO_1) ? '✔' : '' }}</span> आधार कार्ड</label>
+                            <label class="checkbox-label"><span class="check-box">{{ ApplicantPersonal[0]?.OVD_DOC === 'Voter ID' ? '✔' : '' }}</span> निवडणूक ओळखपत्र</label>
+                        </div>
+                    </div>
+
+                    <div class="kyc-checklist-box">
+                        <div class="bold text-center mb-6" style="font-size: 11px; color: #0082c3; border-bottom: 1px solid #0082c3; padding-bottom: 2px;">पत्ता पुरावा</div>
+                        <div class="kyc-grid">
+                            <label class="checkbox-label"><span class="check-box">{{ ApplicantPersonal[0]?.CURRUNT_ADDRESS_PROOF ? '✔' : '' }}</span> रेशन कार्ड</label>
+                            <label class="checkbox-label"><span class="check-box"></span> लाईट बिल</label>
+                            <label class="checkbox-label"><span class="check-box"></span> फोन बिल</label>
+                            <label class="checkbox-label"><span class="check-box">{{ applicantPersonalMasterData.address_proof ? '✔' : '' }}</span> Permanent Address Proof</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Office Use Section -->
+            <div class="office-verification-box">
+                <div class="office-header">कार्यालयीन उपयोगासाठी (For Office Use Only)</div>
+                <p class="office-body">
+                    मे. अर्जदार यांच्या अर्जासोबत बँकेच्या के. वाय. सी. धोरणाप्रमाणे फोटो, ओळखीचा पुरावा व पत्ता पुरावा जोडला असून तो मूळ प्रतीशी प्रमाणित केला आहे. तरी सदरचे खाते उघडून देण्यात यावे.
+                </p>
+
+                <!-- Maker Checker details reflection -->
+                <div class="flex-row justify-between align-center mt-10 p-8" style="background: #fff; border: 1px dashed #0082c3;">
+                    <div>
+                        <span class="bold" style="color: #0082c3;">Data Entered By:</span>
+                        <span class="bold ml-4" style="color: #000;">{{ makerUserData?.NAME || 'System' }}</span>
+                        <div style="font-size: 8px; color: gray;">Date: {{ basicInfo.FILLED_DATE_TIME | date:'dd/MM/yyyy HH:mm' }}</div>
+                    </div>
+                    <div>
+                        <span class="bold" style="color: #0082c3;">Data Verified By:</span>
+                        <span class="bold ml-4" style="color: #000;">{{ checkerUserData?.NAME || 'Verified' }}</span>
+                        <div style="font-size: 8px; color: gray;">Date: {{ basicInfo.VERIFIED_DATE_TIME | date:'dd/MM/yyyy HH:mm' }}</div>
+                    </div>
+                </div>
+
+                <div class="flex-row justify-between align-end mt-20">
+                    <div>
+                        <span class="bold" style="color: #0082c3;">दि.</span>
+                        <span class="mini-line" style="min-width: 80px;"></span>
+                        <span class="bold">/ 20</span>
+                    </div>
+
+                    <div class="text-right">
+                        <span class="bold" style="font-size: 11px; color: #0082c3;">अधिकारी / शाखाधिकारी</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-note">* सदर माहिती भरणे बंधनकारक आहे *</div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- ================= PAGE 4: NOMINATION FORM (FORM DA 1) ================= -->
+        <div class="form-page">
+            <div class="text-center bold" style="font-size: 14px; color: #0082c3; text-decoration: underline;">FORM DA 1</div>
+            <div class="text-center bold mt-4" style="font-size: 10px; color: #0082c3;">
+                Nomination under Section 45-ZA read with Section 56 of Banking Regulation Act, 1949 and Rule 2(1) of the Co-operative Bank (Nomination) Rules, in respect of the bank deposits.
+            </div>
+
+            <p class="paragraph-section mt-12" style="font-size: 10px; line-height: 1.6;">
+                I/We <span class="mini-line" style="min-width: 320px;">{{ ApplicantPersonal[0]?.FIRST_NAME }} {{ ApplicantPersonal[0]?.LAST_NAME }}</span> nominate the following persons to whom in the event of my / our / minor's death, the amount of the deposit, particulars where of are given below, may be returned by <span class="bold" style="color:#0082c3;">Kumbhi Kasari Sahakari Bank Ltd., Kuditre Branch</span> <span class="mini-line" style="min-width: 150px;">{{ branchData?.BRANCH_NAME }}</span>
+            </p>
+
+            <table class="nominee-table">
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">Deposit (Nature of Deposit & No.)</th>
+                        <th style="width: 20%;">Name of Nominee</th>
+                        <th style="width: 25%;">Address</th>
+                        <th style="width: 10%;">Relationship</th>
+                        <th style="width: 6%;">Age</th>
+                        <th style="width: 8%;">As Per Preference</th>
+                        <th style="width: 6%;">As Per %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ account_type[depositInfo.ACCOUNT_TYPE] }} {{ basicInfo['ACCOUNT_NUMBER'] }}</td>
+                        <td>{{ nominationInfo.NOMINEE_NAME }}</td>
+                        <td>{{ nominationInfo.NOMINEE_ADDRESS }}</td>
+                        <td>{{ relation[nominationInfo.RELATION] || nominationInfo.RELATION }}</td>
+                        <td>{{ nominationInfo.IS_MINOR ? '' : 'Adult' }}</td>
+                        <td>Yes</td>
+                        <td>100%</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Minor Appointee Section -->
+            <p class="paragraph-section mt-10" style="font-size: 10px; line-height: 1.6;">
+                As the nominee is a minor on this date, I/We appoint Shri/Smt/Kum 
+                <span class="mini-line" style="min-width: 220px;">{{ nominationInfo.IS_MINOR ? nominationInfo.APONITED_NAME : '' }}</span> 
+                age <span class="mini-line short" style="min-width:30px;"></span> 
+                address <span class="mini-line" style="min-width: 250px;">{{ nominationInfo.IS_MINOR ? nominationInfo.APONITED_ADDRESS : '' }}</span> 
+                to receive the amount of the deposit on behalf of the nominee in the event of my/our/minor's death during the minority of the nominee.
+            </p>
+
+            <div class="flex-row justify-between align-end mt-20">
+                <div class="flex-col gap-10">
+                    <div>
+                        <span class="bold" style="font-size: 11px; color:#0082c3;">Place:</span>
+                        <span class="mini-line" style="min-width: 120px;"></span>
+                    </div>
+                    <div>
+                        <span class="bold" style="font-size: 11px; color:#0082c3;">Date:</span>
+                        <span class="mini-line" style="min-width: 120px;">{{ basicInfo.APPLICATION_DATE | date:"dd/MM/yyyy" }}</span>
+                    </div>
+                </div>
+
+                <div class="flex-col align-center" style="width: 250px;">
+                    <div style="border-bottom: 1px dotted #0082c3; width: 100%; height: 35px;"></div>
+                    <span class="bold mt-4" style="font-size: 10px; color:#0082c3;">Signature(s) / Thumb impression(s) of depositor(s)</span>
+                </div>
+            </div>
+
+            <div class="divider" style="margin: 15px 0;"></div>
+
+            <!-- Witnesses Section -->
+            <div class="flex-row justify-between align-start">
+                <div class="flex-col gap-10 flex-1">
+                    <span class="bold" style="font-size: 10.5px; color:#0082c3;">Name(s), signature(s) and address(es) of witness(es)</span>
+                    <div class="flex-col gap-5 mt-4">
+                        <div class="field-row">
+                            <span class="bold">1) Signature:</span>
+                            <span class="field-line"></span>
+                        </div>
+                        <div class="field-row">
+                            <span class="bold">Name:</span>
+                            <span class="field-line"></span>
+                        </div>
+                        <div class="field-row">
+                            <span class="bold">Address:</span>
+                            <span class="field-line"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nominee-registered-box ml-20">
+                    <span class="bold" style="color: #0082c3;">Nomination registered in account system</span>
+                    <div style="border-top: 1px dashed #0082c3; padding-top: 4px; margin-top: 25px;">
+                        <span class="bold" style="color: #0082c3;">Officer / Br. Manager</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-note">* सदर माहिती भरणे बंधनकारक आहे *</div>
+        </div>
+
+        <!-- ================= PAGE 5: VERNACULAR DECLARATION (IF APPLICABLE) ================= -->
+        <div *ngIf="ApplicantPersonal.length > 0 && (ApplicantPersonal[0].IS_VERNACULAR || (ApplicantPersonal.length >= 2 && ApplicantPersonal[1].IS_VERNACULAR))">
+            <div class="page-break"></div>
+            <div class="form-page">
+                <div class="section-header-strip">प्रादेशिक भाषेत स्वाक्षरी करणारी/ अशिक्षित व्यक्तीने द्यावयाचे घोषणापत्र</div>
+
+                <div class="mt-20 flex-col gap-15" style="font-size: 11.5px; color: #000; line-height: 1.8;" *ngIf="ApplicantPersonal[0].IS_VERNACULAR">
+                    <p style="text-align: justify;">
+                        मी श्री / श्रीमती __________________________________________________ (बँकेचे अधिकारी किंवा बँकेचे ग्राहक) कुंभी कासारी सहकारी बँक यांचा ठेव खाते उघडणेचा अर्ज व या अर्जातील सर्व तपशील अर्जदार श्री./श्रीमती <strong style="color:#000;">{{ ApplicantPersonal[0].FIRST_NAME }} {{ ApplicantPersonal[0].LAST_NAME }}</strong> यांना प्रादेशिक भाषेत वाचून दाखविला आहे व उलगडून सांगितला आहे.
+                    </p>
+                    <div class="flex-row justify-between mt-30" style="color: #0082c3; font-weight: bold;">
+                        <div>डाव्या हाताचा अंगठ्याचा ठसा / सही (अर्जदार १)</div>
+                        <div class="text-right">घोषणाकर्त्याचे नांव आणि सही</div>
+                    </div>
+                </div>
+
+                <hr class="divider" style="margin: 40px 0;" *ngIf="ApplicantPersonal.length >= 2 && ApplicantPersonal[1].IS_VERNACULAR">
+
+                <div class="mt-20 flex-col gap-15" style="font-size: 11.5px; color: #000; line-height: 1.8;" *ngIf="ApplicantPersonal.length >= 2 && ApplicantPersonal[1].IS_VERNACULAR">
+                    <p style="text-align: justify;">
+                        मी श्री / श्रीमती __________________________________________________ (बँकेचे अधिकारी किंवा बँकेचे ग्राहक) कुंभी कासारी सहकारी बँक यांचा ठेव खाते उघडणेचा अर्ज व या अर्जातील सर्व तपशील अर्जदार श्री./श्रीमती <strong style="color:#000;">{{ ApplicantPersonal[1].FIRST_NAME }} {{ ApplicantPersonal[1].LAST_NAME }}</strong> यांना प्रादेशिक भाषेत वाचून दाखविला आहे व उलगडून सांगितला आहे.
+                    </p>
+                    <div class="flex-row justify-between mt-30" style="color: #0082c3; font-weight: bold;">
+                        <div>डाव्या हाताचा अंगठ्याचा ठसा / सही (अर्जदार २)</div>
+                        <div class="text-right">घोषणाकर्त्याचे नांव आणि सही</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 6: DATE OF BIRTH MISMATCH DECLARATION (IF APPLICABLE) ================= -->
+        <div *ngIf="ApplicantPersonal.length > 0 && (ApplicantPersonal[0].IS_DOB_MISMATCH || (ApplicantPersonal.length >= 2 && ApplicantPersonal[1].IS_DOB_MISMATCH))">
+            <div class="page-break"></div>
+            <div class="form-page">
+                <div class="section-header-strip">जन्मदिनांक मध्ये तफावत असल्यास त्याबाबतचे घोषणापत्र (Date of Birth Mismatch Declaration)</div>
+
+                <div class="mt-20 flex-col gap-10" *ngIf="ApplicantPersonal[0].IS_DOB_MISMATCH">
+                    <h3 style="color: red; font-size: 12px; font-weight: bold;">[अर्जदार १] जन्मदिनांक तफावत घोषणापत्र:</h3>
+                    <div class="flex-row justify-between mb-10 font-size-10 flex-wrap gap-10">
+                        <div><strong style="color:#0082c3;">अर्जामध्ये पाहिलेला दिनांक (AOF DOB):</strong> <span style="color:#000; font-weight: bold;">{{ ApplicantPersonal[0].DATE_OF_BIRTH }}</span></div>
+                        <div>पुरावा १ नुसार जन्मदिनांक: ______________</div>
+                        <div>पुरावा २ नुसार जन्मदिनांक: ______________</div>
+                    </div>
+                    <p style="font-size: 11.5px; color: #000; text-align: justify; line-height: 1.6;">
+                        मी खात्रीपूर्वक घोषित करतो की अर्जावर नमूद केलेली <strong style="color:#000;">{{ ApplicantPersonal[0].DATE_OF_BIRTH }}</strong> ही माझी खरी जन्मदिनांक आहे आणि या घोषणापत्राच्या पुष्ट्यर्थ मी जन्मदिनांकाचा वैध पुरावा जोडला आहे.
+                    </p>
+                    <div class="mt-20 bold" style="color: #0082c3;">
+                        अर्जदार १ ची स्वाक्षरी (Signature of Customer 1)
+                    </div>
+                </div>
+
+                <hr class="divider" style="margin: 30px 0;" *ngIf="ApplicantPersonal.length >= 2 && ApplicantPersonal[1].IS_DOB_MISMATCH">
+
+                <div class="mt-20 flex-col gap-10" *ngIf="ApplicantPersonal.length >= 2 && ApplicantPersonal[1].IS_DOB_MISMATCH">
+                    <h3 style="color: red; font-size: 12px; font-weight: bold;">[अर्जदार २] जन्मदिनांक तफावत घोषणापत्र:</h3>
+                    <div class="flex-row justify-between mb-10 font-size-10 flex-wrap gap-10">
+                        <div><strong style="color:#0082c3;">अर्जामध्ये पाहिलेला दिनांक (AOF DOB):</strong> <span style="color:#000; font-weight: bold;">{{ ApplicantPersonal[1].DATE_OF_BIRTH }}</span></div>
+                        <div>पुरावा १ नुसार जन्मदिनांक: ______________</div>
+                        <div>पुरावा २ नुसार जन्मदिनांक: ______________</div>
+                    </div>
+                    <p style="font-size: 11.5px; color: #000; text-align: justify; line-height: 1.6;">
+                        मी खात्रीपूर्वक घोषित करतो की अर्जावर नमूद केलेली <strong style="color:#000;">{{ ApplicantPersonal[1].DATE_OF_BIRTH }}</strong> ही माझी खरी जन्मदिनांक आहे आणि या घोषणापत्राच्या पुष्ट्यर्थ मी जन्मदिनांकाचा वैध पुरावा जोडला आहे.
+                    </p>
+                    <div class="mt-20 bold" style="color: #0082c3;">
+                        अर्जदार २ ची स्वाक्षरी (Signature of Customer 2)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</nz-spin>

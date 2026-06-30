@@ -11,11 +11,16 @@ import { Injectable } from '@angular/core';
 import {
   Observable,
   ObservableInput,
+  catchError,
+  filter,
   from,
+  map,
   observable,
   of,
   switchMap,
+  take,
   tap,
+  timer,
 } from 'rxjs';
 import {
   AadhaarMeta,
@@ -166,7 +171,9 @@ export class ApiService implements HttpInterceptor {
 
   // baseUrl = 'http://fcoprodevbackend.kredpool.in/api/'; //.in
 
-  baseUrl = 'http://localhost:8672/api/' // local
+  // baseUrl = 'http://localhost:8672/api/' // local
+
+  baseUrl = 'http://10.35.250.4:1035/api/' // multitenancy server 06-02-2026
 
   // baseUrl = 'http://172.16.99.23:8672/api/' // UAT server
 
@@ -302,6 +309,14 @@ export class ApiService implements HttpInterceptor {
     };
     return this.httpClient.post<NomineeDetails>(
       this.baseUrl + 'nomineeDetails/get',
+      data,
+      this.optionMain
+    );
+  }
+
+  deleteNominee(data: any): Observable<any> {
+    return this.httpClient.post(
+      this.baseUrl + 'nomineeDetails/delete',
       data,
       this.optionMain
     );
@@ -672,9 +687,9 @@ export class ApiService implements HttpInterceptor {
     );
   }
 
-  /** -----------------------------------------
-   * Aadhaar_GetOTP
-   * ----------------------------------------- */
+  // /** -----------------------------------------
+  //  * Aadhaar_GetOTP
+  //  * ----------------------------------------- */
   Aadhaar_GetOTP(data: AadhaarMeta): Observable<any> {
     return this.generateToken().pipe(
       switchMap((result: any) => {
@@ -694,11 +709,111 @@ export class ApiService implements HttpInterceptor {
     );
   }
 
+
+  private surepass_token =
+    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTcxNTY5MjMyNiwianRpIjoiNzcxMzZmYWEtYzM2MC00MDY5LWIzZGUtODMyNWVmZmYwZWEwIiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LnVzZXJuYW1lXzJ2MHBpZGNhdHlpdTJvcjVmbjV5OG96aG9oc0BzdXJlcGFzcy5pbyIsIm5iZiI6MTcxNTY5MjMyNiwiZXhwIjoyMDMxMDUyMzI2LCJlbWFpbCI6InVzZXJuYW1lXzJ2MHBpZGNhdHlpdTJvcjVmbjV5OG96aG9oc0BzdXJlcGFzcy5pbyIsInRlbmFudF9pZCI6Im1haW4iLCJ1c2VyX2NsYWltcyI6eyJzY29wZXMiOlsidXNlciJdfX0.7Mz0n2rBsMQUpu0m6-AYn7ZaSrUkiprnhANo3678wIc";
+
+  private surepass_url = "https://kyc-api.surepass.io/";
+  Aadhaar_GetStatus(client_id: string) {
+    const headers = new HttpHeaders({
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${this.surepass_token}`,
+    });
+
+    return this.httpClient.get<any>(
+      `${this.surepass_url}api/v1/digilocker/status/${client_id}`,
+      { headers },
+    );
+  }
+
+  checkAadhaarStatus(clientId: string | null): Observable<boolean> {
+    if (!clientId) return of(false);
+
+    const maxAttempts = 60; // 60 * 3s = 180s
+    const pollEveryMs = 3000;
+
+    return timer(0, pollEveryMs).pipe(
+      take(maxAttempts),
+      switchMap(() =>
+        this.Aadhaar_GetStatus(clientId).pipe(
+          catchError(() => of({ completed: false })), // treat errors as "not completed"
+        ),
+      ),
+      map((res: any) => !!res?.data.completed),
+      filter((done) => done === true), // only pass when done
+      take(1), // emit true once and complete
+      catchError(() => of(false)),
+    );
+  }
+
+  // Aadhaar_GetData(client_id: string | null): Observable<any> {
+  //   if (!client_id) return of(false);
+
+  //   const headers = new HttpHeaders({
+  //     Authorization: `Bearer ${this.surepass_token}`,
+  //   });
+
+  //   return this.checkAadhaarStatus(client_id).pipe(
+  //     switchMap((done) => {
+  //       if (!done) return of(false);
+
+  //       return this.httpClient.get(
+  //         `${this.surepass_url}api/v1/digilocker/download-aadhaar/${client_id}`,
+  //         { headers },
+  //       );
+  //     }),
+  //     catchError(() => of(false)),
+  //   );
+  // }
+
+  /** -----------------------------------------
+   * Aadhaar_GetOTP
+   * ----------------------------------------- */
+  // verifyAadhaar(data: AadhaarMeta): Observable<any> {
+  //   const httpHeaders = new HttpHeaders({
+  //     "Content-Type": "application/json",
+  //     Authorization: `Bearer ${this.surepass_token}`,
+  //   });
+  //   const options = {
+  //     headers: httpHeaders,
+  //   };
+
+  //   const payload = {
+  //     data: data,
+  //   };
+
+  //   return this.httpClient.post(
+  //     `${this.surepass_url}api/v1/digilocker/initialize`,
+  //     payload,
+  //     options,
+  //   );
+  // }
+
+
+
+  // Pan_Verify(data: PanMeta): Observable<any> {
+  //   const token =
+  //     'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTcxNTY5MjMyNiwianRpIjoiNzcxMzZmYWEtYzM2MC00MDY5LWIzZGUtODMyNWVmZmYwZWEwIiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LnVzZXJuYW1lXzJ2MHBpZGNhdHlpdTJvcjVmbjV5OG96aG9oc0BzdXJlcGFzcy5pbyIsIm5iZiI6MTcxNTY5MjMyNiwiZXhwIjoyMDMxMDUyMzI2LCJlbWFpbCI6InVzZXJuYW1lXzJ2MHBpZGNhdHlpdTJvcjVmbjV5OG96aG9oc0BzdXJlcGFzcy5pbyIsInRlbmFudF9pZCI6Im1haW4iLCJ1c2VyX2NsYWltcyI6eyJzY29wZXMiOlsidXNlciJdfX0.7Mz0n2rBsMQUpu0m6-AYn7ZaSrUkiprnhANo3678wIc';
+  //   this.httpHeaders = new HttpHeaders({
+  //     'Content-Type': 'application/json',
+  //     Authorization: `Bearer ${token}`,
+  //   });
+  //   this.options = {
+  //     headers: this.httpHeaders,
+  //   };
+  //   return this.httpClient.post<any>(
+  //     this.verifyPanUrl,
+  //     JSON.stringify(data),
+  //     this.options
+  //   );
+  // }
+
+
   Pan_Verify(data: PanMeta): Observable<any> {
     const token =
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTcxNTY5MjMyNiwianRpIjoiNzcxMzZmYWEtYzM2MC00MDY5LWIzZGUtODMyNWVmZmYwZWEwIiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LnVzZXJuYW1lXzJ2MHBpZGNhdHlpdTJvcjVmbjV5OG96aG9oc0BzdXJlcGFzcy5pbyIsIm5iZiI6MTcxNTY5MjMyNiwiZXhwIjoyMDMxMDUyMzI2LCJlbWFpbCI6InVzZXJuYW1lXzJ2MHBpZGNhdHlpdTJvcjVmbjV5OG96aG9oc0BzdXJlcGFzcy5pbyIsInRlbmFudF9pZCI6Im1haW4iLCJ1c2VyX2NsYWltcyI6eyJzY29wZXMiOlsidXNlciJdfX0.7Mz0n2rBsMQUpu0m6-AYn7ZaSrUkiprnhANo3678wIc';
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTcxNTY5MjMyNiwianRpIjoiNzcxMzZmYWEtYzM2MC00MDY5LWIzZGUtODMyNWVmZmYwZWEwIiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LnVzZXJuYW1lXzJ2MHBpZGNhdHlpdTJvcjVmbjV5OG96aG9oc0BzdXJlcGFzcy5pbyIsIm5iZiI6MTcxNTY5MjMyNiwiZXhwIjoyMDMxMDUyMzI2LCJlbWFpbCI6InVzZXJuYW1lXzJ2MHBpZGNhdHlpdTJvcjVmbjV5OG96aG9oc0BzdXJlcGFzcy5pbyIsInRlbmFudF9pZCI6Im1haW4iLCJ1c2VyX2NsYWltcyI6eyJzY29wZXMiOlsidXNlciJdfX0.7Mz0n2rBsMQUpu0m6-AYn7ZaSrUkiprnhANo3678wIc";
     this.httpHeaders = new HttpHeaders({
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     });
     this.options = {
@@ -707,9 +822,10 @@ export class ApiService implements HttpInterceptor {
     return this.httpClient.post<any>(
       this.verifyPanUrl,
       JSON.stringify(data),
-      this.options
+      this.options,
     );
   }
+
 
   // getSideMenu(role_id: any) {
   //   let data = {
@@ -1368,9 +1484,16 @@ export class ApiService implements HttpInterceptor {
     );
   }
 
-  getPasswordPolicyData() {
+  getPasswordPolicyData(bankId?: string) {
+    // 🔐 If bankId is provided (e.g., during forced reset), append it as query parameter 
+    // This allows the backend to identify the bank policy without a JWT token.
+    let url = this.baseUrl + 'passwordPolicy/get';
+    if (bankId) {
+      url += `?BANK_ID=${bankId}`;
+    }
+
     return this.httpClient.get<any>(
-      this.baseUrl + 'passwordPolicy/get',
+      url,
       this.optionMain
     );
   }

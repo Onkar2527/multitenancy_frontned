@@ -33,11 +33,11 @@ export class PasswordChangeComponent implements OnInit {
   isSpinning = false;
 
   passwordPolicyStrObj = {
-    capital_letter:"",
-    small_letter:"",
-    number:"",
-    symbol:"",
-    passLength:""
+    capital_letter: "",
+    small_letter: "",
+    number: "",
+    symbol: "",
+    passLength: ""
   }
 
   constructor(private api: ApiService, private router: Router, private message: NzNotificationService) { }
@@ -48,7 +48,11 @@ export class PasswordChangeComponent implements OnInit {
 
   getPasswordPolicy() {
     this.isSpinning = true;
-    this.api.getPasswordPolicyData().subscribe({
+
+    // 🔐 Get BANK_ID from sessionStorage (stored during login if reset is required)
+    const bankId = sessionStorage.getItem('BANK_ID');
+
+    this.api.getPasswordPolicyData(bankId || undefined).subscribe({
       next: (res) => {
         if (res['code'] == 200) {
           this.isSpinning = false;
@@ -61,16 +65,16 @@ export class PasswordChangeComponent implements OnInit {
           this.passwordPolicyStrObj.small_letter = `${this.passwordPolicyData.FR_SMALL_LETTERS ? `${this.passwordPolicyData.FR_SMALL_LETTERS} lowercase letter${this.passwordPolicyData.FR_SMALL_LETTERS != 1 ? 's' : ''}` : ''}`
           this.passwordPolicyStrObj.number = `${this.passwordPolicyData.FR_NUMBERS ? `${this.passwordPolicyData.FR_NUMBERS} number${this.passwordPolicyData.FR_NUMBERS != 1 ? 's' : ''}` : ''}`
           this.passwordPolicyStrObj.symbol = `${this.passwordPolicyData.FR_SYMBOLS ? `${this.passwordPolicyData.FR_SYMBOLS} symbol${this.passwordPolicyData.FR_SYMBOLS != 1 ? 's' : ''}` : ''}`
-          this.passwordPolicyStrObj.passLength =  `${this.passwordPolicyData.PASSWORD_LENGTH ? `Minimum ${this.passwordPolicyData.PASSWORD_LENGTH} character${this.passwordPolicyData.PASSWORD_LENGTH != 1 ? 's' : ''}` : ''}`
+          this.passwordPolicyStrObj.passLength = `${this.passwordPolicyData.PASSWORD_LENGTH ? `Minimum ${this.passwordPolicyData.PASSWORD_LENGTH} character${this.passwordPolicyData.PASSWORD_LENGTH != 1 ? 's' : ''}` : ''}`
 
           this.validationString = `Password must contain the following : ${this.passwordPolicyStrObj.small_letter}
           ${this.passwordPolicyStrObj.capital_letter}
           ${this.passwordPolicyStrObj.number}
           ${this.passwordPolicyStrObj.symbol}
           ${this.passwordPolicyStrObj.passLength}`.split("\n")
-          .map(s => s.trim())
-          .filter(Boolean)
-          .join(", ");
+            .map(s => s.trim())
+            .filter(Boolean)
+            .join(", ");
 
           console.log(this.validationString);
         }

@@ -163,9 +163,16 @@ export class AddAccountComponent implements OnInit, OnDestroy {
       }
 
       else {
-        this.message.error("Unable to create account.", '');
+        this.message.error(
+          onBoardingResult.message || "Unable to create account",
+          ''
+        );
         this.AccountCreationStatus.emit(false);
       }
+      // else {
+      //   this.message.error("Unable to create account.", '');
+      //   this.AccountCreationStatus.emit(false);
+      // }
 
 
     }
@@ -843,7 +850,7 @@ export class AddAccountComponent implements OnInit, OnDestroy {
       })
     }
     else if (this.selectedIndex == 2) {
-      this.nomineeComp.nomineeInfo.APPLICANT_ID = this.APPLICANT_ID;
+      this.nomineeComp.APPLICANT_ID = this.APPLICANT_ID;
       let nominee = this.nomineeComp.save();
       nominee.subscribe({
         next: (res) => {

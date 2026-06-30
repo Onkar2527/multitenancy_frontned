@@ -30,6 +30,9 @@ import { PersonalComponent } from './add-account/personal/personal.component';
 import { ApplicantComponent } from './add-account/personal/applicant/applicant.component';
 import { ServicesComponent } from './add-account/services/services.component';
 import { WebCamComponent } from './add-account/web-cam/web-cam.component';
+import { AjaraFormComponent } from './add-account/form/banks/ajara-form/ajara-form.component';
+import { DadaFormComponent } from './add-account/form/banks/dada-form/dada-form.component';
+import { KumbhiFormComponent } from './add-account/form/banks/kumbhi-form/kumbhi-form.component';
 
 // import {LoginComponent} from 'src/app/login/login.component';
 import { WebcamModule } from 'ngx-webcam';
@@ -99,6 +102,9 @@ registerLocaleData(en);
     NominationComponent,
     ServicesComponent,
     FormComponent,
+    AjaraFormComponent,
+    DadaFormComponent,
+    KumbhiFormComponent,
     WebCamComponent,
     ApplicantDetailsComponent,
     ApplicantTabsComponent,

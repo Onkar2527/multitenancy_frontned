@@ -33,7 +33,7 @@ export class ApplicantComponent implements OnInit {
   constructor(
     private api: ApiService,
     private message: NzNotificationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.getMasters();
@@ -61,17 +61,53 @@ export class ApplicantComponent implements OnInit {
     }
   }
 
+  setAadhaarInBasicInfo(value: string) {
+    if (this.applicantNo === 1) {
+      this.basicInfo['AADHAAR_NO_1'] = value;
+      this.basicInfo['AADHAAR_NUMBER'] = value;
+    } else if (this.applicantNo === 2) {
+      this.basicInfo['AADHAAR_NO_2'] = value;
+      this.basicInfo['AADHAAR_NUMBER2'] = value;
+    } else if (this.applicantNo === 3) {
+      this.basicInfo['AADHAAR_NUMBER3'] = value;
+    } else if (this.applicantNo === 4) {
+      this.basicInfo['AADHAAR_NUMBER4'] = value;
+    }
+  }
+
+  getAadhaarFromBasicInfo(): string {
+    if (this.applicantNo === 1) {
+      return this.basicInfo['AADHAAR_NO_1'] || this.basicInfo['AADHAAR_NUMBER'] || '';
+    } else if (this.applicantNo === 2) {
+      return this.basicInfo['AADHAAR_NO_2'] || this.basicInfo['AADHAAR_NUMBER2'] || '';
+    } else if (this.applicantNo === 3) {
+      return this.basicInfo['AADHAAR_NUMBER3'] || '';
+    } else if (this.applicantNo === 4) {
+      return this.basicInfo['AADHAAR_NUMBER4'] || '';
+    }
+    return '';
+  }
+
   showAadharNo(value: string) {
     this.previewAdhaar = value;
+    this.setAadhaarInBasicInfo(value);
+    this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = false;
+  }
+
+  showPanNo(value: string) {
+    this.basicInfo['PAN_NUMBER' + (this.applicantNo > 1 ? this.applicantNo : '')] = value;
+    this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = false;
   }
 
   async getOtp() {
     this.loadOtpButton = true;
     if ((await this.checkBalance(1)) == 0) {
+      this.loadOtpButton = false;
       return;
     }
 
     if (!(await this.searchAadhaar())) {
+      this.loadOtpButton = false;
       return;
     }
 
@@ -86,13 +122,177 @@ export class ApplicantComponent implements OnInit {
     });
   }
 
+
+
+
+  // async initializeAadhaarVerification(AplicantNo: number) {
+  //   if ((await this.checkBalance(1)) == 0) {
+  //     return;
+  //   }
+
+  //   switch (AplicantNo) {
+  //     case 1: {
+  //       // this.loadOtpButton = true;
+  //       if (!this.aadhaarVerify.aadhar_history.AADHAAR_NUMBER) {
+  //         this.message.error(
+  //           "Aadhaar No missing",
+  //           "Please enter aadhaar number first to start verification",
+  //         );
+  //         return;
+  //       }
+  //       let verification = this.aadhaarVerify.initializeAadhaarVerification();
+
+  //       verification.subscribe({
+  //         next: (res) => {
+  //           const varification_window = window.open(
+  //             this.aadhaarVerify.meta.url,
+  //           );
+  //           if (!varification_window) {
+  //             alert("Please allow popups");
+  //           } else {
+  //             this.aadhaarVerify.verfication_window_open = true;
+  //             const checkChildClosed = setInterval(() => {
+  //               if (varification_window.closed) {
+  //                 clearInterval(checkChildClosed);
+  //                 this.aadhaarVerify.verfication_window_open = false;
+  //                 this.getAadhaarData();
+  //                 console.log("Child window is closed");
+  //               }
+  //             }, 500);
+  //           }
+  //         },
+  //         error: () => { },
+  //       });
+  //       break;
+  //     }
+
+  //     // case 2: {
+  //     //   if (!this.aadhaarVerify2.aadhar_history.AADHAAR_NUMBER) {
+  //     //     this.message.error(
+  //     //       "Aadhaar No missing",
+  //     //       "Please enter aadhaar number first to start verification",
+  //     //     );
+  //     //     return;
+  //     //   }
+
+  //     //   let verification = this.aadhaarVerify2.initializeAadhaarVerification();
+
+  //     //   verification.subscribe({
+  //     //     next: (res) => {
+  //     //       const varification_window = window.open(
+  //     //         this.aadhaarVerify2.meta.url,
+  //     //       );
+  //     //       if (!varification_window) {
+  //     //         alert("Please allow popups");
+  //     //       } else {
+  //     //         this.aadhaarVerify2.verfication_window_open = true;
+  //     //         const checkChildClosed = setInterval(() => {
+  //     //           if (varification_window.closed) {
+  //     //             clearInterval(checkChildClosed);
+  //     //             this.aadhaarVerify2.verfication_window_open = false;
+  //     //             this.getAadhaarData(2);
+  //     //             console.log("Child window is closed");
+  //     //           }
+  //     //         }, 500);
+  //     //       }
+  //     //     },
+  //     //     error: () => { },
+  //     //   });
+  //     //   break;
+  //     // }
+
+  //     // case 3: {
+  //     //   if (!this.aadhaarVerify3.aadhar_history.AADHAAR_NUMBER) {
+  //     //     this.message.error(
+  //     //       "Aadhaar No missing",
+  //     //       "Please enter aadhaar number first to start verification",
+  //     //     );
+  //     //     return;
+  //     //   }
+
+  //     //   let verification = this.aadhaarVerify3.initializeAadhaarVerification();
+
+  //     //   verification.subscribe({
+  //     //     next: (res) => {
+  //     //       const varification_window = window.open(
+  //     //         this.aadhaarVerify3.meta.url,
+  //     //       );
+  //     //       if (!varification_window) {
+  //     //         alert("Please allow popups");
+  //     //       } else {
+  //     //         this.aadhaarVerify3.verfication_window_open = true;
+  //     //         const checkChildClosed = setInterval(() => {
+  //     //           if (varification_window.closed) {
+  //     //             clearInterval(checkChildClosed);
+  //     //             this.aadhaarVerify3.verfication_window_open = false;
+  //     //             this.getAadhaarData(3);
+  //     //             console.log("Child window is closed");
+  //     //           }
+  //     //         }, 500);
+  //     //       }
+  //     //     },
+  //     //     error: () => { },
+  //     //   });
+  //     //   break;
+  //     // }
+
+  //     // case 4: {
+  //     //   if (!this.aadhaarVerify4.aadhar_history.AADHAAR_NUMBER) {
+  //     //     this.message.error(
+  //     //       "Aadhaar No missing",
+  //     //       "Please enter aadhaar number first to start verification",
+  //     //     );
+  //     //     return;
+  //     //   }
+
+  //     //   let verification = this.aadhaarVerify4.initializeAadhaarVerification();
+
+  //     //   verification.subscribe({
+  //     //     next: (res) => {
+  //     //       const varification_window = window.open(
+  //     //         this.aadhaarVerify4.meta.url,
+  //     //       );
+  //     //       if (!varification_window) {
+  //     //         alert("Please allow popups");
+  //     //       } else {
+  //     //         this.aadhaarVerify4.verfication_window_open = true;
+  //     //         const checkChildClosed = setInterval(() => {
+  //     //           if (varification_window.closed) {
+  //     //             clearInterval(checkChildClosed);
+  //     //             this.aadhaarVerify4.verfication_window_open = false;
+  //     //             this.getAadhaarData(4);
+  //     //             console.log("Child window is closed");
+  //     //           }
+  //     //         }, 500);
+  //     //       }
+  //     //     },
+  //     //     error: () => { },
+  //     //   });
+  //     //   break;
+  //     // }
+
+  //     default: {
+  //       console.error(
+  //         "Inside function initializeAadhaarVerification : AplicantNo is Invalid - ",
+  //         AplicantNo,
+  //       );
+  //       break;
+  //     }
+  //   }
+  // }
+
+
   getAadhaarData() {
     this.loadAadhaarButton = true;
     let aadhar_data = this.aadhaarVerify.getData();
     aadhar_data.subscribe({
       next: (res) => {
         if (res == true) {
-          this.saveAadhaarData();
+          if (!this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo]) {
+            this.saveAadhaarData();
+          } else {
+            this.setAadhaarInBasicInfo(this.aadhaarVerify.aadhar_history.AADHAAR_NUMBER);
+          }
           this.Hit(1);
         }
         this.loadAadhaarButton = false;
@@ -109,8 +309,7 @@ export class ApplicantComponent implements OnInit {
     this.aadhaarVerify.aadhar_history.ADDRESS_ID = [
       this.aadhaarVerify.aadhar_address,
     ];
-    this.basicInfo['AADHAAR_NO_' + this.applicantNo] =
-      this.aadhaarVerify.aadhar_history.AADHAAR_NUMBER;
+    this.setAadhaarInBasicInfo(this.aadhaarVerify.aadhar_history.AADHAAR_NUMBER);
     this.saveAadhaar(this.aadhaarVerify.aadhar_history);
   }
 
@@ -128,8 +327,10 @@ export class ApplicantComponent implements OnInit {
   }
 
   getAdhaarHistory() {
-    let aadhaar_no = this.basicInfo['AADHAAR_NO_' + this.applicantNo];
+    let aadhaar_no = this.getAadhaarFromBasicInfo();
     if (!aadhaar_no) return;
+
+    this.aadhaarVerify.aadhar_history.AADHAAR_NUMBER = aadhaar_no;
 
     this.api.getAadhaarData(this.applicantNo, aadhaar_no).subscribe({
       next: (res) => {
@@ -147,9 +348,13 @@ export class ApplicantComponent implements OnInit {
 
   async verifyPan() {
     if ((await this.checkBalance(2)) == 0) return;
-    if (!(await this.searchPAN())) return;
-
+    
     this.loadPanButton = true;
+    if (!(await this.searchPAN())) {
+      this.loadPanButton = false;
+      return;
+    }
+
     let panverify = this.aadhaarVerify.verifyPan();
     panverify.subscribe({
       next: (res) => {
@@ -157,7 +362,9 @@ export class ApplicantComponent implements OnInit {
           this.basicInfo[
             'PAN_NUMBER' + (this.applicantNo > 1 ? this.applicantNo : '')
           ] = this.aadhaarVerify.pan_history.PAN_NUMBER;
-          this.savePanData();
+          if (!this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo]) {
+            this.savePanData();
+          }
           this.Hit(2);
         }
         this.loadPanButton = false;
@@ -189,9 +396,11 @@ export class ApplicantComponent implements OnInit {
   getPanHistory() {
     let pan_no =
       this.basicInfo[
-        'PAN_NUMBER' + (this.applicantNo > 1 ? this.applicantNo : '')
+      'PAN_NUMBER' + (this.applicantNo > 1 ? this.applicantNo : '')
       ];
     if (!pan_no) return;
+
+    this.aadhaarVerify.pan_history.PAN_NUMBER = pan_no;
 
     this.api.getPanData(this.applicantNo, pan_no).subscribe({
       next: (res) => {
@@ -212,7 +421,9 @@ export class ApplicantComponent implements OnInit {
         if (res == true) {
           this.basicInfo['VOTER_ID_' + this.applicantNo] =
             this.aadhaarVerify.voter_history.EPIC_NO;
-          this.saveVoterData();
+          if (!this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo]) {
+            this.saveVoterData();
+          }
           this.Hit(3);
         }
         this.loadVoterButton = false;
@@ -263,7 +474,9 @@ export class ApplicantComponent implements OnInit {
         if (res == true) {
           this.basicInfo['LICENSE_NO_' + this.applicantNo] =
             this.aadhaarVerify.license_history.LICENSE_NUMBER;
-          this.saveLicenseData();
+          if (!this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo]) {
+            this.saveLicenseData();
+          }
           this.Hit(4);
         }
         this.loadLicenseButton = false;
@@ -360,7 +573,7 @@ export class ApplicantComponent implements OnInit {
       let res: any = await lastValueFrom(
         this.api.searchCustomer('', aadhaarNo, '', 'AADHAAR_NO')
       );
-      return this.handleSearchResponse(res);
+      return this.handleSearchResponse(res, true);
     }
     return true;
   }
@@ -371,7 +584,7 @@ export class ApplicantComponent implements OnInit {
       let res: any = await lastValueFrom(
         this.api.searchCustomer('', '', panNo, 'PAN')
       );
-      return this.handleSearchResponse(res);
+      return this.handleSearchResponse(res, true);
     }
     return true;
   }
@@ -396,34 +609,43 @@ export class ApplicantComponent implements OnInit {
   //   return true;
   // }
 
-  private handleSearchResponse(res: any): boolean {
-  if (res?.code === 200) {
-    const searchData = res.data;
+  private handleSearchResponse(res: any, isBackground = false): boolean {
+    if (res?.code === 200) {
+      const searchData = res.data;
 
-    if (searchData.ALREADY_EXIST === 'Y') {
-      this.message.warning(
-        'Customer already exists. You can proceed for verification.',
-        ''
-      );
+      this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = true;
+      if (!this.basicInfo['IS_OLD_CUSTOMER_' + this.applicantNo]) {
+        this.message.warning(
+          'Customer already exists in CBS. Verification is allowed, but submission will be blocked.',
+          ''
+        );
+      } else {
+        this.message.success('Customer details retrieved from CBS successfully.', '');
+      }
 
       // ✅ Still allow verification
       this.populateFieldsFromSearch(searchData);
       return true;
     }
 
-    // ✅ New customer
-    this.populateFieldsFromSearch(searchData);
-    return true;
-  }
+    if (res?.code === 404) {
+      if (!isBackground) {
+        this.message.error('No Customer Found.', '');
+      }
+      this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = false;
+      return isBackground ? true : false;
+    }
 
-  if (res?.code === 404) {
-    this.message.error('No Customer Found.', '');
-    return false;
+    // Network timeout or other error
+    if (res?.error && (String(res.error).includes('ETIMEDOUT') || String(res.error).includes('connect') || String(res.error).includes('timeout'))) {
+      console.warn('CBS API Connection Timeout/Offline. Duplicate validation skipped.');
+    } else {
+      this.message.error('Something Went Wrong', '');
+    }
+    
+    this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = false;
+    return isBackground ? true : false;
   }
-
-  this.message.error('Something Went Wrong', '');
-  return false;
-}
 
 
   private populateFieldsFromSearch(data: any) {

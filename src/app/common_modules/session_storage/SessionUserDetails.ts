@@ -3,6 +3,9 @@ class UserSessionKeys {
     NAME: string = '';
     ROLE_ID: string = '';
     USER_ID: string = '';
+    BANK_ID: string = ''; // 🔑 Added to store Bank ID during forced reset
+    BRANCH_NAME: string = ''; // 🔑 Added for multitenancy branding
+    BANK_NAME: string = '';   // 🔑 Added for multitenancy branding
 }
 
 

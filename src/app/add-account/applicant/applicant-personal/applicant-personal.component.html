@@ -370,7 +370,7 @@
                                     </div>
                                     <div nz-col nzSpan="12">
                                         <nz-form-item>
-                                            <nz-form-label nzRequired [nzNoColon]="true">Email ID</nz-form-label>
+                                            <nz-form-label [nzNoColon]="true">Email ID</nz-form-label>
                                             <nz-form-control>
                                                 <input nz-input name="email" [(ngModel)]="personalInfo.EMAIL_ID"
                                                     placeholder="Enter Email ID" />
@@ -875,6 +875,15 @@
                                 </nz-form-control>
                             </nz-form-item>
                         </div>
+                        <div nz-row *ngIf="personalInfo.WORK === 'O'">
+                            <nz-form-item nz-col nzSpan="24">
+                                <nz-form-label nzRequired [nzNoColon]="true">Other Work Details</nz-form-label>
+                                <nz-form-control>
+                                    <input nz-input name="OTHER_WORK" [(ngModel)]="personalInfo.OTHER_WORK"
+                                        placeholder="Enter Other Work Details" />
+                                </nz-form-control>
+                            </nz-form-item>
+                        </div>
                         <nz-divider nzText="Establishment"></nz-divider>
                         <div nz-row>
                             <nz-form-item nz-col nzSpan="24">
@@ -892,6 +901,15 @@
                                 </nz-form-control>
                             </nz-form-item>
                         </div>
+                        <div nz-row *ngIf="personalInfo.ESTABLISHMENT === 'O'">
+                            <nz-form-item nz-col nzSpan="24">
+                                <nz-form-label nzRequired [nzNoColon]="true">Other Establishment Details</nz-form-label>
+                                <nz-form-control>
+                                    <input nz-input name="OTHER_ESTABLISHMENT" [(ngModel)]="personalInfo.OTHER_ESTABLISHMENT"
+                                        placeholder="Enter Other Establishment Details" />
+                                </nz-form-control>
+                            </nz-form-item>
+                        </div>
                         <nz-divider nzText="If Applicant is Employee"></nz-divider>
                         <div nz-row>
                             <nz-form-item nz-col nzSpan="24">
@@ -905,6 +923,13 @@
                                         <label nz-radio [nzValue]="'O'">Other</label>
                                         <label nz-radio [nzValue]="' '">None</label>
                                     </nz-radio-group>
+                                </nz-form-control>
+                            </nz-form-item>
+                            <nz-form-item nz-col nzSpan="24" *ngIf="personalInfo.EMPLOYMENT_DETAIL === 'O'">
+                                <nz-form-label nzRequired [nzNoColon]="true">Other Employment Details</nz-form-label>
+                                <nz-form-control>
+                                    <input nz-input name="OTHER_EMPLOYMENT_DETAIL" [(ngModel)]="personalInfo.OTHER_EMPLOYMENT_DETAIL"
+                                        placeholder="Enter Other Employment Details" />
                                 </nz-form-control>
                             </nz-form-item>
                             <nz-form-item nz-col nzSpan="24">
@@ -941,6 +966,15 @@
                                 </nz-form-control>
                             </nz-form-item>
                         </div>
+                        <div nz-row *ngIf="personalInfo.PROPRIETOR_DETAILS === 'O'">
+                            <nz-form-item nz-col nzSpan="24">
+                                <nz-form-label nzRequired [nzNoColon]="true">Other Proprietor Details</nz-form-label>
+                                <nz-form-control>
+                                    <input nz-input name="OTHER_PROPRIETOR_DETAILS" [(ngModel)]="personalInfo.OTHER_PROPRIETOR_DETAILS"
+                                        placeholder="Enter Other Proprietor Details" />
+                                </nz-form-control>
+                            </nz-form-item>
+                        </div>
                         <nz-divider nzText="If Applicant is Business Person"></nz-divider>
                         <div nz-row>
                             <nz-form-item nz-col nzSpan="24">
@@ -954,6 +988,15 @@
                                         <label nz-radio [nzValue]="'O'">Other</label>
                                         <label nz-radio [nzValue]="' '">None</label>
                                     </nz-radio-group>
+                                </nz-form-control>
+                            </nz-form-item>
+                        </div>
+                        <div nz-row *ngIf="personalInfo.BUSINESS_DETAIL === 'O'">
+                            <nz-form-item nz-col nzSpan="24">
+                                <nz-form-label nzRequired [nzNoColon]="true">Other Business Details</nz-form-label>
+                                <nz-form-control>
+                                    <input nz-input name="OTHER_BUSINESS_DETAIL" [(ngModel)]="personalInfo.OTHER_BUSINESS_DETAIL"
+                                        placeholder="Enter Other Business Details" />
                                 </nz-form-control>
                             </nz-form-item>
                         </div>

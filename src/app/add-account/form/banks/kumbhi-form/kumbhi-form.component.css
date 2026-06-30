@@ -1,0 +1,547 @@
+/* Clean layout for Kumbhi Kasari Sahakari Bank account opening form */
+
+.main-container {
+    width: 740px;
+    margin: 0 auto;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Noto Sans Devanagari', 'Helvetica Neue', Arial, sans-serif;
+    color: #0082c3;
+    background: #fff;
+}
+
+.form-page {
+    width: 740px;
+    min-height: 1040px;
+    border: 3px double #0082c3;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-sizing: border-box;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    position: relative;
+    page-break-after: always;
+    break-after: page;
+}
+
+/* Flexbox Layout Utilities */
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.align-stretch {
+    align-items: stretch;
+}
+
+.align-start {
+    align-items: flex-start;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.gap-5 { gap: 5px; }
+.gap-10 { gap: 10px; }
+.gap-15 { gap: 15px; }
+.gap-20 { gap: 20px; }
+
+/* Header Elements */
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    border-bottom: 2px solid #0082c3;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+}
+
+.logo-section {
+    width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-section img {
+    max-width: 100%;
+    max-height: 60px;
+    object-fit: contain;
+}
+
+.logo-circle {
+    width: 60px;
+    height: 60px;
+    border: 1px dashed #0082c3;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    text-align: center;
+}
+
+.title-section {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.title-section h1 {
+    color: #0082c3;
+    font-size: 16px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.title-section h2 {
+    color: #0082c3;
+    font-size: 11px;
+    margin: 3px 0 0 0;
+    font-weight: bold;
+}
+
+.title-section h3 {
+    background-color: #0082c3;
+    color: #fff;
+    font-size: 12.5px;
+    font-weight: bold;
+    padding: 2px 16px;
+    margin: 5px 0 0 0;
+    border-radius: 2px;
+}
+
+.risk-table {
+    width: 130px;
+    border-collapse: collapse;
+    border: 1px solid #0082c3;
+}
+
+.risk-table td {
+    border: 1px solid #0082c3;
+    padding: 3px 5px;
+    font-size: 9px;
+    font-weight: bold;
+    color: #0082c3;
+}
+
+.risk-table td:first-child {
+    background-color: #f5faff;
+}
+
+.risk-table td:last-child {
+    text-align: center;
+    width: 25px;
+    font-size: 10px;
+    color: #000;
+}
+
+.sign-td {
+    font-size: 8px !important;
+}
+
+/* Character/Digit boxes */
+.box-row {
+    display: inline-flex;
+    align-items: center;
+}
+
+.digit-box {
+    width: 19px;
+    height: 19px;
+    border: 1px solid #0082c3;
+    border-right: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10.5px;
+    font-weight: bold;
+    color: #000;
+    background: #fff;
+}
+
+.digit-box:last-child {
+    border-right: 1px solid #0082c3;
+}
+
+.small-box {
+    width: 17px;
+    height: 17px;
+    border: 1px solid #0082c3;
+    border-right: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: bold;
+    color: #000;
+}
+
+.small-box:last-child {
+    border-right: 1px solid #0082c3;
+}
+
+/* Text fields & Labels */
+.field-row {
+    display: flex;
+    align-items: flex-end;
+    width: 100%;
+    margin-top: 8px;
+    font-size: 11px;
+}
+
+.field-label {
+    font-weight: bold;
+    color: #0082c3;
+    white-space: nowrap;
+    padding-right: 4px;
+}
+
+.field-line {
+    flex: 1;
+    border-bottom: 1px dotted #0082c3;
+    margin-left: 4px;
+    color: #000;
+    font-weight: bold;
+    padding-left: 4px;
+    min-height: 15px;
+}
+
+.mini-line {
+    border-bottom: 1px dotted #0082c3;
+    display: inline-block;
+    min-width: 70px;
+    color: #000;
+    font-weight: bold;
+    padding-left: 4px;
+    text-align: center;
+}
+
+.mini-line.short {
+    min-width: 35px;
+}
+
+.sub-labels {
+    font-size: 8px;
+    color: #0082c3;
+    opacity: 0.95;
+    margin-top: 1px;
+}
+
+/* Checkboxes */
+.check-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 12px;
+    height: 12px;
+    border: 1px solid #0082c3;
+    margin-right: 3px;
+    font-size: 8px;
+    font-weight: bold;
+    color: #000;
+    background: #fff;
+    vertical-align: middle;
+}
+
+.checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 12px;
+    font-size: 10px;
+    color: #0082c3;
+    font-weight: bold;
+    cursor: default;
+    white-space: nowrap;
+}
+
+/* Visual layout sections */
+.paragraph-section {
+    font-size: 10px;
+    line-height: 1.5;
+    text-align: justify;
+    color: #0082c3;
+    font-weight: bold;
+}
+
+.photo-sig-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    border: 1px dashed #0082c3;
+    padding: 6px;
+    background: #fafafa;
+}
+
+.photo-box {
+    width: 95px;
+    height: 115px;
+    border: 1px solid #0082c3;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0082c3;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.photo-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sign-box {
+    width: 105px;
+    height: 40px;
+    border: 1px solid #0082c3;
+    background: #fff;
+}
+
+.sign-text {
+    font-size: 9px;
+    font-weight: bold;
+    color: #0082c3;
+    text-align: center;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid #0082c3;
+    margin: 8px 0;
+}
+
+.double-divider {
+    border: none;
+    border-top: 3px double #0082c3;
+    margin: 10px 0;
+}
+
+/* Sections & layouts */
+.section-header-strip {
+    background-color: #f0faff;
+    border: 1px solid #0082c3;
+    color: #0082c3;
+    font-weight: bold;
+    font-size: 10.5px;
+    padding: 4px 8px;
+    margin-top: 12px;
+}
+
+.section-content-box {
+    border: 1px solid #0082c3;
+    border-top: none;
+    padding: 8px;
+    font-size: 10px;
+}
+
+/* Table layout for Nomination */
+.nominee-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #0082c3;
+    margin: 8px 0;
+}
+
+.nominee-table th {
+    border: 1px solid #0082c3;
+    background-color: #f0faff;
+    color: #0082c3;
+    padding: 4px;
+    font-size: 9.5px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.nominee-table td {
+    border: 1px solid #0082c3;
+    padding: 4px 6px;
+    font-size: 9.5px;
+    color: #000;
+    height: 20px;
+}
+
+.nominee-registered-box {
+    border: 1px solid #0082c3;
+    padding: 8px;
+    width: 160px;
+    text-align: center;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 90px;
+    font-size: 10px;
+}
+
+/* Checklist layout */
+.kyc-checklist-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.kyc-checklist-box {
+    border: 1px solid #0082c3;
+    padding: 8px;
+}
+
+.kyc-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 5px;
+    margin-top: 6px;
+}
+
+.office-verification-box {
+    border: 1.5px solid #0082c3;
+    padding: 10px;
+    background: #fdfdfd;
+    margin-top: 12px;
+    font-size: 10px;
+}
+
+.office-header {
+    font-weight: bold;
+    text-align: center;
+    text-decoration: underline;
+    font-size: 12.5px;
+    margin-bottom: 8px;
+    color: #0082c3;
+}
+
+.office-body {
+    text-align: justify;
+    line-height: 1.5;
+    color: #000;
+}
+
+/* Print spacing utilities */
+.mt-2 { margin-top: 2px; }
+.mt-4 { margin-top: 4px; }
+.mt-6 { margin-top: 6px; }
+.mt-8 { margin-top: 8px; }
+.mt-10 { margin-top: 10px; }
+.mt-12 { margin-top: 12px; }
+.mt-15 { margin-top: 15px; }
+.mt-20 { margin-top: 20px; }
+.mt-25 { margin-top: 25px; }
+.mt-30 { margin-top: 30px; }
+
+.mb-2 { margin-bottom: 2px; }
+.mb-4 { margin-bottom: 4px; }
+.mb-6 { margin-bottom: 6px; }
+.mb-8 { margin-bottom: 8px; }
+.mb-10 { margin-bottom: 10px; }
+
+.ml-2 { margin-left: 2px; }
+.ml-4 { margin-left: 4px; }
+.ml-6 { margin-left: 6px; }
+.ml-8 { margin-left: 8px; }
+.ml-10 { margin-left: 10px; }
+.ml-15 { margin-left: 15px; }
+.ml-20 { margin-left: 20px; }
+
+.mr-4 { margin-right: 4px; }
+.mr-8 { margin-right: 8px; }
+.mr-10 { margin-right: 10px; }
+
+.p-4 { padding: 4px; }
+.p-8 { padding: 8px; }
+.p-10 { padding: 10px; }
+.pl-10 { padding-left: 10px; }
+.pl-20 { padding-left: 20px; }
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.bold { font-weight: bold; }
+
+.footer-note {
+    text-align: center;
+    font-weight: bold;
+    font-size: 10px;
+    margin-top: auto;
+    padding-top: 10px;
+    letter-spacing: 0.5px;
+    color: #0082c3;
+}
+
+.page-break {
+    page-break-before: always;
+    break-before: page;
+    margin-top: 30px;
+    border-top: 1px dashed #ccc;
+}
+
+/* Print font colors */
+.field-line,
+.mini-line,
+.digit-box,
+.small-box,
+.nominee-table td,
+.paragraph-section strong,
+.office-body,
+strong {
+    color: #000000 !important;
+}
+
+@media print {
+    body {
+        background: #fff;
+    }
+    .main-container {
+        padding: 0;
+        width: 100%;
+    }
+    .form-page {
+        border: 2px solid #0082c3;
+        padding: 15px;
+        margin-bottom: 0;
+        page-break-after: always;
+        break-after: page;
+        min-height: 100%;
+        box-sizing: border-box;
+    }
+    .page-break {
+        display: none !important;
+    }
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}

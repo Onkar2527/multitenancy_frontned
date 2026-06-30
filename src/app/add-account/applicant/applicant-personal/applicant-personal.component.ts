@@ -513,8 +513,6 @@ export class ApplicantPersonalComponent implements OnInit, OnChanges {
 
     { field: 'MOBILE_NUMBER', message: "Mobile Number 1" },
 
-    { field: 'EMAIL_ID', message: "Email ID" },
-
     { field: 'RELIGION', message: "Religion" },
 
     { field: 'CASTE', message: "Caste" },
@@ -860,6 +858,41 @@ export class ApplicantPersonalComponent implements OnInit, OnChanges {
           this.message.error(`${field.message} is Mandatory`, '');
           isOk = false;
         }
+      }
+    }
+
+    if (this.personalInfo.WORK == 'O') {
+      if (!this.personalInfo.OTHER_WORK) {
+        this.message.error("Other Work Details is Mandatory", '');
+        isOk = false;
+      }
+    }
+
+    if (this.personalInfo.ESTABLISHMENT == 'O') {
+      if (!this.personalInfo.OTHER_ESTABLISHMENT) {
+        this.message.error("Other Establishment Details is Mandatory", '');
+        isOk = false;
+      }
+    }
+
+    if (this.personalInfo.EMPLOYMENT_DETAIL == 'O') {
+      if (!this.personalInfo.OTHER_EMPLOYMENT_DETAIL) {
+        this.message.error("Other Employment Details is Mandatory", '');
+        isOk = false;
+      }
+    }
+
+    if (this.personalInfo.PROPRIETOR_DETAILS == 'O') {
+      if (!this.personalInfo.OTHER_PROPRIETOR_DETAILS) {
+        this.message.error("Other Proprietor Details is Mandatory", '');
+        isOk = false;
+      }
+    }
+
+    if (this.personalInfo.BUSINESS_DETAIL == 'O') {
+      if (!this.personalInfo.OTHER_BUSINESS_DETAIL) {
+        this.message.error("Other Business Details is Mandatory", '');
+        isOk = false;
       }
     }
 

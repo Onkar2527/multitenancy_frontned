@@ -345,7 +345,7 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { Subject } from 'rxjs';
+import { Subject, lastValueFrom } from 'rxjs';
 import { BasicInfo } from 'src/app/models/basicInfo';
 import { ApiService } from 'src/app/service/api.service';
 
@@ -499,90 +499,160 @@ export class PersonalComponent implements OnInit, OnChanges {
     console.log('🔥 ADD ACCOUNT saveANext CALLED');
     const personal = new Subject<any>();
 
-    const applicantsData = [];
+    (async () => {
+      // 1. Asynchronously validate Aadhaar and PAN numbers against CBS
+      let validationFailed = false;
 
-    for (let i = 1; i <= this.basicInfo.NO_OF_APPLICANT; i++) {
-      applicantsData.push({
-        APPLICANT_NO: i,
-        FIRST_NAME:
-          this.basicInfo[
-          i === 1
-            ? 'PRIMARY_APPLICANT_FIRST_NAME'
-            : `APPLICANT${i}_FIRST_NAME`
-          ],
-        MIDDLE_NAME:
-          this.basicInfo[
-          i === 1
-            ? 'PRIMARY_APPLICANT_MIDDLE_NAME'
-            : `APPLICANT${i}_MIDDLE_NAME`
-          ],
-        LAST_NAME:
-          this.basicInfo[
-          i === 1
-            ? 'PRIMARY_APPLICANT_LAST_NAME'
-            : `APPLICANT${i}_LAST_NAME`
-          ],
-        AADHAAR_NO: this.basicInfo[`AADHAAR_NO_${i}`],
-        PAN_NUMBER: this.basicInfo[`PAN_NUMBER${i > 1 ? i : ''}`],
-        CUSTOMER_ID: this.basicInfo[`CUSTOMER_ID_${i}`],
-        CKYC_NUMBER: this.basicInfo[`CKYC_NUMBER_${i}`],
-        VOTER_ID: this.basicInfo[`VOTER_ID_${i}`],
-        LICENSE_NO: this.basicInfo[`LICENSE_NO_${i}`],
-        DOB: this.basicInfo[`DOB_${i}`],
-        GENDER: this.basicInfo[`GENDER_${i}`],
-        MOBILE: this.basicInfo[`MOBILE_${i}`],
-        AGE: this.basicInfo[`AGE_${i}`],
-        OTP_AUTH: this.basicInfo[`OTP_AUTH_${i}`],
-        IS_OLD_CUSTOMER: this.basicInfo[`IS_OLD_CUSTOMER_${i}`],
-        CUSTOMER_TYPE: this.basicInfo[`CUSTOMER_TYPE_${i}`],
-      });
-    }
-
-    const payload = {
-      ...this.basicInfo,
-      APPLICANT_ID: this.APPLICANT_ID,
-      applicants: applicantsData
-    };
-
-    const isUpdate = !!payload.ID;
-
-    if (!isUpdate) {
-      payload.MAKER_USER_ID = Number(sessionStorage.getItem('USER_ID'));
-      payload.CREATED_BRANCH_ID = Number(sessionStorage.getItem('BRANCH_ID'));
-      payload.TRACK_ID = 1;
-    }
-
-    const apiCall = isUpdate
-      ? this.api.updateBasic(payload)
-      : this.api.addBasic(payload);
-
-    apiCall.subscribe({
-      next: (res) => {
-        if (res.code === 200) {
-          this.message.success(
-            `Personal Information ${isUpdate ? 'updated' : 'saved'} successfully`,
-            ''
-          );
-
-          if (!isUpdate && res.APPLICANT_ID) {
-            this.APPLICANT_ID = res.APPLICANT_ID;
-          }
-
-          this.getBasicInfo();
-          personal.next(res);
+      // Helper to get Aadhaar
+      const getAadhaarVal = (idx: number): string => {
+        if (idx === 1) {
+          return this.basicInfo['AADHAAR_NO_1'] || this.basicInfo['AADHAAR_NUMBER'] || '';
+        } else if (idx === 2) {
+          return this.basicInfo['AADHAAR_NO_2'] || this.basicInfo['AADHAAR_NUMBER2'] || '';
         } else {
-          this.message.error('Failed to save personal info', '');
-          personal.next(res);
+          return this.basicInfo[`AADHAAR_NUMBER${idx}`] || '';
         }
-      },
-      error: (err) => {
-        this.message.error('Internal Server Error', '');
-        personal.error(err);
-      },
-      complete: () => {
-        personal.complete();
+      };
+
+      // Helper to get PAN
+      const getPanVal = (idx: number): string => {
+        return this.basicInfo['PAN_NUMBER' + (idx > 1 ? idx : '')] || '';
+      };
+
+      for (let i = 1; i <= this.basicInfo.NO_OF_APPLICANT; i++) {
+        const isOldCustomer = !!this.basicInfo['IS_OLD_CUSTOMER_' + i];
+
+        // If flag is already set from verification, block immediately ONLY if not an old customer
+        if (this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + i] && !isOldCustomer) {
+          this.message.error(`Applicant ${i} already exists in CBS! Save/Submit is blocked.`, '');
+          validationFailed = true;
+          break;
+        }
+
+        // Query CBS for Aadhaar to make sure it doesn't exist ONLY if not an old customer
+        const aadhaarNo = getAadhaarVal(i);
+        if (aadhaarNo && !isOldCustomer) {
+          try {
+            const res: any = await lastValueFrom(this.api.searchCustomer('', aadhaarNo, '', 'AADHAAR_NO'));
+            if (res && res.code === 200) {
+              this.message.error(`Applicant ${i} Aadhaar number already exists in CBS! Save/Submit is blocked.`, '');
+              this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + i] = true;
+              validationFailed = true;
+              break;
+            }
+          } catch (e) {
+            console.error('Aadhaar check failed during save', e);
+          }
+        }
+
+        // Query CBS for PAN to make sure it doesn't exist ONLY if not an old customer
+        const panNo = getPanVal(i);
+        if (panNo && !isOldCustomer) {
+          try {
+            const res: any = await lastValueFrom(this.api.searchCustomer('', '', panNo, 'PAN'));
+            if (res && res.code === 200) {
+              this.message.error(`Applicant ${i} PAN number already exists in CBS! Save/Submit is blocked.`, '');
+              this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + i] = true;
+              validationFailed = true;
+              break;
+            }
+          } catch (e) {
+            console.error('PAN check failed during save', e);
+          }
+        }
       }
-    });
+
+      if (validationFailed) {
+        personal.next({ code: 400, message: 'Validation failed: Customer already exists in CBS.' });
+        personal.complete();
+        return;
+      }
+
+      const applicantsData = [];
+
+      for (let i = 1; i <= this.basicInfo.NO_OF_APPLICANT; i++) {
+        applicantsData.push({
+          APPLICANT_NO: i,
+          FIRST_NAME:
+            this.basicInfo[
+            i === 1
+              ? 'PRIMARY_APPLICANT_FIRST_NAME'
+              : `APPLICANT${i}_FIRST_NAME`
+            ],
+          MIDDLE_NAME:
+            this.basicInfo[
+            i === 1
+              ? 'PRIMARY_APPLICANT_MIDDLE_NAME'
+              : `APPLICANT${i}_MIDDLE_NAME`
+            ],
+          LAST_NAME:
+            this.basicInfo[
+            i === 1
+              ? 'PRIMARY_APPLICANT_LAST_NAME'
+              : `APPLICANT${i}_LAST_NAME`
+            ],
+          AADHAAR_NO: this.basicInfo[`AADHAAR_NO_${i}`],
+          PAN_NUMBER: this.basicInfo[`PAN_NUMBER${i > 1 ? i : ''}`],
+          CUSTOMER_ID: this.basicInfo[`CUSTOMER_ID_${i}`],
+          CKYC_NUMBER: this.basicInfo[`CKYC_NUMBER_${i}`],
+          VOTER_ID: this.basicInfo[`VOTER_ID_${i}`],
+          LICENSE_NO: this.basicInfo[`LICENSE_NO_${i}`],
+          DOB: this.basicInfo[`DOB_${i}`],
+          GENDER: this.basicInfo[`GENDER_${i}`],
+          MOBILE: this.basicInfo[`MOBILE_${i}`],
+          AGE: this.basicInfo[`AGE_${i}`],
+          OTP_AUTH: this.basicInfo[`OTP_AUTH_${i}`],
+          IS_OLD_CUSTOMER: this.basicInfo[`IS_OLD_CUSTOMER_${i}`],
+          CUSTOMER_TYPE: this.basicInfo[`CUSTOMER_TYPE_${i}`],
+        });
+      }
+
+      const payload = {
+        ...this.basicInfo,
+        APPLICANT_ID: this.APPLICANT_ID,
+        applicants: applicantsData
+      };
+
+      const isUpdate = !!payload.ID;
+
+      if (!isUpdate) {
+        payload.MAKER_USER_ID = Number(sessionStorage.getItem('USER_ID'));
+        payload.CREATED_BRANCH_ID = Number(sessionStorage.getItem('BRANCH_ID'));
+        payload.TRACK_ID = 1;
+      }
+
+      const apiCall = isUpdate
+        ? this.api.updateBasic(payload)
+        : this.api.addBasic(payload);
+
+      apiCall.subscribe({
+        next: (res) => {
+          if (res.code === 200) {
+            this.message.success(
+              `Personal Information ${isUpdate ? 'updated' : 'saved'} successfully`,
+              ''
+            );
+
+            if (!isUpdate && res.APPLICANT_ID) {
+              this.APPLICANT_ID = res.APPLICANT_ID;
+            }
+
+            this.getBasicInfo();
+            personal.next(res);
+          } else {
+            this.message.error('Failed to save personal info', '');
+            personal.next(res);
+          }
+        },
+        error: (err) => {
+          this.message.error('Internal Server Error', '');
+          personal.error(err);
+        },
+        complete: () => {
+          personal.complete();
+        }
+      });
+    })();
 
     return personal;
   }

@@ -316,7 +316,7 @@ export class Aadhaar {
         },
         error: (err) => {
           this.showPan = false;
-          console.log("PAN Error",err)
+          console.log("PAN Error", err)
           // this.message.error('PAN Verification Failed', 'Please try again after sometimes');
           this.OVD_ERROR(err.error.message);
           panverify.error(err);
@@ -405,7 +405,7 @@ export class Aadhaar {
       },
       error: (err) => {
         this.license_history.IS_VERIFIED = false;
-        console.log("license error",err)
+        console.log("license error", err)
         // this.message.error('License Verification Failed', 'Please try again after sometimes');
         this.OVD_ERROR(err.error.message);
         license.error(err);
@@ -452,8 +452,8 @@ export class Aadhaar {
 
   }
 
-  private OVD_ERROR(message:string) {
-      this.message.error(message,'');
+  private OVD_ERROR(message: string) {
+    this.message.error(message, '');
   }
 
 }

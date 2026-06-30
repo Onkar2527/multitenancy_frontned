@@ -56,6 +56,12 @@ export class PersonalInfo {
     CASTE!: "A" | "B" | "C" | "D" | "E" | "F" | "G";
     OTHER_CASTE: string = '';
 
+    OTHER_WORK: string = '';
+    OTHER_ESTABLISHMENT: string = '';
+    OTHER_EMPLOYMENT_DETAIL: string = '';
+    OTHER_PROPRIETOR_DETAILS: string = '';
+    OTHER_BUSINESS_DETAIL: string = '';
+
     MARITAL_STATUS: "M" | "U" = 'M'
 
     FAMILY_COUNT!: number;
