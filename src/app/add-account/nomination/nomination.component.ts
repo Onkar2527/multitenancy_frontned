@@ -349,6 +349,9 @@ export class NominationComponent implements OnInit {
   nominationType: 'Simultaneous' | 'Successive' = 'Simultaneous';
 
   ngOnInit(): void {
+    if (this.APPLICANT_ID) {
+      this.getNominationInfo();
+    }
   }
 
   addNominee() {

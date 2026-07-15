@@ -48,6 +48,7 @@ export abstract class BaseFormComponent implements OnInit {
   makerUserData: any = { NAME: '' };
   checkerUserData: any = { NAME: '' };
   PHOTOS: any[] = [];
+  SIGNATURES: any[] = [];
 
   bankDetails: any = {
     BANK_NAME: '',
@@ -110,7 +111,7 @@ export abstract class BaseFormComponent implements OnInit {
   imageUrl = '../assets/KKSB_LOGO.GIF';
   base64Image: string = '';
   pdfLoading: boolean = false;
-// C:\Users\defaultuser0\Kumbhi_Kasari\Frontend_Kumbhi\src\assets\KKSB_LOGO.GIF
+  // C:\Users\defaultuser0\Kumbhi_Kasari\Frontend_Kumbhi\src\assets\KKSB_LOGO.GIF
   constructor(protected api: ApiService) { }
 
   ngOnInit(): void {
@@ -342,6 +343,7 @@ export abstract class BaseFormComponent implements OnInit {
         if (200 == res.code) {
           this.documentData = res.data;
           this.PHOTOS = this.documentData.filter(d => d.DOCUMENT_NAME == 'Applicant Photo').map(d => d.IMAGE_DATA);
+          this.SIGNATURES = this.documentData.filter(d => d.DOCUMENT_NAME == 'Sign').map(d => d.IMAGE_DATA);
           s.next(200);
         } else s.next(res);
       },
@@ -422,7 +424,7 @@ export abstract class BaseFormComponent implements OnInit {
   async generatePDF() {
     this.pdfLoading = true;
     this.pdfButtonLoading.emit(true);
-    
+
     try {
       // १. आधी तपासूया की HTML एलिमेंट खरोखर उपलब्ध आहे का
       let formHtmlRef = document.getElementById("contentToConvert");
@@ -432,9 +434,9 @@ export abstract class BaseFormComponent implements OnInit {
       }
 
       const mergedPdfDoc = await PDFDocument.create();
-      let pngArray = this.documentData.filter(Pn => "image/png" == Pn.FILE_TYPE);
-      let jpegArray = this.documentData.filter(Pn => ("image/jpeg" == Pn.FILE_TYPE || "image/jpg" == Pn.FILE_TYPE) && Pn.DOCUMENT_NAME != 'Applicant Photo');
-      let pdfArray = this.documentData.filter(Pn => "application/pdf" == Pn.FILE_TYPE && Pn.DOCUMENT_NAME != 'Applicant Photo');
+      let pngArray = this.documentData.filter(Pn => "image/png" == Pn.FILE_TYPE && Pn.DOCUMENT_NAME != 'Applicant Photo' && Pn.DOCUMENT_NAME != 'Signature');
+      let jpegArray = this.documentData.filter(Pn => ("image/jpeg" == Pn.FILE_TYPE || "image/jpg" == Pn.FILE_TYPE) && Pn.DOCUMENT_NAME != 'Applicant Photo' && Pn.DOCUMENT_NAME != 'Signature');
+      let pdfArray = this.documentData.filter(Pn => "application/pdf" == Pn.FILE_TYPE && Pn.DOCUMENT_NAME != 'Applicant Photo' && Pn.DOCUMENT_NAME != 'Signature');
 
       let totalImageArrayLength = pngArray.length + jpegArray.length;
       let embededImageRef = [];
@@ -501,7 +503,7 @@ export abstract class BaseFormComponent implements OnInit {
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
         jsPDF: { unit: "in", format: "legal", orientation: "portrait" }
       };
-      
+
       let formPdfData = "";
       // इथे आता सुरक्षितपणे formHtmlRef पास होईल
       await html2pdf().from(formHtmlRef).set(options).outputPdf().then((Pn: any) => formPdfData = btoa(Pn));
@@ -519,7 +521,7 @@ export abstract class BaseFormComponent implements OnInit {
       a.href = url;
       a.download = `${this.basicInfo.PRIMARY_APPLICANT_FIRST_NAME} ${this.basicInfo.PRIMARY_APPLICANT_LAST_NAME}.pdf`;
       document.body.appendChild(a); a.click();
-      
+
     } catch (globalError) {
       console.error("Error generating PDF:", globalError);
       alert("PDF download failed: " + (globalError as Error).message);

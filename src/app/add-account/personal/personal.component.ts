@@ -519,45 +519,114 @@ export class PersonalComponent implements OnInit, OnChanges {
         return this.basicInfo['PAN_NUMBER' + (idx > 1 ? idx : '')] || '';
       };
 
+      // 1. Check for duplicate document numbers within the same form (cross-applicant duplicates)
+      const enteredAadhaars = new Map<string, number>();
+      const enteredPans = new Map<string, number>();
+      const enteredDLs = new Map<string, number>();
+      const enteredVoterIDs = new Map<string, number>();
+      const enteredPassports = new Map<string, number>();
+
       for (let i = 1; i <= this.basicInfo.NO_OF_APPLICANT; i++) {
         const isOldCustomer = !!this.basicInfo['IS_OLD_CUSTOMER_' + i];
+        if (isOldCustomer) continue; // Skip duplicate checks for existing CBS customers
 
-        // If flag is already set from verification, block immediately ONLY if not an old customer
-        if (this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + i] && !isOldCustomer) {
-          this.message.error(`Applicant ${i} already exists in CBS! Save/Submit is blocked.`, '');
-          validationFailed = true;
-          break;
-        }
-
-        // Query CBS for Aadhaar to make sure it doesn't exist ONLY if not an old customer
-        const aadhaarNo = getAadhaarVal(i);
-        if (aadhaarNo && !isOldCustomer) {
-          try {
-            const res: any = await lastValueFrom(this.api.searchCustomer('', aadhaarNo, '', 'AADHAAR_NO'));
-            if (res && res.code === 200) {
-              this.message.error(`Applicant ${i} Aadhaar number already exists in CBS! Save/Submit is blocked.`, '');
-              this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + i] = true;
-              validationFailed = true;
-              break;
-            }
-          } catch (e) {
-            console.error('Aadhaar check failed during save', e);
+        const aadhaar = getAadhaarVal(i);
+        if (aadhaar) {
+          const sanitizedAadhaar = aadhaar.replace(/\s+/g, '');
+          if (enteredAadhaars.has(sanitizedAadhaar)) {
+            this.message.error(`Aadhaar number '${aadhaar}' is duplicated between Applicant ${enteredAadhaars.get(sanitizedAadhaar)} and Applicant ${i}!`, '');
+            validationFailed = true;
+            break;
           }
+          enteredAadhaars.set(sanitizedAadhaar, i);
         }
 
-        // Query CBS for PAN to make sure it doesn't exist ONLY if not an old customer
-        const panNo = getPanVal(i);
-        if (panNo && !isOldCustomer) {
-          try {
-            const res: any = await lastValueFrom(this.api.searchCustomer('', '', panNo, 'PAN'));
-            if (res && res.code === 200) {
-              this.message.error(`Applicant ${i} PAN number already exists in CBS! Save/Submit is blocked.`, '');
-              this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + i] = true;
-              validationFailed = true;
-              break;
+        const pan = getPanVal(i);
+        if (pan) {
+          const sanitizedPan = pan.replace(/\s+/g, '');
+          if (enteredPans.has(sanitizedPan)) {
+            this.message.error(`PAN number '${pan}' is duplicated between Applicant ${enteredPans.get(sanitizedPan)} and Applicant ${i}!`, '');
+            validationFailed = true;
+            break;
+          }
+          enteredPans.set(sanitizedPan, i);
+        }
+
+        const dl = this.basicInfo[`LICENSE_NO_${i}`] || '';
+        if (dl) {
+          const sanitizedDl = dl.replace(/\s+/g, '');
+          if (enteredDLs.has(sanitizedDl)) {
+            this.message.error(`Driving License number '${dl}' is duplicated between Applicant ${enteredDLs.get(sanitizedDl)} and Applicant ${i}!`, '');
+            validationFailed = true;
+            break;
+          }
+          enteredDLs.set(sanitizedDl, i);
+        }
+
+        const voter = this.basicInfo[`VOTER_ID_${i}`] || '';
+        if (voter) {
+          const sanitizedVoter = voter.replace(/\s+/g, '');
+          if (enteredVoterIDs.has(sanitizedVoter)) {
+            this.message.error(`Voter ID '${voter}' is duplicated between Applicant ${enteredVoterIDs.get(sanitizedVoter)} and Applicant ${i}!`, '');
+            validationFailed = true;
+            break;
+          }
+          enteredVoterIDs.set(sanitizedVoter, i);
+        }
+
+        const passport = this.basicInfo[`PASSPORT_NO_${i}`] || this.basicInfo[`PASSPORT_${i}`] || '';
+        if (passport) {
+          const sanitizedPassport = passport.replace(/\s+/g, '');
+          if (enteredPassports.has(sanitizedPassport)) {
+            this.message.error(`Passport number '${passport}' is duplicated between Applicant ${enteredPassports.get(sanitizedPassport)} and Applicant ${i}!`, '');
+            validationFailed = true;
+            break;
+          }
+          enteredPassports.set(sanitizedPassport, i);
+        }
+      }
+
+      if (!validationFailed) {
+        for (let i = 1; i <= this.basicInfo.NO_OF_APPLICANT; i++) {
+          const isOldCustomer = !!this.basicInfo['IS_OLD_CUSTOMER_' + i];
+
+          // If flag is already set from verification, block immediately ONLY if not an old customer
+          if (this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + i] && !isOldCustomer) {
+            this.message.error(`Applicant ${i} already exists in CBS! Save/Submit is blocked.`, '');
+            validationFailed = true;
+            break;
+          }
+
+          // Query CBS for Aadhaar to make sure it doesn't exist ONLY if not an old customer
+          const aadhaarNo = getAadhaarVal(i);
+          if (aadhaarNo && !isOldCustomer) {
+            try {
+              const res: any = await lastValueFrom(this.api.searchCustomer('', aadhaarNo, '', 'AADHAAR_NO'));
+              if (res && res.code === 200) {
+                this.message.error(`Applicant ${i} Aadhaar number already exists in CBS! Save/Submit is blocked.`, '');
+                this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + i] = true;
+                validationFailed = true;
+                break;
+              }
+            } catch (e) {
+              console.error('Aadhaar check failed during save', e);
             }
-          } catch (e) {
-            console.error('PAN check failed during save', e);
+          }
+
+          // Query CBS for PAN to make sure it doesn't exist ONLY if not an old customer
+          const panNo = getPanVal(i);
+          if (panNo && !isOldCustomer) {
+            try {
+              const res: any = await lastValueFrom(this.api.searchCustomer('', '', panNo, 'PAN'));
+              if (res && res.code === 200) {
+                this.message.error(`Applicant ${i} PAN number already exists in CBS! Save/Submit is blocked.`, '');
+                this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + i] = true;
+                validationFailed = true;
+                break;
+              }
+            } catch (e) {
+              console.error('PAN check failed during save', e);
+            }
           }
         }
       }
@@ -597,6 +666,7 @@ export class PersonalComponent implements OnInit, OnChanges {
           CKYC_NUMBER: this.basicInfo[`CKYC_NUMBER_${i}`],
           VOTER_ID: this.basicInfo[`VOTER_ID_${i}`],
           LICENSE_NO: this.basicInfo[`LICENSE_NO_${i}`],
+          PASSPORT_NO: this.basicInfo[`PASSPORT_NO_${i}`],
           DOB: this.basicInfo[`DOB_${i}`],
           GENDER: this.basicInfo[`GENDER_${i}`],
           MOBILE: this.basicInfo[`MOBILE_${i}`],
@@ -640,7 +710,7 @@ export class PersonalComponent implements OnInit, OnChanges {
             this.getBasicInfo();
             personal.next(res);
           } else {
-            this.message.error('Failed to save personal info', '');
+            this.message.error(res.message || 'Failed to save personal info', '');
             personal.next(res);
           }
         },

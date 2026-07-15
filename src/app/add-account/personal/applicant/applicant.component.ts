@@ -28,6 +28,7 @@ export class ApplicantComponent implements OnInit {
   loadPanButton = false;
   loadVoterButton: boolean = false;
   loadLicenseButton: boolean = false;
+  loadPassportButton: boolean = false;
   previewAdhaar: string = '';
 
   constructor(
@@ -412,6 +413,24 @@ export class ApplicantComponent implements OnInit {
   }
 
   async verifyVoterID() {
+    const voterId = this.aadhaarVerify.voter_history.EPIC_NO;
+    if (voterId) {
+      this.loadVoterButton = true;
+      try {
+        if (!this.basicInfo['IS_OLD_CUSTOMER_' + this.applicantNo]) {
+          let dupRes = await lastValueFrom(this.api.checkLocalDuplicate(voterId, 'VOTER_ID', this.APPLICANT_ID));
+          if (dupRes && dupRes.isDuplicate) {
+            this.message.error(dupRes.message || 'Duplicate Voter ID!', '');
+            this.loadVoterButton = false;
+            return;
+          }
+        }
+      } catch (e) {
+        console.error('Voter ID local check error', e);
+      }
+      this.loadVoterButton = false;
+    }
+
     if ((await this.checkBalance(3)) == 0) return;
 
     this.loadVoterButton = true;
@@ -465,6 +484,24 @@ export class ApplicantComponent implements OnInit {
   }
 
   async verifyLicense() {
+    const dlNo = this.aadhaarVerify.license_history.LICENSE_NUMBER;
+    if (dlNo) {
+      this.loadLicenseButton = true;
+      try {
+        if (!this.basicInfo['IS_OLD_CUSTOMER_' + this.applicantNo]) {
+          let dupRes = await lastValueFrom(this.api.checkLocalDuplicate(dlNo, 'DL', this.APPLICANT_ID));
+          if (dupRes && dupRes.isDuplicate) {
+            this.message.error(dupRes.message || 'Duplicate Driving License!', '');
+            this.loadLicenseButton = false;
+            return;
+          }
+        }
+      } catch (e) {
+        console.error('DL local check error', e);
+      }
+      this.loadLicenseButton = false;
+    }
+
     if ((await this.checkBalance(4)) == 0) return;
 
     this.loadLicenseButton = true;
@@ -570,6 +607,18 @@ export class ApplicantComponent implements OnInit {
   async searchAadhaar() {
     const aadhaarNo = this.aadhaarVerify.aadhar_history.AADHAAR_NUMBER;
     if (aadhaarNo) {
+      try {
+        if (!this.basicInfo['IS_OLD_CUSTOMER_' + this.applicantNo]) {
+          let dupRes = await lastValueFrom(this.api.checkLocalDuplicate(aadhaarNo, 'AADHAAR_NO', this.APPLICANT_ID));
+          if (dupRes && dupRes.isDuplicate) {
+            this.message.error(dupRes.message || 'Duplicate Aadhaar Number!', '');
+            return false;
+          }
+        }
+      } catch (e) {
+        console.error('Aadhaar local check error', e);
+      }
+
       let res: any = await lastValueFrom(
         this.api.searchCustomer('', aadhaarNo, '', 'AADHAAR_NO')
       );
@@ -581,6 +630,18 @@ export class ApplicantComponent implements OnInit {
   async searchPAN() {
     const panNo = this.aadhaarVerify.pan_history.PAN_NUMBER;
     if (panNo) {
+      try {
+        if (!this.basicInfo['IS_OLD_CUSTOMER_' + this.applicantNo]) {
+          let dupRes = await lastValueFrom(this.api.checkLocalDuplicate(panNo, 'PAN', this.APPLICANT_ID));
+          if (dupRes && dupRes.isDuplicate) {
+            this.message.error(dupRes.message || 'Duplicate PAN Number!', '');
+            return false;
+          }
+        }
+      } catch (e) {
+        console.error('PAN local check error', e);
+      }
+
       let res: any = await lastValueFrom(
         this.api.searchCustomer('', '', panNo, 'PAN')
       );
@@ -684,5 +745,31 @@ export class ApplicantComponent implements OnInit {
       mm = firstPart[1],
       yy = firstPart[2];
     return `${dd}/${mm}/${yy}`;
+  }
+
+  async verifyPassport() {
+    const passportNo = this.basicInfo['PASSPORT_NO_' + this.applicantNo];
+    if (!passportNo) {
+      this.message.error('Please enter Passport ID first', '');
+      return;
+    }
+
+    this.loadPassportButton = true;
+    try {
+      if (!this.basicInfo['IS_OLD_CUSTOMER_' + this.applicantNo]) {
+        let dupRes = await lastValueFrom(this.api.checkLocalDuplicate(passportNo, 'PASSPORT', this.APPLICANT_ID));
+        if (dupRes && dupRes.isDuplicate) {
+          this.message.error(dupRes.message || 'Duplicate Passport Number!', '');
+          this.loadPassportButton = false;
+          return;
+        }
+        this.message.success('Passport is unique. Verification successful locally.', '');
+      } else {
+        this.message.success('Passport verification successful.', '');
+      }
+    } catch (e) {
+      console.error('Passport local check error', e);
+    }
+    this.loadPassportButton = false;
   }
 }

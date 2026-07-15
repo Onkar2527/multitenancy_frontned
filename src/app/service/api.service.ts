@@ -51,6 +51,7 @@ import {
   DropdownTableFields,
   TableData,
 } from '../admin-panel/masters/dropdown-models/dropdown-models';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -173,7 +174,7 @@ export class ApiService implements HttpInterceptor {
 
   // baseUrl = 'http://localhost:8672/api/' // local
 
-  baseUrl = 'http://10.35.250.4:1035/api/' // multitenancy server 06-02-2026
+  baseUrl = environment.baseUrl; // multitenancy server 06-02-2026
 
   // baseUrl = 'http://172.16.99.23:8672/api/' // UAT server
 
@@ -1401,6 +1402,19 @@ export class ApiService implements HttpInterceptor {
 
     return this.httpClient.post(
       this.baseUrl + 'list_api/getCustomer',
+      data,
+      this.optionMain
+    );
+  }
+
+  checkLocalDuplicate(value: string, type: 'AADHAAR_NO' | 'PAN' | 'DL' | 'VOTER_ID' | 'PASSPORT', applicantId?: number) {
+    let data = {
+      value: value,
+      type: type,
+      applicantId: applicantId
+    };
+    return this.httpClient.post<any>(
+      this.baseUrl + 'list_api/checkLocalDuplicate',
       data,
       this.optionMain
     );

@@ -201,8 +201,8 @@
             <nz-form-item>
                 <nz-form-label>Passport</nz-form-label>
                 <nz-input-group nzCompact>
-                    <input nz-input placeholder="Enter Passport ID" style="width: calc(100% - 70px);" />
-                    <button nz-button>Verify</button>
+                    <input nz-input [(ngModel)]="basicInfo['PASSPORT_NO_' + applicantNo]" placeholder="Enter Passport ID" style="width: calc(100% - 70px);" />
+                    <button nz-button (click)="verifyPassport()" [nzLoading]="loadPassportButton">Verify</button>
                     <div nz-row *ngIf="false" class="success-tip">
                         <div nz-col nzSpan="24">
                             Passport verified successfully
