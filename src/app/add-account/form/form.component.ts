@@ -49,7 +49,7 @@ export class FormComponent implements OnInit {
       this.ajaraForm.save();
     } else if (this.bankDetails.ID === 2 && this.kumbhiForm) {
       this.kumbhiForm.save();
-    } else if (this.bankDetails.ID === 3 && this.dadaForm) {
+    } else if ((this.bankDetails.ID === 3 || this.bankDetails.ID === 5) && this.dadaForm) {
       this.dadaForm.save();
     } else {
       console.warn("No active bank form found to save.");

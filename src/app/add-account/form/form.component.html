@@ -7,7 +7,9 @@
     <app-kumbhi-form *ngSwitchCase="2" [APPLICANT_ID]="APPLICANT_ID" (pdfButtonLoading)="handlePdfLoading($event)">
     </app-kumbhi-form>
 
-    <!-- Bank ID 3: Dada Bank -->
+    <!-- Bank ID 3 or 5: Dada Bank -->
+    <app-dada-form *ngSwitchCase="3" [APPLICANT_ID]="APPLICANT_ID" (pdfButtonLoading)="handlePdfLoading($event)">
+    </app-dada-form>
     <app-dada-form *ngSwitchCase="5" [APPLICANT_ID]="APPLICANT_ID" (pdfButtonLoading)="handlePdfLoading($event)">
     </app-dada-form>
 

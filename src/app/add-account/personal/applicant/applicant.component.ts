@@ -96,8 +96,11 @@ export class ApplicantComponent implements OnInit {
   }
 
   showPanNo(value: string) {
-    this.basicInfo['PAN_NUMBER' + (this.applicantNo > 1 ? this.applicantNo : '')] = value;
+    const valUpper = value ? value.toUpperCase() : '';
+    this.aadhaarVerify.pan_history.PAN_NUMBER = valUpper;
+    this.basicInfo['PAN_NUMBER' + (this.applicantNo > 1 ? this.applicantNo : '')] = valUpper;
     this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = false;
+    this.basicInfo['PAN_VERIFIED_' + this.applicantNo] = false;
   }
 
   async getOtp() {
@@ -348,6 +351,13 @@ export class ApplicantComponent implements OnInit {
   }
 
   async verifyPan() {
+    const panNo = this.aadhaarVerify.pan_history.PAN_NUMBER;
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    if (!panNo || !panRegex.test(panNo.toUpperCase())) {
+      this.message.error('Invalid PAN Format', 'PAN should be in the format ABCDE1234F');
+      return;
+    }
+
     if ((await this.checkBalance(2)) == 0) return;
     
     this.loadPanButton = true;
@@ -363,14 +373,18 @@ export class ApplicantComponent implements OnInit {
           this.basicInfo[
             'PAN_NUMBER' + (this.applicantNo > 1 ? this.applicantNo : '')
           ] = this.aadhaarVerify.pan_history.PAN_NUMBER;
+          this.basicInfo['PAN_VERIFIED_' + this.applicantNo] = true;
           if (!this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo]) {
             this.savePanData();
           }
           this.Hit(2);
+        } else {
+          this.basicInfo['PAN_VERIFIED_' + this.applicantNo] = false;
         }
         this.loadPanButton = false;
       },
       error: () => {
+        this.basicInfo['PAN_VERIFIED_' + this.applicantNo] = false;
         this.loadPanButton = false;
       },
     });
@@ -407,6 +421,11 @@ export class ApplicantComponent implements OnInit {
       next: (res) => {
         if (res['code'] == 200 && res['data'].length > 0) {
           this.aadhaarVerify.pan_history = res['data'][0];
+          if (this.aadhaarVerify.pan_history.IS_VERIFIED) {
+            this.basicInfo['PAN_VERIFIED_' + this.applicantNo] = true;
+          } else {
+            this.basicInfo['PAN_VERIFIED_' + this.applicantNo] = false;
+          }
         }
       },
     });
@@ -607,18 +626,6 @@ export class ApplicantComponent implements OnInit {
   async searchAadhaar() {
     const aadhaarNo = this.aadhaarVerify.aadhar_history.AADHAAR_NUMBER;
     if (aadhaarNo) {
-      try {
-        if (!this.basicInfo['IS_OLD_CUSTOMER_' + this.applicantNo]) {
-          let dupRes = await lastValueFrom(this.api.checkLocalDuplicate(aadhaarNo, 'AADHAAR_NO', this.APPLICANT_ID));
-          if (dupRes && dupRes.isDuplicate) {
-            this.message.error(dupRes.message || 'Duplicate Aadhaar Number!', '');
-            return false;
-          }
-        }
-      } catch (e) {
-        console.error('Aadhaar local check error', e);
-      }
-
       let res: any = await lastValueFrom(
         this.api.searchCustomer('', aadhaarNo, '', 'AADHAAR_NO')
       );
@@ -630,18 +637,6 @@ export class ApplicantComponent implements OnInit {
   async searchPAN() {
     const panNo = this.aadhaarVerify.pan_history.PAN_NUMBER;
     if (panNo) {
-      try {
-        if (!this.basicInfo['IS_OLD_CUSTOMER_' + this.applicantNo]) {
-          let dupRes = await lastValueFrom(this.api.checkLocalDuplicate(panNo, 'PAN', this.APPLICANT_ID));
-          if (dupRes && dupRes.isDuplicate) {
-            this.message.error(dupRes.message || 'Duplicate PAN Number!', '');
-            return false;
-          }
-        }
-      } catch (e) {
-        console.error('PAN local check error', e);
-      }
-
       let res: any = await lastValueFrom(
         this.api.searchCustomer('', '', panNo, 'PAN')
       );
@@ -676,10 +671,11 @@ export class ApplicantComponent implements OnInit {
 
       this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = true;
       if (!this.basicInfo['IS_OLD_CUSTOMER_' + this.applicantNo]) {
-        this.message.warning(
-          'Customer already exists in CBS. Verification is allowed, but submission will be blocked.',
+        this.message.error(
+          'Customer already exists in CBS! Save/Submit is blocked.',
           ''
         );
+        return false;
       } else {
         this.message.success('Customer details retrieved from CBS successfully.', '');
       }

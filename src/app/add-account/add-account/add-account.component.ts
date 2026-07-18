@@ -61,11 +61,11 @@ export class AddAccountComponent implements OnInit, OnDestroy {
     if (this.selectedIndex == this.previousIndex) return;
     this.previousIndex = this.selectedIndex;
 
-    if (this.selectedIndex == 4) {
-      this.buttonTitle = 'Download Pdf'
+    if (this.Tabs && this.Tabs[this.selectedIndex] && this.Tabs[this.selectedIndex].TAB_ID === 5) {
+      this.buttonTitle = 'Download Pdf';
     }
     else {
-      this.buttonTitle = 'Save & Next'
+      this.buttonTitle = 'Save & Next';
     }
 
     if (this.APPLICANT_ID) {
@@ -198,10 +198,12 @@ export class AddAccountComponent implements OnInit, OnDestroy {
     if (send_to_refill && isOk) {
       this.personalComp.basicInfo.TRACK_ID = 1;
 
+      this.AccountCreationStatus.emit(true);
       let personal = this.personalComp.save();
       // this.personalComp.basicInfo.STATUS = 'D';
       personal.subscribe({
         next: (res) => {
+          this.AccountCreationStatus.emit(false);
           if (res.code == 200) {
             this.saveRemark();
             this.message.success("Proposal has been sent to Refill", '')
@@ -211,10 +213,10 @@ export class AddAccountComponent implements OnInit, OnDestroy {
             this.message.error("Something went wrong", '');
           }
         }, error: () => {
-
+          this.AccountCreationStatus.emit(false);
         },
         complete: () => {
-
+          this.AccountCreationStatus.emit(false);
         }
       })
     }
@@ -222,6 +224,7 @@ export class AddAccountComponent implements OnInit, OnDestroy {
     else if (isOk) {
       this.personalComp.basicInfo.TRACK_ID = 3;
       this.personalComp.basicInfo.VERIFIED_DATE_TIME = new Date().toString();
+      this.AccountCreationStatus.emit(true);
       this.api.getUser({ role_id: 3 }).subscribe({
         next: (res) => {
           if (res['code'] == 200 && res['data'].length > 0) {
@@ -229,6 +232,7 @@ export class AddAccountComponent implements OnInit, OnDestroy {
             let personal = this.personalComp.save();
             personal.subscribe({
               next: (res) => {
+                this.AccountCreationStatus.emit(false);
                 if (res.code == 200) {
                   this.saveRemark();
                   this.message.success("Proposal has been sent to Verification", '')
@@ -238,18 +242,20 @@ export class AddAccountComponent implements OnInit, OnDestroy {
                   this.message.error("Something went wrong", '');
                 }
               }, error: () => {
-
+                this.AccountCreationStatus.emit(false);
               },
               complete: () => {
-
+                this.AccountCreationStatus.emit(false);
               }
             })
           }
           else {
+            this.AccountCreationStatus.emit(false);
             this.message.error("Something went wrong", '');
           }
         },
         error: () => {
+          this.AccountCreationStatus.emit(false);
           this.message.error("Something went wrong", '');
         }
       })
@@ -504,10 +510,16 @@ export class AddAccountComponent implements OnInit, OnDestroy {
   // }
 
   moveNextTab() {
-    this.Tabs[this.selectedIndex].disabled = true;
-    this.Tabs[this.selectedIndex + 1].disabled = false;
-    this.selectedIndex++;
-    this.changeIndex();
+    if (this.Tabs && this.Tabs[this.selectedIndex]) {
+      this.Tabs[this.selectedIndex].disabled = true;
+    }
+    if (this.Tabs && this.selectedIndex + 1 < this.Tabs.length) {
+      if (this.Tabs[this.selectedIndex + 1]) {
+        this.Tabs[this.selectedIndex + 1].disabled = false;
+      }
+      this.selectedIndex++;
+      this.changeIndex();
+    }
   }
 
 

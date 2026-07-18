@@ -1357,6 +1357,46 @@ export class ApiService implements HttpInterceptor {
       this.baseUrl + 'list_api/onBoardCustomer',
       data,
       this.optionMain
+    ).pipe(
+      map((res: any) => {
+        if (res && res.code !== 200) {
+          console.error("Onboarding Application Error (Developer Details):", res);
+          const errMsg = res.message || "Unable to create account";
+          const errData = res.error || res.error_data || (res.data ? JSON.stringify(res.data) : '');
+          
+          let userMsg = errMsg;
+          const fullErrStr = `${errMsg} ${errData}`.toLowerCase();
+          if (fullErrStr.includes("etimedout") || fullErrStr.includes("timeout") || fullErrStr.includes("econnrefused")) {
+            userMsg = "Server connection timed out. Please try again later.";
+          } else if (fullErrStr.includes("403") || fullErrStr.includes("forbidden") || fullErrStr.includes("unauthorized")) {
+            userMsg = "Authorization failed. Please check credentials or permissions.";
+          }
+          
+          res.message = userMsg;
+        }
+        return res;
+      }),
+      catchError((err: any) => {
+        console.error("Onboarding HTTP Error (Developer Details):", err);
+        const errMsg = err?.error?.message || err?.message || "Request failed";
+        const errData = err?.error?.error || err?.error?.error_data || (typeof err?.error === 'object' ? JSON.stringify(err.error) : err?.error) || '';
+        
+        let userMsg = "Unable to create account. Please try again later.";
+        const fullErrStr = `${errMsg} ${errData}`.toLowerCase();
+        if (fullErrStr.includes("etimedout") || fullErrStr.includes("timeout") || fullErrStr.includes("econnrefused")) {
+          userMsg = "Server connection timed out. Please try again later.";
+        } else if (fullErrStr.includes("403") || fullErrStr.includes("forbidden") || fullErrStr.includes("unauthorized")) {
+          userMsg = "Authorization failed. Please check credentials or permissions.";
+        } else if (err?.error?.message) {
+          userMsg = err.error.message;
+        }
+
+        return of({
+          code: err?.status || 400,
+          message: userMsg,
+          error: errData
+        });
+      })
     );
   }
 

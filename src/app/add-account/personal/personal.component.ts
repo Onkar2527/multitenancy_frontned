@@ -519,6 +519,71 @@ export class PersonalComponent implements OnInit, OnChanges {
         return this.basicInfo['PAN_NUMBER' + (idx > 1 ? idx : '')] || '';
       };
 
+      // 0. Validate mandatory fields
+      for (let i = 1; i <= this.basicInfo.NO_OF_APPLICANT; i++) {
+        const applicantLabel = i === 1 ? 'Applicant 1' : `Applicant ${i}`;
+
+        const title = this.basicInfo['CUSTOMER_TYPE_' + i];
+        if (!title || !String(title).trim()) {
+          this.message.error(`${applicantLabel} Title is mandatory!`, '');
+          validationFailed = true;
+          break;
+        }
+
+        const firstName = this.basicInfo[i === 1 ? 'PRIMARY_APPLICANT_FIRST_NAME' : `APPLICANT${i}_FIRST_NAME`];
+        if (!firstName || !String(firstName).trim()) {
+          this.message.error(`${applicantLabel} First Name is mandatory!`, '');
+          validationFailed = true;
+          break;
+        }
+
+        const dob = this.basicInfo['DOB_' + i];
+        if (!dob || !String(dob).trim()) {
+          this.message.error(`${applicantLabel} Date of Birth is mandatory!`, '');
+          validationFailed = true;
+          break;
+        }
+
+        const mobile = this.basicInfo['MOBILE_' + i];
+        if (!mobile || !String(mobile).trim()) {
+          this.message.error(`${applicantLabel} Mobile Number is mandatory!`, '');
+          validationFailed = true;
+          break;
+        }
+
+        const docAuth = this.basicInfo[i === 1 ? 'DOCUMENTS_AUTHORITY' : `DOCUMENTS_AUTHORITY_${i}`];
+        const docPlace = this.basicInfo[i === 1 ? 'DOCUMENTS_ISSUE_PLACE' : `DOCUMENTS_ISSUE_PLACE_${i}`];
+        if (!docAuth || !String(docAuth).trim() || !docPlace || !String(docPlace).trim()) {
+          this.message.error(`${applicantLabel} Issued Document Authority & Place of issue are mandatory!`, '');
+          validationFailed = true;
+          break;
+        }
+
+        const pan = getPanVal(i);
+        if (!pan || !String(pan).trim()) {
+          this.message.error(`${applicantLabel} PAN Number is mandatory!`, '');
+          validationFailed = true;
+          break;
+        } else {
+          const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+          if (!panRegex.test(pan.toUpperCase())) {
+            this.message.error(`${applicantLabel} PAN Number format is invalid (should be like ABCDE1234F)!`, '');
+            validationFailed = true;
+            break;
+          }
+        }
+
+        const isOldCustomer = !!this.basicInfo['IS_OLD_CUSTOMER_' + i];
+        if (!isOldCustomer) {
+          const isPanVerified = !!this.basicInfo['PAN_VERIFIED_' + i];
+          if (!isPanVerified) {
+            this.message.error(`${applicantLabel} PAN Number must be verified before submitting!`, '');
+            validationFailed = true;
+            break;
+          }
+        }
+      }
+
       // 1. Check for duplicate document numbers within the same form (cross-applicant duplicates)
       const enteredAadhaars = new Map<string, number>();
       const enteredPans = new Map<string, number>();

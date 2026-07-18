@@ -176,7 +176,7 @@
 <ng-template #footerTpl>
     <div style="float: right">
         <button nz-button style="margin-right: 8px;" (click)="drawerReferance.close()">Cancel</button>
-        <button nz-button nzType="primary" (click)="createProposal()">Submit</button>
+        <button nz-button nzType="primary" (click)="createProposal()" [nzLoading]="loadSaveButton">Submit</button>
     </div>
 </ng-template>
 
@@ -195,11 +195,11 @@
 
         <button nz-button nzType="primary" (click)="saveANext()">
 
-            <span *ngIf="selectedIndex != 5">
+            <span *ngIf="Tabs && Tabs.length > 0 && selectedIndex != Tabs.length - 1">
                 Save and Next
             </span>
 
-            <span *ngIf="selectedIndex == 5">
+            <span *ngIf="Tabs && Tabs.length > 0 && selectedIndex == Tabs.length - 1">
                 Send to Verify
             </span>
 
@@ -218,11 +218,11 @@
 
         <button nz-button nzType="primary" (click)="next()">
 
-            <span *ngIf="selectedIndex != 5">
+            <span *ngIf="Tabs && Tabs.length > 0 && selectedIndex != Tabs.length - 1">
                 Next
             </span>
 
-            <span *ngIf="selectedIndex == 5">
+            <span *ngIf="Tabs && Tabs.length > 0 && selectedIndex == Tabs.length - 1">
                 Close
             </span>
 
@@ -238,22 +238,22 @@
         </button>
 
 
-        <span *ngIf="selectedIndex < 5">
-            <button nz-button nzType="primary" (click)="sendTorefill('C')" *ngIf="Tabs[selectedIndex].SEND_TO_REFILL">
+        <span *ngIf="Tabs && Tabs.length > 0 && selectedIndex < Tabs.length - 1">
+            <button nz-button nzType="primary" (click)="sendTorefill('C')" *ngIf="Tabs[selectedIndex] && Tabs[selectedIndex].SEND_TO_REFILL">
                 <span>
                     Send to refill and Next
                 </span>
             </button>
 
-            <button nz-button nzType="primary" (click)="Accept('C')" *ngIf="!Tabs[selectedIndex].SEND_TO_REFILL">
+            <button nz-button nzType="primary" (click)="Accept('C')" *ngIf="Tabs[selectedIndex] && !Tabs[selectedIndex].SEND_TO_REFILL">
                 <span>
                     Accept and Next
                 </span>
             </button>
         </span>
 
-        <span *ngIf="selectedIndex == 5">
-            <button nz-button nzType="primary" (click)="completeChecker()">
+        <span *ngIf="Tabs && Tabs.length > 0 && selectedIndex == Tabs.length - 1">
+            <button nz-button [nzLoading]="checkerButtonLoading" nzType="primary" (click)="completeChecker()">
                 {{verifyButtonTitle}}
             </button>
         </span>
@@ -265,7 +265,7 @@
 
 <ng-template #tabHeaderTamplete>
 
-    <div nz-row *ngIf="selectedIndex != 5">
+    <div nz-row *ngIf="Tabs && Tabs.length > 0 && selectedIndex != Tabs.length - 1">
 
         <div nz-col nzSpan="10">
             Send to refill
@@ -290,7 +290,7 @@
 
 <ng-template #tabHeaderVerifierTamplete>
 
-    <div nz-row *ngIf="selectedIndex != 5">
+    <div nz-row *ngIf="Tabs && Tabs.length > 0 && selectedIndex != Tabs.length - 1">
 
         <div nz-col nzSpan="10">
             Send to refill
@@ -321,21 +321,21 @@
         </button>
 
 
-        <span *ngIf="selectedIndex < 5">
-            <button nz-button nzType="primary" (click)="sendTorefill('V')" *ngIf="Tabs[selectedIndex].SEND_TO_REFILL">
+        <span *ngIf="Tabs && Tabs.length > 0 && selectedIndex < Tabs.length - 1">
+            <button nz-button nzType="primary" (click)="sendTorefill('V')" *ngIf="Tabs[selectedIndex] && Tabs[selectedIndex].SEND_TO_REFILL">
                 <span>
                     Send to refill and Next
                 </span>
             </button>
 
-            <button nz-button nzType="primary" (click)="Accept('V')" *ngIf="!Tabs[selectedIndex].SEND_TO_REFILL">
+            <button nz-button nzType="primary" (click)="Accept('V')" *ngIf="Tabs[selectedIndex] && !Tabs[selectedIndex].SEND_TO_REFILL">
                 <span>
                     Accept and Next
                 </span>
             </button>
         </span>
 
-        <span *ngIf="selectedIndex == 5">
+        <span *ngIf="Tabs && Tabs.length > 0 && selectedIndex == Tabs.length - 1">
             <button nz-button [nzLoading]="accountCreateButtonLoading" nzType="primary" (click)="completeVerifier()">
                 {{verifyButtonTitle}}
             </button>
@@ -349,7 +349,7 @@
 <ng-template #tabHeaderMakerTamplete>
 
     <div nz-row
-        *ngIf="Tabs[selectedIndex].SEND_TO_REFILL && Tabs[selectedIndex].SEND_TO_REFILL_COUNT > 0 && selectedIndex != 5">
+        *ngIf="Tabs && Tabs.length > 0 && Tabs[selectedIndex] && Tabs[selectedIndex].SEND_TO_REFILL && Tabs[selectedIndex].SEND_TO_REFILL_COUNT > 0 && selectedIndex != Tabs.length - 1">
 
         <div nz-col nzSpan="10">
             Send to refill

@@ -14,7 +14,10 @@ import { Documents } from 'src/app/models/documents';
 const html2pdf = require('html2pdf.js');
 
 async function getArrayBufferFromData(dataUrlOrPath: string): Promise<ArrayBuffer> {
-  if (dataUrlOrPath && dataUrlOrPath.startsWith('data:')) {
+  if (!dataUrlOrPath) {
+    throw new Error("Empty image data or path");
+  }
+  if (dataUrlOrPath.startsWith('data:')) {
     const base64String = dataUrlOrPath.split(',')[1];
     const binaryString = window.atob(base64String);
     const len = binaryString.length;
@@ -343,7 +346,7 @@ export abstract class BaseFormComponent implements OnInit {
         if (200 == res.code) {
           this.documentData = res.data;
           this.PHOTOS = this.documentData.filter(d => d.DOCUMENT_NAME == 'Applicant Photo').map(d => d.IMAGE_DATA);
-          this.SIGNATURES = this.documentData.filter(d => d.DOCUMENT_NAME == 'Sign').map(d => d.IMAGE_DATA);
+          this.SIGNATURES = this.documentData.filter(d => d.DOCUMENT_NAME == 'Sign' || d.DOCUMENT_NAME == 'Signature').map(d => d.IMAGE_DATA);
           s.next(200);
         } else s.next(res);
       },
@@ -434,9 +437,9 @@ export abstract class BaseFormComponent implements OnInit {
       }
 
       const mergedPdfDoc = await PDFDocument.create();
-      let pngArray = this.documentData.filter(Pn => "image/png" == Pn.FILE_TYPE && Pn.DOCUMENT_NAME != 'Applicant Photo' && Pn.DOCUMENT_NAME != 'Signature');
-      let jpegArray = this.documentData.filter(Pn => ("image/jpeg" == Pn.FILE_TYPE || "image/jpg" == Pn.FILE_TYPE) && Pn.DOCUMENT_NAME != 'Applicant Photo' && Pn.DOCUMENT_NAME != 'Signature');
-      let pdfArray = this.documentData.filter(Pn => "application/pdf" == Pn.FILE_TYPE && Pn.DOCUMENT_NAME != 'Applicant Photo' && Pn.DOCUMENT_NAME != 'Signature');
+      let pngArray = this.documentData.filter(Pn => Pn.IMAGE_DATA && "image/png" == Pn.FILE_TYPE && Pn.DOCUMENT_NAME != 'Applicant Photo' && Pn.DOCUMENT_NAME != 'Signature' && Pn.DOCUMENT_NAME != 'Sign');
+      let jpegArray = this.documentData.filter(Pn => Pn.IMAGE_DATA && ("image/jpeg" == Pn.FILE_TYPE || "image/jpg" == Pn.FILE_TYPE) && Pn.DOCUMENT_NAME != 'Applicant Photo' && Pn.DOCUMENT_NAME != 'Signature' && Pn.DOCUMENT_NAME != 'Sign');
+      let pdfArray = this.documentData.filter(Pn => Pn.IMAGE_DATA && "application/pdf" == Pn.FILE_TYPE && Pn.DOCUMENT_NAME != 'Applicant Photo' && Pn.DOCUMENT_NAME != 'Signature' && Pn.DOCUMENT_NAME != 'Sign');
 
       let totalImageArrayLength = pngArray.length + jpegArray.length;
       let embededImageRef = [];
@@ -514,13 +517,12 @@ export abstract class BaseFormComponent implements OnInit {
       (await finalDoc.copyPages(mergedPdfDoc, mergedPdfDoc.getPageIndices())).forEach(p => finalDoc.addPage(p));
       (await finalDoc.copyPages(pdfDoc, pdfDoc.getPageIndices())).forEach(p => finalDoc.addPage(p));
 
-      let allMergedPDF = await finalDoc.save();
-      let blob = new Blob([allMergedPDF], { type: "application/pdf" });
-      let url = URL.createObjectURL(blob);
+      const pdfBase64 = await finalDoc.saveAsBase64({ dataUri: true });
       let a = document.createElement("a");
-      a.href = url;
-      a.download = `${this.basicInfo.PRIMARY_APPLICANT_FIRST_NAME} ${this.basicInfo.PRIMARY_APPLICANT_LAST_NAME}.pdf`;
+      a.href = pdfBase64;
+      a.download = `${this.basicInfo.PRIMARY_APPLICANT_FIRST_NAME || 'Form'} ${this.basicInfo.PRIMARY_APPLICANT_LAST_NAME || ''}.pdf`;
       document.body.appendChild(a); a.click();
+      document.body.removeChild(a);
 
     } catch (globalError) {
       console.error("Error generating PDF:", globalError);

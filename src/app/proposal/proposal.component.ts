@@ -85,9 +85,11 @@ export class ProposalComponent implements OnInit {
   depositeInfo: TermDeposite[] = []
 
   accountCreateButtonLoading = false;
+  checkerButtonLoading = false;
 
   accountCreationEvent(status: boolean) {
     this.accountCreateButtonLoading = status;
+    this.checkerButtonLoading = status;
   }
 
   getDepositeInfo() {
@@ -507,7 +509,7 @@ export class ProposalComponent implements OnInit {
   changeIndex(event: any) {
     console.log(event);
     this.selectedIndex = event;
-    if (this.selectedIndex >= 5) {
+    if (this.Tabs && this.Tabs.length > 0 && this.selectedIndex >= this.Tabs.length - 1) {
       this.header = '';
 
 
@@ -546,7 +548,7 @@ export class ProposalComponent implements OnInit {
   ]
 
   saveANext() {
-    if (this.selectedIndex != 5) {
+    if (this.Tabs && this.Tabs.length > 0 && this.selectedIndex != this.Tabs.length - 1) {
       this.addAccountComp.saveANext();
     }
     else {
@@ -668,25 +670,42 @@ export class ProposalComponent implements OnInit {
   }
 
   validateDocs(type: 'C' | 'V') {
+    if (type == 'C') this.checkerButtonLoading = true;
+    if (type == 'V') this.accountCreateButtonLoading = true;
 
     this.api.getDocument(this.APPLICANT_ID, null).subscribe({
       next: (res) => {
         if (res['code'] == 200) {
-          if (type == 'C')
-            this.velidateDocChacker(res['data'], type) ? this.addAccountComp.completeChecker() : this.message.error("Verify All Documents first", '');
+          if (type == 'C') {
+            if (this.velidateDocChacker(res['data'], type)) {
+              this.addAccountComp.completeChecker();
+            } else {
+              this.message.error("Verify All Documents first", '');
+              this.checkerButtonLoading = false;
+            }
+          }
 
-          if (type == 'V')
-            this.velidateDocChacker(res['data'], type) ? this.addAccountComp.completeVerifier() : this.message.error("Verify All Documents first", '');
+          if (type == 'V') {
+            if (this.velidateDocChacker(res['data'], type)) {
+              this.addAccountComp.completeVerifier();
+            } else {
+              this.message.error("Verify All Documents first", '');
+              this.accountCreateButtonLoading = false;
+            }
+          }
         }
         else {
-          this.message.error("Something Went Wrong!", "")
+          this.message.error("Something Went Wrong!", "");
+          this.checkerButtonLoading = false;
+          this.accountCreateButtonLoading = false;
         }
       },
       error: (err) => {
-        this.message.error("Something Went Wrong!", "")
+        this.message.error("Something Went Wrong!", "");
+        this.checkerButtonLoading = false;
+        this.accountCreateButtonLoading = false;
       }
-    })
-
+    });
   }
 
   velidateDocChacker(docArray: Documents[], role: 'C' | 'V') {

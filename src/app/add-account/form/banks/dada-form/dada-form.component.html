@@ -1048,12 +1048,16 @@
             </div>
 
             <div nz-row style="height:60px;">
-                <div nz-col nzSpan="12" class="border-all data">
-
+                <div nz-col nzSpan="12" class="border-all data" style="text-align: center; vertical-align: middle; display: flex; justify-content: center; align-items: center;">
+                    <span *ngIf="SIGNATURES.length > 0">
+                        <img [src]="SIGNATURES[0]" style="max-height: 55px; max-width: 100%; object-fit: contain;">
+                    </span>
                 </div>
 
-                <div nz-col nzSpan="12" class="border-all data">
-
+                <div nz-col nzSpan="12" class="border-all data" style="text-align: center; vertical-align: middle; display: flex; justify-content: center; align-items: center;">
+                    <span *ngIf="SIGNATURES.length > 1">
+                        <img [src]="SIGNATURES[1]" style="max-height: 55px; max-width: 100%; object-fit: contain;">
+                    </span>
                 </div>
             </div>
 
@@ -1326,9 +1330,15 @@
 
 
             <div nz-row>
-                <div nz-col nzSpan="12" class="border-all">Applicant 1 Sign - </div>
+                <div nz-col nzSpan="12" class="border-all" style="height: 60px; display: flex; align-items: center; padding-left: 5px;">
+                    <span>Applicant 1 Sign - </span>
+                    <img *ngIf="SIGNATURES.length > 0" [src]="SIGNATURES[0]" style="max-height: 50px; max-width: calc(100% - 120px); object-fit: contain; margin-left: 10px;">
+                </div>
 
-                <div nz-col nzSpan="12" class="border-all">Applicant 2 Sign - </div>
+                <div nz-col nzSpan="12" class="border-all" style="height: 60px; display: flex; align-items: center; padding-left: 5px;">
+                    <span>Applicant 2 Sign - </span>
+                    <img *ngIf="SIGNATURES.length > 1" [src]="SIGNATURES[1]" style="max-height: 50px; max-width: calc(100% - 120px); object-fit: contain; margin-left: 10px;">
+                </div>
             </div>
 
         </div>
