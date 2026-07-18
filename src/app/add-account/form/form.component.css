@@ -42,3 +42,12 @@
   font-size: 11px;
 }
 
+.ant-row, [nz-row] {
+  padding-top: 2px !important;
+}
+
+.ant-row, [nz-row], tr, .border-all {
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+

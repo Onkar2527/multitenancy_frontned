@@ -503,7 +503,7 @@ export abstract class BaseFormComponent implements OnInit {
         margin: 0.1,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 3, scrollX: 0, windowWidth: 740, useCORS: true },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+        pagebreak: { mode: ['css', 'legacy'], avoid: ['.ant-row', '[nz-row]', 'tr'] },
         jsPDF: { unit: "in", format: "legal", orientation: "portrait" }
       };
 
@@ -514,8 +514,12 @@ export abstract class BaseFormComponent implements OnInit {
       let ir = await PDFDocument.load("data:application/pdf;base64," + formPdfData);
       let finalDoc = await PDFDocument.create();
       (await finalDoc.copyPages(ir, ir.getPageIndices())).forEach(p => finalDoc.addPage(p));
-      (await finalDoc.copyPages(mergedPdfDoc, mergedPdfDoc.getPageIndices())).forEach(p => finalDoc.addPage(p));
-      (await finalDoc.copyPages(pdfDoc, pdfDoc.getPageIndices())).forEach(p => finalDoc.addPage(p));
+      if (mergedPdfDoc.getPages().length > 0) {
+        (await finalDoc.copyPages(mergedPdfDoc, mergedPdfDoc.getPageIndices())).forEach(p => finalDoc.addPage(p));
+      }
+      if (pdfDoc.getPages().length > 0) {
+        (await finalDoc.copyPages(pdfDoc, pdfDoc.getPageIndices())).forEach(p => finalDoc.addPage(p));
+      }
 
       const pdfBase64 = await finalDoc.saveAsBase64({ dataUri: true });
       let a = document.createElement("a");
