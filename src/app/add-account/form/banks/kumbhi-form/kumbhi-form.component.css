@@ -12,18 +12,16 @@
 
 .form-page {
     width: 740px;
-    min-height: 1040px;
+    height: 1215px;
     border: 3px double #0082c3;
     padding: 20px;
-    margin-bottom: 25px;
+    margin-bottom: 0px;
     box-sizing: border-box;
     background: #fff;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     position: relative;
-    page-break-after: always;
-    break-after: page;
 }
 
 /* Flexbox Layout Utilities */

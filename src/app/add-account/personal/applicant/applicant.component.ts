@@ -669,6 +669,11 @@ export class ApplicantComponent implements OnInit {
     if (res?.code === 200) {
       const searchData = res.data;
 
+      if (searchData && searchData.ALREADY_EXIST === 'Y') {
+        this.message.error('Account already present.', '');
+        return false;
+      }
+
       this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = true;
       if (!this.basicInfo['IS_OLD_CUSTOMER_' + this.applicantNo]) {
         this.message.error(

@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+
 import { BasicInfo } from 'src/app/models/basicInfo';
 import { ExtraInfo } from 'src/app/models/extra-info';
 import { ApiService } from 'src/app/service/api.service';
@@ -169,10 +170,6 @@ export class AddAccountComponent implements OnInit, OnDestroy {
         );
         this.AccountCreationStatus.emit(false);
       }
-      // else {
-      //   this.message.error("Unable to create account.", '');
-      //   this.AccountCreationStatus.emit(false);
-      // }
 
 
     }
