@@ -352,7 +352,7 @@
                                             <nz-form-label nzRequired [nzNoColon]="true">Mobile Number 1</nz-form-label>
                                             <nz-form-control>
                                                 <input nz-input name="mobile" [(ngModel)]="personalInfo.MOBILE_NUMBER"
-                                                    placeholder="Enter Mobile Number 1" maxlength="10"
+                                                    placeholder="Enter Mobile Number 1" minlength="10" maxlength="10"
                                                     pattern="^[0-9]{10}$" disabled />
                                             </nz-form-control>
                                         </nz-form-item>
@@ -905,7 +905,8 @@
                             <nz-form-item nz-col nzSpan="24">
                                 <nz-form-label nzRequired [nzNoColon]="true">Other Establishment Details</nz-form-label>
                                 <nz-form-control>
-                                    <input nz-input name="OTHER_ESTABLISHMENT" [(ngModel)]="personalInfo.OTHER_ESTABLISHMENT"
+                                    <input nz-input name="OTHER_ESTABLISHMENT"
+                                        [(ngModel)]="personalInfo.OTHER_ESTABLISHMENT"
                                         placeholder="Enter Other Establishment Details" />
                                 </nz-form-control>
                             </nz-form-item>
@@ -928,7 +929,8 @@
                             <nz-form-item nz-col nzSpan="24" *ngIf="personalInfo.EMPLOYMENT_DETAIL === 'O'">
                                 <nz-form-label nzRequired [nzNoColon]="true">Other Employment Details</nz-form-label>
                                 <nz-form-control>
-                                    <input nz-input name="OTHER_EMPLOYMENT_DETAIL" [(ngModel)]="personalInfo.OTHER_EMPLOYMENT_DETAIL"
+                                    <input nz-input name="OTHER_EMPLOYMENT_DETAIL"
+                                        [(ngModel)]="personalInfo.OTHER_EMPLOYMENT_DETAIL"
                                         placeholder="Enter Other Employment Details" />
                                 </nz-form-control>
                             </nz-form-item>
@@ -970,7 +972,8 @@
                             <nz-form-item nz-col nzSpan="24">
                                 <nz-form-label nzRequired [nzNoColon]="true">Other Proprietor Details</nz-form-label>
                                 <nz-form-control>
-                                    <input nz-input name="OTHER_PROPRIETOR_DETAILS" [(ngModel)]="personalInfo.OTHER_PROPRIETOR_DETAILS"
+                                    <input nz-input name="OTHER_PROPRIETOR_DETAILS"
+                                        [(ngModel)]="personalInfo.OTHER_PROPRIETOR_DETAILS"
                                         placeholder="Enter Other Proprietor Details" />
                                 </nz-form-control>
                             </nz-form-item>
@@ -995,7 +998,8 @@
                             <nz-form-item nz-col nzSpan="24">
                                 <nz-form-label nzRequired [nzNoColon]="true">Other Business Details</nz-form-label>
                                 <nz-form-control>
-                                    <input nz-input name="OTHER_BUSINESS_DETAIL" [(ngModel)]="personalInfo.OTHER_BUSINESS_DETAIL"
+                                    <input nz-input name="OTHER_BUSINESS_DETAIL"
+                                        [(ngModel)]="personalInfo.OTHER_BUSINESS_DETAIL"
                                         placeholder="Enter Other Business Details" />
                                 </nz-form-control>
                             </nz-form-item>

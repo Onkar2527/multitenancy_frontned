@@ -359,7 +359,7 @@ export class ApplicantComponent implements OnInit {
     }
 
     if ((await this.checkBalance(2)) == 0) return;
-    
+
     this.loadPanButton = true;
     if (!(await this.searchPAN())) {
       this.loadPanButton = false;
@@ -666,6 +666,14 @@ export class ApplicantComponent implements OnInit {
   // }
 
   private handleSearchResponse(res: any, isBackground = false): boolean {
+    if (res?.data === 'Member Details Not Found') {
+      if (!isBackground) {
+        this.message.error('cutomer id is frezed or new customer', '');
+      }
+      this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = false;
+      return isBackground ? true : false;
+    }
+
     if (res?.code === 200) {
       const searchData = res.data;
 
@@ -702,16 +710,16 @@ export class ApplicantComponent implements OnInit {
     if (res?.error && (String(res.error).includes('ETIMEDOUT') || String(res.error).includes('connect') || String(res.error).includes('timeout'))) {
       console.warn('CBS API Connection Timeout/Offline. Duplicate validation skipped.');
     } else {
-      this.message.error('Something Went Wrong', '');
+      this.message.error(res.error || 'Something Went Wrong', '');
     }
-    
+
     this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = false;
     return isBackground ? true : false;
   }
 
 
   private populateFieldsFromSearch(data: any) {
-    this.basicInfo['CUSTOMER_ID_' + this.applicantNo] = data.CUSTOMERID;
+    this.basicInfo['CUSTOMER_ID_' + this.applicantNo] = data.CUSTOMER_ID || data.CUSTOMERID || this.basicInfo['CUSTOMER_ID_' + this.applicantNo];
     this.basicInfo['IS_OLD_CUSTOMER_' + this.applicantNo] = true;
     this.aadhaarVerify.pan_history.PAN_NUMBER = data.PAN;
     this.aadhaarVerify.aadhar_history.AADHAAR_NUMBER = data.CUSTUIN;

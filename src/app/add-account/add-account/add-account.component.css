@@ -4,6 +4,9 @@ nz-tabset{
     /* padding: 20px; */
     
 }
+::ng-deep .ant-tabs-nav .ant-tabs-tab {
+  pointer-events: none !important;
+}
 nz-tab{
     height: 100%;
     overflow-y: hidden;

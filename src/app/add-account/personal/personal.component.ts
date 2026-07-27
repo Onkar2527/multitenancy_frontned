@@ -550,6 +550,12 @@ export class PersonalComponent implements OnInit, OnChanges {
           validationFailed = true;
           break;
         }
+        const mobileRegex = /^[1-9]\d{9}$/;
+        if (!mobileRegex.test(String(mobile).trim())) {
+          this.message.error(`${applicantLabel} Mobile Number must be exactly 10 digits!`, '');
+          validationFailed = true;
+          break;
+        }
 
         const docAuth = this.basicInfo[i === 1 ? 'DOCUMENTS_AUTHORITY' : `DOCUMENTS_AUTHORITY_${i}`];
         const docPlace = this.basicInfo[i === 1 ? 'DOCUMENTS_ISSUE_PLACE' : `DOCUMENTS_ISSUE_PLACE_${i}`];
@@ -567,13 +573,72 @@ export class PersonalComponent implements OnInit, OnChanges {
             validationFailed = true;
             break;
           }
+        }
+      }
 
-          const isOldCustomer = !!this.basicInfo['IS_OLD_CUSTOMER_' + i];
+      if (validationFailed) {
+        personal.next({ code: 400, message: 'Validation failed: Please check mandatory fields.' });
+        personal.complete();
+        return;
+      }
+
+      // 1. CBS existing customer validation for role ID 1
+      const roleId = Number(sessionStorage.getItem('ROLE_ID'));
+      if (roleId === 1) {
+        for (let i = 1; i <= this.basicInfo.NO_OF_APPLICANT; i++) {
+          const isOldCustomer = this.basicInfo['IS_OLD_CUSTOMER_' + i];
           if (!isOldCustomer) {
-            const isPanVerified = !!this.basicInfo['PAN_VERIFIED_' + i];
-            if (!isPanVerified) {
-              this.message.error(`${applicantLabel} PAN Number must be verified before submitting!`, '');
-              validationFailed = true;
+            const pan = getPanVal(i);
+            const aadhaar = getAadhaarVal(i);
+            const applicantLabel = i === 1 ? 'Applicant 1' : `Applicant ${i}`;
+
+            // Check PAN if present
+            if (pan && String(pan).trim()) {
+              try {
+                const res: any = await lastValueFrom(
+                  this.api.searchCustomer('', '', pan.trim(), 'PAN')
+                );
+                if (res?.code === 200 && res.data && res.data !== 'Member Details Not Found') {
+                  if (res.data.ALREADY_EXIST === 'Y') {
+                    this.message.error(`${applicantLabel}: Account already present with this PAN.`, '');
+                    validationFailed = true;
+                  } else {
+                    this.message.error(
+                      `${applicantLabel} with PAN ${pan} already exists in CBS! Save/Submit is blocked. Please select 'Is this applicant a bank customer?' as Yes and enter Customer ID.`,
+                      ''
+                    );
+                    validationFailed = true;
+                  }
+                }
+              } catch (err) {
+                console.error("Error checking PAN in CBS", err);
+              }
+            }
+
+            // Check Aadhaar if present
+            if (!validationFailed && aadhaar && String(aadhaar).trim()) {
+              try {
+                const res: any = await lastValueFrom(
+                  this.api.searchCustomer('', aadhaar.trim(), '', 'AADHAAR_NO')
+                );
+                if (res?.code === 200 && res.data && res.data !== 'Member Details Not Found') {
+                  if (res.data.ALREADY_EXIST === 'Y') {
+                    this.message.error(`${applicantLabel}: Account already present with this Aadhaar.`, '');
+                    validationFailed = true;
+                  } else {
+                    this.message.error(
+                      `${applicantLabel} with Aadhaar ${aadhaar} already exists in CBS! Save/Submit is blocked. Please select 'Is this applicant a bank customer?' as Yes and enter Customer ID.`,
+                      ''
+                    );
+                    validationFailed = true;
+                  }
+                }
+              } catch (err) {
+                console.error("Error checking Aadhaar in CBS", err);
+              }
+            }
+
+            if (validationFailed) {
               break;
             }
           }
@@ -581,7 +646,7 @@ export class PersonalComponent implements OnInit, OnChanges {
       }
 
       if (validationFailed) {
-        personal.next({ code: 400, message: 'Validation failed: Please check mandatory fields.' });
+        personal.next({ code: 400, message: 'Validation failed: Customer already exists in CBS.' });
         personal.complete();
         return;
       }
@@ -664,7 +729,7 @@ export class PersonalComponent implements OnInit, OnChanges {
           }
         },
         error: (err) => {
-          this.message.error('Internal Server Error', '');
+          this.message.error(err.error?.message || err.message || 'Internal Server Error', '');
           personal.error(err);
         },
         complete: () => {

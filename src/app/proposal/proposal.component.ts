@@ -544,7 +544,8 @@ export class ProposalComponent implements OnInit {
   mendetoryDocs = [
     "Applicant ID Proof",
     "Applicant Address Proof",
-    "Applicant Photo"
+    "Applicant Photo",
+    "Sign"
   ]
 
   saveANext() {
@@ -555,11 +556,11 @@ export class ProposalComponent implements OnInit {
       this.api.getDocument(this.APPLICANT_ID, null).subscribe({
         next: (res) => {
           if (res['code'] == 200) {
-            if (res['data'].length >= 3) {
-              this.velidateDocument(res['data']) ? this.addAccountComp.saveANext() : this.message.error(`Please Upload ${this.mendetoryDocs[0]}, ${this.mendetoryDocs[1]} and ${this.mendetoryDocs[2]}`, '');
+            if (res['data'].length >= this.mendetoryDocs.length) {
+              this.velidateDocument(res['data']) ? this.addAccountComp.saveANext() : this.message.error(`Please Upload ${this.mendetoryDocs.slice(0, -1).join(', ')} and ${this.mendetoryDocs[this.mendetoryDocs.length - 1]}`, '');
             }
             else {
-              this.message.error(`Please Upload ${this.mendetoryDocs[0]}, ${this.mendetoryDocs[1]} and ${this.mendetoryDocs[2]}`, '');
+              this.message.error(`Please Upload ${this.mendetoryDocs.slice(0, -1).join(', ')} and ${this.mendetoryDocs[this.mendetoryDocs.length - 1]}`, '');
             }
           }
           else {
@@ -577,7 +578,11 @@ export class ProposalComponent implements OnInit {
   velidateDocument(docArray: Documents[]) {
     let count = 0
     for (let doc of docArray) {
-      if (this.mendetoryDocs.includes(doc.DOCUMENT_NAME)) {
+      let docName = doc.DOCUMENT_NAME;
+      if (docName === 'Signature') {
+        docName = 'Sign';
+      }
+      if (this.mendetoryDocs.includes(docName)) {
         if (doc.IMAGE_DATA) count++;
       }
     }

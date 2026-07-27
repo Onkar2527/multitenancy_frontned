@@ -1,0 +1,3 @@
+::ng-deep .ant-tabs-nav .ant-tabs-tab {
+  pointer-events: none !important;
+}

@@ -43,7 +43,7 @@
                 <div class="flex-row align-center">
                     <span class="bold mr-8" style="font-size: 11px; color: #0082c3;">खाते क्र.</span>
                     <div class="box-row">
-                        <div class="digit-box" *ngFor="let item of [].constructor(15); let idx = index">
+                        <div class="digit-box" *ngFor="let item of [].constructor(basicInfo['ACCOUNT_NUMBER']?.length || 15); let idx = index">
                             {{ basicInfo['ACCOUNT_NUMBER']?.[idx] }}
                         </div>
                     </div>

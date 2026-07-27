@@ -5,16 +5,18 @@
             <nz-divider nzText="Personal Info" nzOrientation="left"></nz-divider>
             <nz-form-item>
                 <nz-form-label>Is this applicant a bank customer?</nz-form-label>
-                <nz-switch [(ngModel)]="basicInfo['IS_OLD_CUSTOMER_' + applicantNo]" nzCheckedChildren="Yes" nzUnCheckedChildren="No"></nz-switch>
+                <nz-switch [(ngModel)]="basicInfo['IS_OLD_CUSTOMER_' + applicantNo]" nzCheckedChildren="Yes"
+                    nzUnCheckedChildren="No"></nz-switch>
             </nz-form-item>
             <nz-form-item *ngIf="basicInfo['IS_OLD_CUSTOMER_' + applicantNo]">
                 <nz-form-label>Customer ID</nz-form-label>
                 <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton">
-                    <input nz-input [(ngModel)]="basicInfo['CUSTOMER_ID_' + applicantNo]" placeholder="Enter Customer ID" />
+                    <input nz-input [(ngModel)]="basicInfo['CUSTOMER_ID_' + applicantNo]"
+                        placeholder="Enter Customer ID" />
                 </nz-input-group>
                 <ng-template #suffixIconButton>
                     <button nz-button nzType="primary" nzSearch (click)="searchCustomer()"><span nz-icon
-              nzType="search"></span></button>
+                            nzType="search"></span></button>
                 </ng-template>
             </nz-form-item>
             <div nz-row [nzGutter]="[16, 16]">
@@ -22,14 +24,17 @@
                     <nz-form-item>
                         <nz-form-label nzRequired>Title</nz-form-label>
                         <nz-select [(ngModel)]="basicInfo['CUSTOMER_TYPE_' + applicantNo]" style="width: 100%;">
-                            <nz-option *ngFor="let title of MASTERS[0].data" [nzValue]="title.TITLEDESC" [nzLabel]="title.TITLEDESC"></nz-option>
+                            <nz-option *ngFor="let title of MASTERS[0].data" [nzValue]="title.TITLEDESC"
+                                [nzLabel]="title.TITLEDESC"></nz-option>
                         </nz-select>
                     </nz-form-item>
                 </div>
                 <div nz-col [nzSpan]="18">
                     <nz-form-item>
                         <nz-form-label nzRequired>First Name</nz-form-label>
-                        <input nz-input [(ngModel)]="basicInfo[applicantNo === 1 ? 'PRIMARY_APPLICANT_FIRST_NAME' : 'APPLICANT' + applicantNo + '_FIRST_NAME']" placeholder="First Name" />
+                        <input nz-input
+                            [(ngModel)]="basicInfo[applicantNo === 1 ? 'PRIMARY_APPLICANT_FIRST_NAME' : 'APPLICANT' + applicantNo + '_FIRST_NAME']"
+                            placeholder="First Name" />
                     </nz-form-item>
                 </div>
             </div>
@@ -37,13 +42,17 @@
                 <div nz-col [nzSpan]="12">
                     <nz-form-item>
                         <nz-form-label>Middle Name</nz-form-label>
-                        <input nz-input [(ngModel)]="basicInfo[applicantNo === 1 ? 'PRIMARY_APPLICANT_MIDDLE_NAME' : 'APPLICANT' + applicantNo + '_MIDDLE_NAME']" placeholder="Middle Name" />
+                        <input nz-input
+                            [(ngModel)]="basicInfo[applicantNo === 1 ? 'PRIMARY_APPLICANT_MIDDLE_NAME' : 'APPLICANT' + applicantNo + '_MIDDLE_NAME']"
+                            placeholder="Middle Name" />
                     </nz-form-item>
                 </div>
                 <div nz-col [nzSpan]="12">
                     <nz-form-item>
                         <nz-form-label>Last Name</nz-form-label>
-                        <input nz-input [(ngModel)]="basicInfo[applicantNo === 1 ? 'PRIMARY_APPLICANT_LAST_NAME' : 'APPLICANT' + applicantNo + '_LAST_NAME']" placeholder="Last Name" />
+                        <input nz-input
+                            [(ngModel)]="basicInfo[applicantNo === 1 ? 'PRIMARY_APPLICANT_LAST_NAME' : 'APPLICANT' + applicantNo + '_LAST_NAME']"
+                            placeholder="Last Name" />
                     </nz-form-item>
                 </div>
             </div>
@@ -61,7 +70,10 @@
                 <div nz-col [nzSpan]="16">
                     <nz-form-item>
                         <nz-form-label nzRequired>Date of Birth</nz-form-label>
-                        <input nz-input [name]="'DATE_OF_BIRTH_' + applicantNo" mask="d0/M0/0000" [leadZeroDateTime]="true" [dropSpecialCharacters]="false" [(ngModel)]="basicInfo['DOB_' + applicantNo]" placeholder="dd/mm/yyyy" (ngModelChange)="calculateAge()">
+                        <input nz-input [name]="'DATE_OF_BIRTH_' + applicantNo" mask="d0/M0/0000"
+                            [leadZeroDateTime]="true" [dropSpecialCharacters]="false"
+                            [(ngModel)]="basicInfo['DOB_' + applicantNo]" placeholder="dd/mm/yyyy"
+                            (ngModelChange)="calculateAge()">
                     </nz-form-item>
                 </div>
                 <div nz-col [nzSpan]="8">
@@ -74,7 +86,17 @@
 
             <nz-form-item>
                 <nz-form-label nzRequired>Mobile Number</nz-form-label>
-                <input nz-input [(ngModel)]="basicInfo['MOBILE_' + applicantNo]" placeholder="Enter Mobile Number" maxlength="10" />
+                <nz-form-control
+                    [nzValidateStatus]="mobileField.invalid && (mobileField.dirty || mobileField.touched) ? 'error' : ''"
+                    [nzErrorTip]="mobileErrorTpl">
+                    <input nz-input [(ngModel)]="basicInfo['MOBILE_' + applicantNo]" #mobileField="ngModel"
+                        [name]="'MOBILE_' + applicantNo" placeholder="Enter Mobile Number"
+                        pattern="^[1-9]\d{9}$" maxlength="10" required />
+                </nz-form-control>
+                <ng-template #mobileErrorTpl>
+                    <ng-container *ngIf="mobileField.errors?.['required']">Mobile Number is mandatory!</ng-container>
+                    <ng-container *ngIf="mobileField.errors?.['pattern']">Mobile Number must be exactly 10 digits!</ng-container>
+                </ng-template>
             </nz-form-item>
         </div>
     </div>
@@ -86,8 +108,11 @@
             <nz-form-item>
                 <nz-form-label>Aadhaar Number</nz-form-label>
                 <nz-input-group nzCompact>
-                    <input nz-input [(ngModel)]="aadhaarVerify.aadhar_history.AADHAAR_NUMBER" mask="XXXX XXXX 0000" [hiddenInput]="true" placeholder="Enter Aadhaar number" style="width: calc(100% - 90px);" maxlength="14" (ngModelChange)="showAadharNo($event)" />
-                    <button nz-button nzType="primary" (click)="getOtp()" [nzLoading]="loadOtpButton" [disabled]="!aadhaarVerify.aadhar_history.AADHAAR_NUMBER">Get OTP</button>
+                    <input nz-input [(ngModel)]="aadhaarVerify.aadhar_history.AADHAAR_NUMBER" mask="XXXX XXXX 0000"
+                        [hiddenInput]="true" placeholder="Enter Aadhaar number" style="width: calc(100% - 90px);"
+                        maxlength="14" (ngModelChange)="showAadharNo($event)" />
+                    <button nz-button nzType="primary" (click)="getOtp()" [nzLoading]="loadOtpButton"
+                        [disabled]="!aadhaarVerify.aadhar_history.AADHAAR_NUMBER">Get OTP</button>
 
                     <p>{{previewAdhaar}}</p>
                     <div nz-row *ngIf="aadhaarVerify.aadhar_history.IS_VERIFIED" class="success-tip">
@@ -102,13 +127,15 @@
                 <nz-form-control>
                     <div nz-row>
                         <div nz-col [nzSpan]="17">
-                            <input type="password" nz-input name="otp" [(ngModel)]="aadhaarVerify.meta.otp" placeholder="Enter OTP" />
+                            <input type="password" nz-input name="otp" [(ngModel)]="aadhaarVerify.meta.otp"
+                                placeholder="Enter OTP" />
                         </div>
                         <div nz-col nzSpan="1">
 
                         </div>
                         <div nz-col [nzSpan]="5">
-                            <button nz-button nzType="primary" (click)="getAadhaarData()" [nzLoading]="loadAadhaarButton">Verify</button>
+                            <button nz-button nzType="primary" (click)="getAadhaarData()"
+                                [nzLoading]="loadAadhaarButton">Verify</button>
                         </div>
                     </div>
                 </nz-form-control>
@@ -153,17 +180,23 @@
             <nz-form-item>
                 <nz-form-label nzRequired>Issued Document Authority & Place of issue</nz-form-label>
                 <nz-input-group nzCompact>
-                    <input nz-input [(ngModel)]="basicInfo[applicantNo == 1 ?'DOCUMENTS_AUTHORITY' :'DOCUMENTS_AUTHORITY_' + applicantNo]" style="width: 49%;" placeholder="Authority" />
+                    <input nz-input
+                        [(ngModel)]="basicInfo[applicantNo == 1 ?'DOCUMENTS_AUTHORITY' :'DOCUMENTS_AUTHORITY_' + applicantNo]"
+                        style="width: 49%;" placeholder="Authority" />
                     <div style="width: 2%;"></div>
-                    <input nz-input [(ngModel)]="basicInfo[applicantNo == 1 ?'DOCUMENTS_ISSUE_PLACE' :'DOCUMENTS_ISSUE_PLACE_' + applicantNo]" style="width: 49%;" placeholder="Place" />
+                    <input nz-input
+                        [(ngModel)]="basicInfo[applicantNo == 1 ?'DOCUMENTS_ISSUE_PLACE' :'DOCUMENTS_ISSUE_PLACE_' + applicantNo]"
+                        style="width: 49%;" placeholder="Place" />
                 </nz-input-group>
             </nz-form-item>
 
-            
+
             <nz-form-item>
                 <nz-form-label nzRequired>PAN Number</nz-form-label>
                 <nz-input-group nzCompact>
-                    <input nz-input [(ngModel)]="aadhaarVerify.pan_history.PAN_NUMBER" (ngModelChange)="showPanNo($event)" placeholder="Enter PAN Number" style="width: calc(100% - 70px);" />
+                    <input nz-input [(ngModel)]="aadhaarVerify.pan_history.PAN_NUMBER"
+                        (ngModelChange)="showPanNo($event)" placeholder="Enter PAN Number"
+                        style="width: calc(100% - 70px);" />
                     <button nz-button (click)="verifyPan()" [nzLoading]="loadPanButton">Verify</button>
                     <div nz-row *ngIf="aadhaarVerify.pan_history.IS_VERIFIED" class="success-tip">
                         <div nz-col nzSpan="24">
@@ -175,7 +208,8 @@
             <nz-form-item>
                 <nz-form-label>Driving License</nz-form-label>
                 <nz-input-group nzCompact>
-                    <input nz-input [(ngModel)]="aadhaarVerify.license_history.LICENSE_NUMBER" placeholder="Enter Driving License Number" style="width: calc(100% - 70px);" />
+                    <input nz-input [(ngModel)]="aadhaarVerify.license_history.LICENSE_NUMBER"
+                        placeholder="Enter Driving License Number" style="width: calc(100% - 70px);" />
                     <button nz-button (click)="verifyLicense()" [nzLoading]="loadLicenseButton">Verify</button>
                     <div nz-row *ngIf="aadhaarVerify.license_history.IS_VERIFIED" class="success-tip">
                         <div nz-col nzSpan="24">
@@ -188,7 +222,8 @@
             <nz-form-item>
                 <nz-form-label>Voter ID</nz-form-label>
                 <nz-input-group nzCompact>
-                    <input nz-input [(ngModel)]="aadhaarVerify.voter_history.EPIC_NO" placeholder="Enter Voter ID" style="width: calc(100% - 70px);" />
+                    <input nz-input [(ngModel)]="aadhaarVerify.voter_history.EPIC_NO" placeholder="Enter Voter ID"
+                        style="width: calc(100% - 70px);" />
                     <button nz-button (click)="verifyVoterID()" [nzLoading]="loadVoterButton">Verify</button>
                     <div nz-row *ngIf="aadhaarVerify.voter_history.IS_VERIFIED" class="success-tip">
                         <div nz-col nzSpan="24">
@@ -201,7 +236,8 @@
             <nz-form-item>
                 <nz-form-label>Passport</nz-form-label>
                 <nz-input-group nzCompact>
-                    <input nz-input [(ngModel)]="basicInfo['PASSPORT_NO_' + applicantNo]" placeholder="Enter Passport ID" style="width: calc(100% - 70px);" />
+                    <input nz-input [(ngModel)]="basicInfo['PASSPORT_NO_' + applicantNo]"
+                        placeholder="Enter Passport ID" style="width: calc(100% - 70px);" />
                     <button nz-button (click)="verifyPassport()" [nzLoading]="loadPassportButton">Verify</button>
                     <div nz-row *ngIf="false" class="success-tip">
                         <div nz-col nzSpan="24">
@@ -226,7 +262,8 @@
                     </div>
                     <div nz-col [nzSpan]="19" class="aadhaar-info">
                         <div class="aadhaar-number">
-                            <input [hiddenInput]="true" mask="XXXX XXXX 0000" disabled [ngModel]="aadhaarVerify.common.aadhaar_no">
+                            <input [hiddenInput]="true" mask="XXXX XXXX 0000" disabled
+                                [ngModel]="aadhaarVerify.common.aadhaar_no">
                         </div>
                         <div class="info-grid">
                             <div class="info-item">
@@ -262,32 +299,32 @@
                     <div class="verification-item">
                         <span>Aadhaar:</span>
                         <span [ngClass]="aadhaarVerify.aadhar_history.IS_VERIFIED ? 'verified' : 'not-verified'">
-              {{aadhaarVerify.aadhar_history.IS_VERIFIED ?'Verified':'Not Verified'}}
-            </span>
+                            {{aadhaarVerify.aadhar_history.IS_VERIFIED ?'Verified':'Not Verified'}}
+                        </span>
                     </div>
                     <div class="verification-item">
                         <span>PAN:</span>
                         <span [ngClass]="aadhaarVerify.pan_history.IS_VERIFIED ? 'verified' : 'not-verified'">
-              {{aadhaarVerify.pan_history.IS_VERIFIED ?'Verified':'Not Verified'}}
-            </span>
+                            {{aadhaarVerify.pan_history.IS_VERIFIED ?'Verified':'Not Verified'}}
+                        </span>
                     </div>
                     <div class="verification-item">
                         <span>Driving License:</span>
                         <span [ngClass]="aadhaarVerify.license_history.IS_VERIFIED ? 'verified' : 'not-verified'">
-              {{aadhaarVerify.license_history.IS_VERIFIED ?'Verified':'Not Verified'}}
-            </span>
+                            {{aadhaarVerify.license_history.IS_VERIFIED ?'Verified':'Not Verified'}}
+                        </span>
                     </div>
                     <div class="verification-item">
                         <span>Voter ID:</span>
                         <span [ngClass]="aadhaarVerify.voter_history.IS_VERIFIED ? 'verified' : 'not-verified'">
-              {{aadhaarVerify.voter_history.IS_VERIFIED ?'Verified':'Not Verified'}}
-            </span>
+                            {{aadhaarVerify.voter_history.IS_VERIFIED ?'Verified':'Not Verified'}}
+                        </span>
                     </div>
                     <div class="verification-item">
                         <span>Passport:</span>
                         <span [ngClass]="false ? 'verified' : 'not-verified'">
-              {{false ?'Verified':'Not Verified'}}
-            </span>
+                            {{false ?'Verified':'Not Verified'}}
+                        </span>
                     </div>
                 </div>
                 <nz-form-item>
