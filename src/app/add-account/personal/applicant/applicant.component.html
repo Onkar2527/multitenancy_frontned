@@ -5,15 +5,19 @@
             <nz-divider nzText="Personal Info" nzOrientation="left"></nz-divider>
             <nz-form-item>
                 <nz-form-label>Is this applicant a bank customer?</nz-form-label>
-                <nz-switch [(ngModel)]="basicInfo['IS_OLD_CUSTOMER_' + applicantNo]" nzCheckedChildren="Yes"
+                <nz-switch [(ngModel)]="basicInfo['IS_OLD_CUSTOMER_' + applicantNo]" (ngModelChange)="onCustomerIdChange()" nzCheckedChildren="Yes"
                     nzUnCheckedChildren="No"></nz-switch>
             </nz-form-item>
             <nz-form-item *ngIf="basicInfo['IS_OLD_CUSTOMER_' + applicantNo]">
                 <nz-form-label>Customer ID</nz-form-label>
                 <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton">
-                    <input nz-input [(ngModel)]="basicInfo['CUSTOMER_ID_' + applicantNo]"
+                    <input nz-input [(ngModel)]="basicInfo['CUSTOMER_ID_' + applicantNo]" (ngModelChange)="onCustomerIdChange()"
                         placeholder="Enter Customer ID" />
                 </nz-input-group>
+                <div *ngIf="kycStatus" [class]="'kyc-status-msg ' + kycStatusClass">
+                    <span nz-icon [nzType]="kycStatusClass === 'kyc-done' ? 'check-circle' : (kycStatusClass === 'kyc-pending' ? 'exclamation-circle' : 'close-circle')" nzTheme="outline"></span>
+                    {{ kycStatus }}
+                </div>
                 <ng-template #suffixIconButton>
                     <button nz-button nzType="primary" nzSearch (click)="searchCustomer()"><span nz-icon
                             nzType="search"></span></button>
@@ -90,12 +94,13 @@
                     [nzValidateStatus]="mobileField.invalid && (mobileField.dirty || mobileField.touched) ? 'error' : ''"
                     [nzErrorTip]="mobileErrorTpl">
                     <input nz-input [(ngModel)]="basicInfo['MOBILE_' + applicantNo]" #mobileField="ngModel"
-                        [name]="'MOBILE_' + applicantNo" placeholder="Enter Mobile Number"
-                        pattern="^[1-9]\d{9}$" maxlength="10" required />
+                        [name]="'MOBILE_' + applicantNo" placeholder="Enter Mobile Number" pattern="^[1-9]\d{9}$"
+                        maxlength="10" required />
                 </nz-form-control>
                 <ng-template #mobileErrorTpl>
                     <ng-container *ngIf="mobileField.errors?.['required']">Mobile Number is mandatory!</ng-container>
-                    <ng-container *ngIf="mobileField.errors?.['pattern']">Mobile Number must be exactly 10 digits!</ng-container>
+                    <ng-container *ngIf="mobileField.errors?.['pattern']">Mobile Number must be exactly 10
+                        digits!</ng-container>
                 </ng-template>
             </nz-form-item>
         </div>
@@ -141,41 +146,7 @@
                 </nz-form-control>
             </nz-form-item>
 
-            <!-- <nz-form-item nz-col nzSpan="24">
-        <nz-form-label [nzNoColon]="true">Aadhaar Number</nz-form-label>
-        <nz-form-control nzErrorTip="The input is not Aadhaar number!">
-          <div nz-row>
-            <div nz-col [nzSpan]="17">
-              <input nz-input name="aadhar" [(ngModel)]="aadhaarVerify.aadhar_history.AADHAAR_NUMBER"
-                [hiddenInput]="true" mask="XXXX XXXX 0000" placeholder="Enter Aadhaar number" maxlength="14"
-                (ngModelChange)="showAadharNo($event)" />
 
-            </div>
-            <div nz-col nzSpan="1">
-
-            </div>
-            <div nz-col [nzSpan]="5">
-              <button nz-button nzType="primary" (click)="initializeAadhaarVerification(1)"
-                [nzLoading]="loadOtpButton">Verify Aadhaar</button>
-            </div>
-          </div>
-          <p>{{previewAdhaar}}</p>
-          <div nz-row *ngIf="aadhaarVerify.aadhar_history.IS_VERIFIED" class="success-tip">
-            <div nz-col nzSpan="24">
-              Aadhaar verified successfully
-            </div>
-          </div>
-        </nz-form-control>
-      </nz-form-item> -->
-
-            <!-- <nz-form-item *ngIf="aadhaarVerify.showOtp">
-                <nz-form-label>Enter OTP</nz-form-label>
-                <nz-input-group nzCompact>
-                    <input type="password" nz-input [(ngModel)]="aadhaarVerify.meta.otp" placeholder="Enter OTP" style="width: calc(100% - 90px);" />
-                    <button nz-button nzType="primary" (click)="getAadhaarData()" [nzLoading]="loadAadhaarButton">Verify
-            OTP</button>
-                </nz-input-group>
-            </nz-form-item> -->
 
             <nz-form-item>
                 <nz-form-label nzRequired>Issued Document Authority & Place of issue</nz-form-label>

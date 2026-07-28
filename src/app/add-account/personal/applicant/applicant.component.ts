@@ -28,8 +28,10 @@ export class ApplicantComponent implements OnInit {
   loadPanButton = false;
   loadVoterButton: boolean = false;
   loadLicenseButton: boolean = false;
-  loadPassportButton: boolean = false;
+  loadPassportButton = false;
   previewAdhaar: string = '';
+  kycStatus: string = '';
+  kycStatusClass: string = '';
 
   constructor(
     private api: ApiService,
@@ -613,6 +615,58 @@ export class ApplicantComponent implements OnInit {
     }
   }
 
+  onCustomerIdChange() {
+    this.kycStatus = '';
+    this.kycStatusClass = '';
+  }
+
+  parseKYCDate(dateStr: any): Date | null {
+    if (!dateStr) return null;
+    dateStr = String(dateStr).trim();
+    if (!dateStr) return null;
+
+    // Expected format: DD-MM-YYYY HH:mm:ss, e.g., 31-01-2034 00:00:00
+    const datePart = dateStr.split(' ')[0];
+    const parts = datePart.split(/[-/]/);
+    if (parts.length === 3) {
+      const d = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10) - 1; // JS months are 0-11
+      const y = parseInt(parts[2], 10);
+      if (!isNaN(d) && !isNaN(m) && !isNaN(y)) {
+        return new Date(y, m, d);
+      }
+    }
+
+    const date = new Date(dateStr);
+    return isNaN(date.getTime()) ? null : date;
+  }
+
+  evaluateKYCStatus(nextValidationDt: any) {
+    if (!nextValidationDt) {
+      this.kycStatus = 'KYC not done';
+      this.kycStatusClass = 'kyc-not-done';
+      return;
+    }
+
+    const parsedDate = this.parseKYCDate(nextValidationDt);
+    if (!parsedDate) {
+      this.kycStatus = 'KYC not done';
+      this.kycStatusClass = 'kyc-not-done';
+      return;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (parsedDate < today) {
+      this.kycStatus = 'KYC is pending';
+      this.kycStatusClass = 'kyc-pending';
+    } else {
+      this.kycStatus = 'KYC is done';
+      this.kycStatusClass = 'kyc-done';
+    }
+  }
+
   async searchCustomer() {
     const customerId = this.basicInfo['CUSTOMER_ID_' + this.applicantNo];
     if (customerId) {
@@ -671,6 +725,8 @@ export class ApplicantComponent implements OnInit {
         this.message.error('cutomer id is frezed or new customer', '');
       }
       this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = false;
+      this.kycStatus = '';
+      this.kycStatusClass = '';
       return isBackground ? true : false;
     }
 
@@ -679,6 +735,8 @@ export class ApplicantComponent implements OnInit {
 
       if (searchData && searchData.ALREADY_EXIST === 'Y') {
         this.message.error('Account already present.', '');
+        this.kycStatus = '';
+        this.kycStatusClass = '';
         return false;
       }
 
@@ -688,9 +746,18 @@ export class ApplicantComponent implements OnInit {
           'Customer already exists in CBS! Save/Submit is blocked.',
           ''
         );
+        this.kycStatus = '';
+        this.kycStatusClass = '';
         return false;
       } else {
         this.message.success('Customer details retrieved from CBS successfully.', '');
+      }
+
+      // Evaluate KYC status from search response
+      if (!isBackground) {
+        const kycDetails = res.data?.KYC_DETAILS || res.original_data?.['KYC Details'];
+        const nextValidationDt = kycDetails?.KCC_NEXTVALIDATIONDT;
+        this.evaluateKYCStatus(nextValidationDt);
       }
 
       // ✅ Still allow verification
@@ -703,6 +770,8 @@ export class ApplicantComponent implements OnInit {
         this.message.error('No Customer Found.', '');
       }
       this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = false;
+      this.kycStatus = '';
+      this.kycStatusClass = '';
       return isBackground ? true : false;
     }
 
@@ -714,6 +783,8 @@ export class ApplicantComponent implements OnInit {
     }
 
     this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = false;
+    this.kycStatus = '';
+    this.kycStatusClass = '';
     return isBackground ? true : false;
   }
 
