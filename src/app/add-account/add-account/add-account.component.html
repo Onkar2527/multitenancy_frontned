@@ -16,11 +16,11 @@
 
             <app-personal [basicInfo]="BasicInfo" [APPLICANT_ID]="APPLICANT_ID" *ngIf="tab.TAB_ID == 1"></app-personal>
 
-            <app-deposit [APPLICANT_ID]="APPLICANT_ID" *ngIf="tab.TAB_ID == 2"></app-deposit>
+            <app-deposit [APPLICANT_ID]="APPLICANT_ID" [basicInfo]="BasicInfo" *ngIf="tab.TAB_ID == 2"></app-deposit>
 
-            <app-nomination [APPLICANT_ID]="APPLICANT_ID" *ngIf="tab.TAB_ID == 3"></app-nomination>
+            <app-nomination [APPLICANT_ID]="APPLICANT_ID" [basicInfo]="BasicInfo" *ngIf="tab.TAB_ID == 3"></app-nomination>
 
-            <app-services [APPLICANT_ID]="APPLICANT_ID" *ngIf="tab.TAB_ID == 4"></app-services>
+            <app-services [APPLICANT_ID]="APPLICANT_ID" [basicInfo]="BasicInfo" *ngIf="tab.TAB_ID == 4"></app-services>
 
             <app-applicant-details [basicInfo]="BasicInfo" [APPLICANT_ID]="APPLICANT_ID"
                 *ngIf="tab.TAB_ID == 5"></app-applicant-details>

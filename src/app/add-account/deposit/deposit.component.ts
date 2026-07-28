@@ -405,6 +405,8 @@ export class DepositComponent implements OnInit {
     return deposit;
   }
 
+  @Input() basicInfo: any;
+
   /* ---------------- GET DEPOSIT ---------------- */
 
   getDepositInfo() {
@@ -419,6 +421,24 @@ export class DepositComponent implements OnInit {
             ...res.data[0]
           };
           this.changeCatagory();
+        } else {
+          const customerId = this.basicInfo?.CUSTOMER_ID_1;
+          if (customerId) {
+            this.api.getPreviousDetails(customerId).subscribe({
+              next: (prevRes) => {
+                if (prevRes?.code === 200 && prevRes.data?.deposits?.length > 0) {
+                  const prevDep = prevRes.data.deposits[0];
+                  const { ID, APPLICANT_ID, ...depositData } = prevDep;
+                  this.depositInfo = {
+                    ...this.depositInfo,
+                    ...depositData,
+                    APPLICANT_ID: this.APPLICANT_ID
+                  };
+                  this.changeCatagory();
+                }
+              }
+            });
+          }
         }
       },
       error: () => { },

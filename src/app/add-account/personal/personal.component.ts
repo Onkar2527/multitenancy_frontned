@@ -477,6 +477,41 @@ export class PersonalComponent implements OnInit, OnChanges {
               this.basicInfo[`OTP_AUTH_${i}`] = app.OTP_AUTH;
               this.basicInfo[`IS_OLD_CUSTOMER_${i}`] = app.IS_OLD_CUSTOMER;
               this.basicInfo[`CUSTOMER_TYPE_${i}`] = app.CUSTOMER_TYPE;
+
+              // Map additional CBS/details from database
+              this.basicInfo[`F_OR_H_FIRST_NAME_${i}`] = app.F_OR_H_FIRST_NAME;
+              this.basicInfo[`F_OR_H_MIDDLE_NAME_${i}`] = app.F_OR_H_MIDDLE_NAME;
+              this.basicInfo[`F_OR_H_LAST_NAME_${i}`] = app.F_OR_H_LAST_NAME;
+              this.basicInfo[`MOTHERS_NAME_${i}`] = app.MOTHERS_NAME;
+              this.basicInfo[`MOTHERS_MIDDLE_NAME_${i}`] = app.MOTHERS_MIDDLE_NAME;
+              this.basicInfo[`MOTHERS_LAST_NAME_${i}`] = app.MOTHERS_LAST_NAME;
+              this.basicInfo[`RISK_CATEGORY_${i}`] = app.RISK_CATEGORY;
+              this.basicInfo[`RELIGION_${i}`] = app.RELIGION;
+              this.basicInfo[`CASTE_${i}`] = app.CASTE;
+              this.basicInfo[`MARITAL_STATUS_${i}`] = app.MARITAL_STATUS;
+              this.basicInfo[`FATHER_TITLE_${i}`] = app.FATHER_TITLE;
+              this.basicInfo[`MOTHER_TITLE_${i}`] = app.MOTHER_TITLE;
+              this.basicInfo[`CURRENT_ADDRESS_${i}`] = app.CURRENT_ADDRESS;
+              this.basicInfo[`CURRENT_PINCODE_${i}`] = app.CURRENT_PINCODE;
+              this.basicInfo[`PERMANENT_ADDRESS_${i}`] = app.PERMANENT_ADDRESS;
+              this.basicInfo[`PERMANENT_PINCODE_${i}`] = app.PERMANENT_PINCODE;
+              this.basicInfo[`CURRENT_CITY_${i}`] = app.CURRENT_CITY;
+              this.basicInfo[`CURRENT_TALUKA_${i}`] = app.CURRENT_TALUKA;
+              this.basicInfo[`CURRENT_DISTRICT_${i}`] = app.CURRENT_DISTRICT;
+              this.basicInfo[`CURRENT_STATE_${i}`] = app.CURRENT_STATE;
+              this.basicInfo[`PERMANENT_CITY_${i}`] = app.PERMANENT_CITY;
+              this.basicInfo[`PERMANENT_TALUKA_${i}`] = app.PERMANENT_TALUKA;
+              this.basicInfo[`PERMANENT_DISTRICT_${i}`] = app.PERMANENT_DISTRICT;
+              this.basicInfo[`PERMANENT_STATE_${i}`] = app.PERMANENT_STATE;
+              this.basicInfo[`WORK_${i}`] = app.WORK;
+              this.basicInfo[`PROFESSION_${i}`] = app.PROFESSION;
+              this.basicInfo[`FATHER_OR_SPOUSE_${i}`] = app.FATHER_OR_SPOUSE;
+
+              this.basicInfo[`ID_PROOF_${i}`] = app.ID_PROOF;
+              this.basicInfo[`ID_PROOF_NUMBER_${i}`] = app.ID_PROOF_NUMBER;
+              this.basicInfo[`PERMANENT_ADDRESS_PROOF_${i}`] = app.PERMANENT_ADDRESS_PROOF;
+              this.basicInfo[`PERMANENT_ADDRESS_PROOF_NUMBER_${i}`] = app.PERMANENT_ADDRESS_PROOF_NUMBER;
+              this.basicInfo[`ANNUAL_INCOME_${i}`] = app.ANNUAL_INCOME;
             });
           }
 
@@ -578,6 +613,29 @@ export class PersonalComponent implements OnInit, OnChanges {
 
       if (validationFailed) {
         personal.next({ code: 400, message: 'Validation failed: Please check mandatory fields.' });
+        personal.complete();
+        return;
+      }
+
+      // Check KYC status for old customers
+      for (let i = 1; i <= this.basicInfo.NO_OF_APPLICANT; i++) {
+        const isOldCustomer = this.basicInfo['IS_OLD_CUSTOMER_' + i];
+        if (isOldCustomer) {
+          const kycClass = this.basicInfo['KYC_STATUS_CLASS_' + i];
+          const applicantLabel = i === 1 ? 'Applicant 1' : `Applicant ${i}`;
+          if (kycClass === 'kyc-pending' || kycClass === 'kyc-not-done') {
+            this.message.error(
+              `${applicantLabel}: First complete your KYC then create your account.`,
+              ''
+            );
+            validationFailed = true;
+            break;
+          }
+        }
+      }
+
+      if (validationFailed) {
+        personal.next({ code: 400, message: 'Validation failed: KYC is pending or not done.' });
         personal.complete();
         return;
       }
@@ -688,6 +746,41 @@ export class PersonalComponent implements OnInit, OnChanges {
           OTP_AUTH: this.basicInfo[`OTP_AUTH_${i}`],
           IS_OLD_CUSTOMER: this.basicInfo[`IS_OLD_CUSTOMER_${i}`],
           CUSTOMER_TYPE: this.basicInfo[`CUSTOMER_TYPE_${i}`],
+
+          // Map CBS additional details to applicant object to save to DB
+          F_OR_H_FIRST_NAME: this.basicInfo[`F_OR_H_FIRST_NAME_${i}`],
+          F_OR_H_MIDDLE_NAME: this.basicInfo[`F_OR_H_MIDDLE_NAME_${i}`],
+          F_OR_H_LAST_NAME: this.basicInfo[`F_OR_H_LAST_NAME_${i}`],
+          MOTHERS_NAME: this.basicInfo[`MOTHERS_NAME_${i}`],
+          MOTHERS_MIDDLE_NAME: this.basicInfo[`MOTHERS_MIDDLE_NAME_${i}`],
+          MOTHERS_LAST_NAME: this.basicInfo[`MOTHERS_LAST_NAME_${i}`],
+          RISK_CATEGORY: this.basicInfo[`RISK_CATEGORY_${i}`],
+          RELIGION: this.basicInfo[`RELIGION_${i}`],
+          CASTE: this.basicInfo[`CASTE_${i}`],
+          MARITAL_STATUS: this.basicInfo[`MARITAL_STATUS_${i}`],
+          FATHER_TITLE: this.basicInfo[`FATHER_TITLE_${i}`],
+          MOTHER_TITLE: this.basicInfo[`MOTHER_TITLE_${i}`],
+          CURRENT_ADDRESS: this.basicInfo[`CURRENT_ADDRESS_${i}`],
+          CURRENT_PINCODE: this.basicInfo[`CURRENT_PINCODE_${i}`],
+          PERMANENT_ADDRESS: this.basicInfo[`PERMANENT_ADDRESS_${i}`],
+          PERMANENT_PINCODE: this.basicInfo[`PERMANENT_PINCODE_${i}`],
+          CURRENT_CITY: this.basicInfo[`CURRENT_CITY_${i}`],
+          CURRENT_TALUKA: this.basicInfo[`CURRENT_TALUKA_${i}`],
+          CURRENT_DISTRICT: this.basicInfo[`CURRENT_DISTRICT_${i}`],
+          CURRENT_STATE: this.basicInfo[`CURRENT_STATE_${i}`],
+          PERMANENT_CITY: this.basicInfo[`PERMANENT_CITY_${i}`],
+          PERMANENT_TALUKA: this.basicInfo[`PERMANENT_TALUKA_${i}`],
+          PERMANENT_DISTRICT: this.basicInfo[`PERMANENT_DISTRICT_${i}`],
+          PERMANENT_STATE: this.basicInfo[`PERMANENT_STATE_${i}`],
+          WORK: this.basicInfo[`WORK_${i}`],
+          PROFESSION: this.basicInfo[`PROFESSION_${i}`],
+          FATHER_OR_SPOUSE: this.basicInfo[`FATHER_OR_SPOUSE_${i}`],
+
+          ID_PROOF: this.basicInfo[`ID_PROOF_${i}`],
+          ID_PROOF_NUMBER: this.basicInfo[`ID_PROOF_NUMBER_${i}`],
+          PERMANENT_ADDRESS_PROOF: this.basicInfo[`PERMANENT_ADDRESS_PROOF_${i}`],
+          PERMANENT_ADDRESS_PROOF_NUMBER: this.basicInfo[`PERMANENT_ADDRESS_PROOF_NUMBER_${i}`],
+          ANNUAL_INCOME: this.basicInfo[`ANNUAL_INCOME_${i}`],
         });
       }
 

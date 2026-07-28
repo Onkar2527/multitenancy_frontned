@@ -5,12 +5,12 @@
     </nz-tab>
     <nz-tab [nzTitle]="disabledTabs[1].title" [nzDisabled]="disabledTabs[1].disabled">
         <app-applicant-financial [APPLICANT_ID]="personalInfo.APPLICANT_ID"
-            [APPLICANT_NO]="personalInfo.APPLICANT_NO"></app-applicant-financial>
+            [APPLICANT_NO]="personalInfo.APPLICANT_NO" [basicInfo]="basicInfo"></app-applicant-financial>
     </nz-tab>
 
     <nz-tab [nzTitle]="disabledTabs[2].title" [nzDisabled]="disabledTabs[2].disabled">
         <app-applicant-property [APPLICANT_ID]="personalInfo.APPLICANT_ID"
-            [APPLICANT_NO]="personalInfo.APPLICANT_NO"></app-applicant-property>
+            [APPLICANT_NO]="personalInfo.APPLICANT_NO" [basicInfo]="basicInfo"></app-applicant-property>
     </nz-tab>
 
     <!-- <nz-tab [nzTitle]="disabledTabs[3].title" [nzDisabled]="disabledTabs[3].disabled">

@@ -42,6 +42,15 @@ export class ApplicantComponent implements OnInit {
     this.getMasters();
     if (this.APPLICANT_ID) {
       this.getHistories();
+
+      // Automatically search and pre-fill CBS customer data on proposal edit
+      setTimeout(() => {
+        const isOldCustomer = this.basicInfo['IS_OLD_CUSTOMER_' + this.applicantNo];
+        const customerId = this.basicInfo['CUSTOMER_ID_' + this.applicantNo];
+        if (isOldCustomer && customerId) {
+          this.searchCustomer(true);
+        }
+      }, 500);
     }
   }
 
@@ -618,6 +627,7 @@ export class ApplicantComponent implements OnInit {
   onCustomerIdChange() {
     this.kycStatus = '';
     this.kycStatusClass = '';
+    this.basicInfo['KYC_STATUS_CLASS_' + this.applicantNo] = '';
   }
 
   parseKYCDate(dateStr: any): Date | null {
@@ -645,6 +655,7 @@ export class ApplicantComponent implements OnInit {
     if (!nextValidationDt) {
       this.kycStatus = 'KYC not done';
       this.kycStatusClass = 'kyc-not-done';
+      this.basicInfo['KYC_STATUS_CLASS_' + this.applicantNo] = 'kyc-not-done';
       return;
     }
 
@@ -652,6 +663,7 @@ export class ApplicantComponent implements OnInit {
     if (!parsedDate) {
       this.kycStatus = 'KYC not done';
       this.kycStatusClass = 'kyc-not-done';
+      this.basicInfo['KYC_STATUS_CLASS_' + this.applicantNo] = 'kyc-not-done';
       return;
     }
 
@@ -661,19 +673,30 @@ export class ApplicantComponent implements OnInit {
     if (parsedDate < today) {
       this.kycStatus = 'KYC is pending';
       this.kycStatusClass = 'kyc-pending';
+      this.basicInfo['KYC_STATUS_CLASS_' + this.applicantNo] = 'kyc-pending';
     } else {
       this.kycStatus = 'KYC is done';
       this.kycStatusClass = 'kyc-done';
+      this.basicInfo['KYC_STATUS_CLASS_' + this.applicantNo] = 'kyc-done';
     }
   }
 
-  async searchCustomer() {
+  async searchCustomer(isBackground = false) {
     const customerId = this.basicInfo['CUSTOMER_ID_' + this.applicantNo];
     if (customerId) {
       let res: any = await lastValueFrom(this.api.searchCustomer(customerId));
-      this.handleSearchResponse(res);
+      this.handleSearchResponse(res, isBackground);
+      
+      // Force evaluation of KYC status for background search on page load
+      if (isBackground && res?.code === 200) {
+        const kycDetails = res.data?.KYC_DETAILS || res.original_data?.['KYC Details'];
+        const nextValidationDt = kycDetails?.KCC_NEXTVALIDATIONDT;
+        this.evaluateKYCStatus(nextValidationDt);
+      }
     } else {
-      this.message.error('Please Enter Customer ID.', '');
+      if (!isBackground) {
+        this.message.error('Please Enter Customer ID.', '');
+      }
     }
   }
 
@@ -727,6 +750,7 @@ export class ApplicantComponent implements OnInit {
       this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = false;
       this.kycStatus = '';
       this.kycStatusClass = '';
+      this.basicInfo['KYC_STATUS_CLASS_' + this.applicantNo] = '';
       return isBackground ? true : false;
     }
 
@@ -737,6 +761,7 @@ export class ApplicantComponent implements OnInit {
         this.message.error('Account already present.', '');
         this.kycStatus = '';
         this.kycStatusClass = '';
+        this.basicInfo['KYC_STATUS_CLASS_' + this.applicantNo] = '';
         return false;
       }
 
@@ -748,6 +773,7 @@ export class ApplicantComponent implements OnInit {
         );
         this.kycStatus = '';
         this.kycStatusClass = '';
+        this.basicInfo['KYC_STATUS_CLASS_' + this.applicantNo] = '';
         return false;
       } else {
         this.message.success('Customer details retrieved from CBS successfully.', '');
@@ -772,6 +798,7 @@ export class ApplicantComponent implements OnInit {
       this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = false;
       this.kycStatus = '';
       this.kycStatusClass = '';
+      this.basicInfo['KYC_STATUS_CLASS_' + this.applicantNo] = '';
       return isBackground ? true : false;
     }
 
@@ -785,6 +812,7 @@ export class ApplicantComponent implements OnInit {
     this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = false;
     this.kycStatus = '';
     this.kycStatusClass = '';
+    this.basicInfo['KYC_STATUS_CLASS_' + this.applicantNo] = '';
     return isBackground ? true : false;
   }
 
@@ -792,8 +820,27 @@ export class ApplicantComponent implements OnInit {
   private populateFieldsFromSearch(data: any) {
     this.basicInfo['CUSTOMER_ID_' + this.applicantNo] = data.CUSTOMER_ID || data.CUSTOMERID || this.basicInfo['CUSTOMER_ID_' + this.applicantNo];
     this.basicInfo['IS_OLD_CUSTOMER_' + this.applicantNo] = true;
+    this.basicInfo['CUSTOMER_TYPE_' + this.applicantNo] = data.TITLE || '';
+    
     this.aadhaarVerify.pan_history.PAN_NUMBER = data.PAN;
+    this.basicInfo['PAN_NUMBER' + (this.applicantNo > 1 ? this.applicantNo : '')] = data.PAN || '';
+    if (data.PAN) {
+      this.aadhaarVerify.pan_history.IS_VERIFIED = true;
+      this.basicInfo['PAN_VERIFIED_' + this.applicantNo] = true;
+      this.aadhaarVerify.pan_history.APPLICANT_FULL_NAME = 
+        (data.FIRST_NAME || '') + 
+        (data.MIDDLE_NAME ? ' ' + data.MIDDLE_NAME : '') + 
+        (data.LAST_NAME ? ' ' + data.LAST_NAME : '');
+      this.getPanHistory();
+    }
+
     this.aadhaarVerify.aadhar_history.AADHAAR_NUMBER = data.CUSTUIN;
+    if (data.CUSTUIN) {
+      this.setAadhaarInBasicInfo(data.CUSTUIN);
+      this.aadhaarVerify.aadhar_history.IS_VERIFIED = true;
+      this.getAdhaarHistory();
+    }
+
     this.basicInfo['MOBILE_' + this.applicantNo] = data.MOBILE;
     this.basicInfo['GENDER_' + this.applicantNo] = data.GENDER;
     this.basicInfo[
@@ -815,6 +862,44 @@ export class ApplicantComponent implements OnInit {
       data.BIRTHDATE
     );
     this.calculateAge();
+
+    // Map additional CBS details
+    this.basicInfo[`F_OR_H_FIRST_NAME_${this.applicantNo}`] = data.FATHER_FIRST_NAME || '';
+    this.basicInfo[`F_OR_H_MIDDLE_NAME_${this.applicantNo}`] = data.FATHER_MIDDLE_NAME || '';
+    this.basicInfo[`F_OR_H_LAST_NAME_${this.applicantNo}`] = data.FATHER_LAST_NAME || '';
+    this.basicInfo[`MOTHERS_NAME_${this.applicantNo}`] = data.MOTHER_FIRST_NAME || '';
+    this.basicInfo[`MOTHERS_MIDDLE_NAME_${this.applicantNo}`] = data.MOTHER_MIDDLE_NAME || '';
+    this.basicInfo[`MOTHERS_LAST_NAME_${this.applicantNo}`] = data.MOTHER_LAST_NAME || '';
+    this.basicInfo[`RISK_CATEGORY_${this.applicantNo}`] = data.RISKCAT === '2' ? 'B' : (data.RISKCAT === '3' ? 'C' : 'A');
+    this.basicInfo[`RELIGION_${this.applicantNo}`] = data.RELIGION || 'A';
+    this.basicInfo[`CASTE_${this.applicantNo}`] = data.CASTE || 'A';
+    this.basicInfo[`MARITAL_STATUS_${this.applicantNo}`] = data.MARITAL_STATUS || 'M';
+    this.basicInfo[`FATHER_TITLE_${this.applicantNo}`] = data.FATHER_TITLE || 'MR.';
+    this.basicInfo[`MOTHER_TITLE_${this.applicantNo}`] = data.MOTHER_TITLE || 'MRS.';
+    this.basicInfo[`CURRENT_ADDRESS_${this.applicantNo}`] = data.CURRENT_ADDRESS || '';
+    this.basicInfo[`CURRENT_PINCODE_${this.applicantNo}`] = data.CURRENT_PINCODE || '';
+    this.basicInfo[`PERMANENT_ADDRESS_${this.applicantNo}`] = data.PERMANENT_ADDRESS || '';
+    this.basicInfo[`PERMANENT_PINCODE_${this.applicantNo}`] = data.PERMANENT_PINCODE || '';
+    this.basicInfo[`CURRENT_CITY_${this.applicantNo}`] = data.CURRENT_CITY || '';
+    this.basicInfo[`CURRENT_TALUKA_${this.applicantNo}`] = data.CURRENT_TALUKA || '';
+    this.basicInfo[`CURRENT_DISTRICT_${this.applicantNo}`] = data.CURRENT_DISTRICT || '';
+    this.basicInfo[`CURRENT_STATE_${this.applicantNo}`] = data.CURRENT_STATE || '';
+    this.basicInfo[`PERMANENT_CITY_${this.applicantNo}`] = data.PERMANENT_CITY || '';
+    this.basicInfo[`PERMANENT_TALUKA_${this.applicantNo}`] = data.PERMANENT_TALUKA || '';
+    this.basicInfo[`PERMANENT_DISTRICT_${this.applicantNo}`] = data.PERMANENT_DISTRICT || '';
+    this.basicInfo[`PERMANENT_STATE_${this.applicantNo}`] = data.PERMANENT_STATE || '';
+    this.basicInfo[`WORK_${this.applicantNo}`] = data.OCCUPATION || ' ';
+    this.basicInfo[`PROFESSION_${this.applicantNo}`] = data.OCCUPATION || '';
+    this.basicInfo[`FATHER_OR_SPOUSE_${this.applicantNo}`] = 'F';
+
+    this.basicInfo[`ID_PROOF_${this.applicantNo}`] = data.ID_PROOF || '';
+    this.basicInfo[`ID_PROOF_NUMBER_${this.applicantNo}`] = data.ID_PROOF_NUMBER || '';
+    this.basicInfo[`PERMANENT_ADDRESS_PROOF_${this.applicantNo}`] = data.PERMANENT_ADDRESS_PROOF || '';
+    this.basicInfo[`PERMANENT_ADDRESS_PROOF_NUMBER_${this.applicantNo}`] = data.PERMANENT_ADDRESS_PROOF_NUMBER || '';
+    this.basicInfo[`ANNUAL_INCOME_${this.applicantNo}`] = data.ANNUAL_INCOME || '';
+
+    this.basicInfo[this.applicantNo === 1 ? 'DOCUMENTS_AUTHORITY' : `DOCUMENTS_AUTHORITY_${this.applicantNo}`] = data.ISSUED_DOC_AUTHORITY || 'Government of India';
+    this.basicInfo[this.applicantNo === 1 ? 'DOCUMENTS_ISSUE_PLACE' : `DOCUMENTS_ISSUE_PLACE_${this.applicantNo}`] = data.ISSUED_DOC_PLACE || '';
   }
 
   convertDate(date: string) {

@@ -231,6 +231,17 @@ export class ApiService implements HttpInterceptor {
     );
   }
 
+  getPreviousDetails(customerId: string): Observable<any> {
+    let data = {
+      CUSTOMER_ID: customerId,
+    };
+    return this.httpClient.post<any>(
+      this.baseUrl + 'basicDetails/getPreviousDetails',
+      data,
+      this.optionMain1
+    );
+  }
+
   //term deposit
   addDeposite(data: TermDeposite): Observable<any> {
     return this.httpClient.post(

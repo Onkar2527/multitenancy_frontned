@@ -454,6 +454,8 @@ export class NominationComponent implements OnInit {
     return nomineeResult;
   }
 
+  @Input() basicInfo: any;
+
   getNominationInfo() {
     this.api.getNominee(this.APPLICANT_ID).subscribe({
       next: (res) => {
@@ -464,15 +466,43 @@ export class NominationComponent implements OnInit {
           }
         }
         else {
-          this.nominees = [new NomineeDetails()];
-          this.nominees[0].APPLICANT_ID = this.APPLICANT_ID;
+          const customerId = this.basicInfo?.CUSTOMER_ID_1;
+          if (customerId) {
+            this.api.getPreviousDetails(customerId).subscribe({
+              next: (prevRes) => {
+                if (prevRes?.code === 200 && prevRes.data?.nominees?.length > 0) {
+                  this.nominees = prevRes.data.nominees.map((n: any) => {
+                    const { ID, APPLICANT_ID, ...nomineeData } = n;
+                    return {
+                      ...nomineeData,
+                      APPLICANT_ID: this.APPLICANT_ID
+                    };
+                  });
+                  if (this.nominees.length > 0) {
+                    this.nominationType = this.nominees[0].NOMINATION_TYPE || 'Simultaneous';
+                  }
+                } else {
+                  this.nominees = [new NomineeDetails()];
+                  this.nominees[0].APPLICANT_ID = this.APPLICANT_ID;
+                }
+              },
+              error: () => {
+                this.nominees = [new NomineeDetails()];
+                this.nominees[0].APPLICANT_ID = this.APPLICANT_ID;
+              }
+            });
+          } else {
+            this.nominees = [new NomineeDetails()];
+            this.nominees[0].APPLICANT_ID = this.APPLICANT_ID;
+          }
         }
       },
       error: (err) => {
-
+        this.nominees = [new NomineeDetails()];
+        this.nominees[0].APPLICANT_ID = this.APPLICANT_ID;
       },
       complete: () => {
-
+ 
       }
     });
   }

@@ -59,6 +59,8 @@ export class ApplicantFinancialComponent implements OnInit {
     }
   ]
 
+  @Input() basicInfo: any;
+
   getApplicantFinacial(){
    this.api.getFinancial(this.APPLICANT_ID,this.APPLICANT_NO).subscribe({
     next:(res)=>{
@@ -66,7 +68,23 @@ export class ApplicantFinancialComponent implements OnInit {
         this.financialInfo = res['data'][0]
       }
       else{
-
+        const customerId = this.basicInfo?.['CUSTOMER_ID_' + this.APPLICANT_NO];
+        if (customerId) {
+          this.api.getPreviousDetails(customerId).subscribe({
+            next: (prevRes) => {
+              if (prevRes?.code === 200 && prevRes.data?.financials?.length > 0) {
+                const prevFin = prevRes.data.financials[0];
+                const { ID, APPLICANT_ID, ...finData } = prevFin;
+                this.financialInfo = {
+                  ...this.financialInfo,
+                  ...finData,
+                  APPLICANT_ID: this.APPLICANT_ID,
+                  APPLICANT_NO: this.APPLICANT_NO
+                };
+              }
+            }
+          });
+        }
       }
     },
     error:() =>{

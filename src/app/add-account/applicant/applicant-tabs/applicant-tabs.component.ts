@@ -22,6 +22,7 @@ export class ApplicantTabsComponent implements OnInit {
   @ViewChild(ApplicantOtherBankAccountComponent) otherBankAccountComp!: ApplicantOtherBankAccountComponent;
 
   @Input() personalInfo!: PersonalInfo
+  @Input() basicInfo: any;
 
   selectedTab: number = 0;
 

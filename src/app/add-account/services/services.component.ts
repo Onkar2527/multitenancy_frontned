@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { Subject } from 'rxjs';
 import { Facilities } from 'src/app/models/facilities';
@@ -9,7 +9,7 @@ import { ApiService } from 'src/app/service/api.service';
   templateUrl: './services.component.html',
   styleUrls: ['./services.component.css']
 })
-export class ServicesComponent implements OnInit {
+export class ServicesComponent implements OnInit, OnChanges {
   serviceInfo: Facilities = new Facilities();
 
   @Input() APPLICANT_ID!: number;
@@ -33,7 +33,16 @@ export class ServicesComponent implements OnInit {
 
   constructor(private api: ApiService, private message: NzNotificationService) { }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['basicInfo'] && this.basicInfo) {
+      this.AccountType = this.basicInfo.ACCOUNT_TYPE || 'S';
+    }
+  }
+
   ngOnInit(): void {
+    if (this.basicInfo) {
+      this.AccountType = this.basicInfo.ACCOUNT_TYPE || 'S';
+    }
     if (this.APPLICANT_ID) {
       this.getServiceInfo();
     }
@@ -109,6 +118,8 @@ export class ServicesComponent implements OnInit {
     ]
   }
 
+  @Input() basicInfo: any;
+
   getServiceInfo() {
     this.api.getService(this.APPLICANT_ID).subscribe({
       next: (res) => {
@@ -116,6 +127,25 @@ export class ServicesComponent implements OnInit {
           this.serviceInfo = res['data'][0];
           this.updateChacked();
           this.changeInOption();
+        } else {
+          const customerId = this.basicInfo?.CUSTOMER_ID_1;
+          if (customerId) {
+            this.api.getPreviousDetails(customerId).subscribe({
+              next: (prevRes) => {
+                if (prevRes?.code === 200 && prevRes.data?.services?.length > 0) {
+                  const prevService = prevRes.data.services[0];
+                  const { ID, APPLICANT_ID, ...serviceData } = prevService;
+                  this.serviceInfo = {
+                    ...this.serviceInfo,
+                    ...serviceData,
+                    APPLICANT_ID: this.APPLICANT_ID
+                  };
+                  this.updateChacked();
+                  this.changeInOption();
+                }
+              }
+            });
+          }
         }
       }
     });

@@ -97,6 +97,8 @@ export class ApplicantPropertyComponent implements OnInit {
 
   }
 
+  @Input() basicInfo: any;
+
   getApplicantProperty(){
    this.api.getProperty(this.APPLICANT_ID,this.APPLICANT_NO).subscribe({
     next:(res)=>{
@@ -104,7 +106,24 @@ export class ApplicantPropertyComponent implements OnInit {
         this.propertyInfo = res['data'][0]
       }
       else{
-
+        const customerId = this.basicInfo?.['CUSTOMER_ID_' + this.APPLICANT_NO];
+        if (customerId) {
+          this.api.getPreviousDetails(customerId).subscribe({
+            next: (prevRes) => {
+              if (prevRes?.code === 200 && prevRes.data?.properties?.length > 0) {
+                const prevProp = prevRes.data.properties[0];
+                const { ID, APPLICANT_ID, ...propData } = prevProp;
+                this.propertyInfo = {
+                  ...this.propertyInfo,
+                  ...propData,
+                  APPLICANT_ID: this.APPLICANT_ID,
+                  APPLICANT_NO: this.APPLICANT_NO
+                };
+                this.changeInOption();
+              }
+            }
+          });
+        }
       }
     },
     error:() =>{
