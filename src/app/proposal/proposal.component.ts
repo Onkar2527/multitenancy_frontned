@@ -300,7 +300,7 @@ export class ProposalComponent implements OnInit {
     this.loadSaveButton = true;
     let basic = this.basicComp.save();
     basic.subscribe({
-      next: (res) => {
+      next: (res: any) => {
         if (res.code == 200) {
           this.loadSaveButton = false;
           this.drawerReferance.close();

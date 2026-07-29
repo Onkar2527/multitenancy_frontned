@@ -87,6 +87,9 @@ export class ApiService implements HttpInterceptor {
 
   constructor(private httpClient: HttpClient) { }
 
+  private previousDetailsCache = new Map<string, any>();
+  private customerSearchCache = new Map<string, any>();
+
   httpHeaders = new HttpHeaders();
   options = {
     headers: this.httpHeaders,
@@ -232,6 +235,9 @@ export class ApiService implements HttpInterceptor {
   }
 
   getPreviousDetails(customerId: string): Observable<any> {
+    if (this.previousDetailsCache.has(customerId)) {
+      return of(this.previousDetailsCache.get(customerId));
+    }
     let data = {
       CUSTOMER_ID: customerId,
     };
@@ -239,6 +245,12 @@ export class ApiService implements HttpInterceptor {
       this.baseUrl + 'basicDetails/getPreviousDetails',
       data,
       this.optionMain1
+    ).pipe(
+      tap(res => {
+        if (res && res.code === 200) {
+          this.previousDetailsCache.set(customerId, res);
+        }
+      })
     );
   }
 
@@ -1444,6 +1456,11 @@ export class ApiService implements HttpInterceptor {
     pan_no?: string,
     mode = 'CUSTOMER_ID'
   ) {
+    const cacheKey = `${mode}_${customer_id || ''}_${aadhaar_no || ''}_${pan_no || ''}`;
+    if (this.customerSearchCache.has(cacheKey)) {
+      return of(this.customerSearchCache.get(cacheKey));
+    }
+
     let data = {
       CUSTOMER_ID: customer_id,
       AADHAAR_NO: aadhaar_no,
@@ -1455,6 +1472,12 @@ export class ApiService implements HttpInterceptor {
       this.baseUrl + 'list_api/getCustomer',
       data,
       this.optionMain
+    ).pipe(
+      tap((res: any) => {
+        if (res && res.code === 200) {
+          this.customerSearchCache.set(cacheKey, res);
+        }
+      })
     );
   }
 

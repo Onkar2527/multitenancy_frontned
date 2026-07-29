@@ -47,7 +47,8 @@ export class ApplicantComponent implements OnInit {
       setTimeout(() => {
         const isOldCustomer = this.basicInfo['IS_OLD_CUSTOMER_' + this.applicantNo];
         const customerId = this.basicInfo['CUSTOMER_ID_' + this.applicantNo];
-        if (isOldCustomer && customerId) {
+        const isAlreadySearched = this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo];
+        if (isOldCustomer && customerId && !isAlreadySearched) {
           this.searchCustomer(true);
         }
       }, 500);
@@ -767,16 +768,20 @@ export class ApplicantComponent implements OnInit {
 
       this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = true;
       if (!this.basicInfo['IS_OLD_CUSTOMER_' + this.applicantNo]) {
-        this.message.error(
-          'Customer already exists in CBS! Save/Submit is blocked.',
-          ''
-        );
+        if (!isBackground) {
+          this.message.error(
+            'Customer already exists in CBS! Save/Submit is blocked.',
+            ''
+          );
+        }
         this.kycStatus = '';
         this.kycStatusClass = '';
         this.basicInfo['KYC_STATUS_CLASS_' + this.applicantNo] = '';
         return false;
       } else {
-        this.message.success('Customer details retrieved from CBS successfully.', '');
+        if (!isBackground) {
+          this.message.success('Customer details retrieved from CBS successfully.', '');
+        }
       }
 
       // Evaluate KYC status from search response
@@ -806,7 +811,9 @@ export class ApplicantComponent implements OnInit {
     if (res?.error && (String(res.error).includes('ETIMEDOUT') || String(res.error).includes('connect') || String(res.error).includes('timeout'))) {
       console.warn('CBS API Connection Timeout/Offline. Duplicate validation skipped.');
     } else {
-      this.message.error(res.error || 'Something Went Wrong', '');
+      if (!isBackground) {
+        this.message.error(res.error || 'Something Went Wrong', '');
+      }
     }
 
     this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = false;

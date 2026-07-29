@@ -9,7 +9,7 @@ import { ApiService } from 'src/app/service/api.service';
   templateUrl: './services.component.html',
   styleUrls: ['./services.component.css']
 })
-export class ServicesComponent implements OnInit, OnChanges {
+export class ServicesComponent implements OnInit {
   serviceInfo: Facilities = new Facilities();
 
   @Input() APPLICANT_ID!: number;
@@ -33,16 +33,10 @@ export class ServicesComponent implements OnInit, OnChanges {
 
   constructor(private api: ApiService, private message: NzNotificationService) { }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['basicInfo'] && this.basicInfo) {
-      this.AccountType = this.basicInfo.ACCOUNT_TYPE || 'S';
-    }
-  }
+
 
   ngOnInit(): void {
-    if (this.basicInfo) {
-      this.AccountType = this.basicInfo.ACCOUNT_TYPE || 'S';
-    }
+
     if (this.APPLICANT_ID) {
       this.getServiceInfo();
     }

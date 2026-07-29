@@ -437,7 +437,7 @@ export class PersonalComponent implements OnInit, OnChanges {
     this.api.getBasic(this.APPLICANT_ID).subscribe({
       next: (res) => {
         if (res.code === 200 && res.data.length > 0) {
-          this.basicInfo = res.data[0];
+          Object.assign(this.basicInfo, res.data[0]);
 
           if (this.basicInfo['APPLICANT_DATA']) {
             const applicants = JSON.parse(this.basicInfo['APPLICANT_DATA']);
@@ -803,7 +803,7 @@ export class PersonalComponent implements OnInit, OnChanges {
         : this.api.addBasic(payload);
 
       apiCall.subscribe({
-        next: (res) => {
+        next: (res: any) => {
           if (res.code === 200) {
             this.message.success(
               `Personal Information ${isUpdate ? 'updated' : 'saved'} successfully`,
@@ -821,7 +821,7 @@ export class PersonalComponent implements OnInit, OnChanges {
             personal.next(res);
           }
         },
-        error: (err) => {
+        error: (err: any) => {
           this.message.error(err.error?.message || err.message || 'Internal Server Error', '');
           personal.error(err);
         },
