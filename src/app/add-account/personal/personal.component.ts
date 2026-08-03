@@ -585,9 +585,9 @@ export class PersonalComponent implements OnInit, OnChanges {
           validationFailed = true;
           break;
         }
-        const mobileRegex = /^[1-9]\d{9}$/;
+        const mobileRegex = /^[6-9]\d{9}$/;
         if (!mobileRegex.test(String(mobile).trim())) {
-          this.message.error(`${applicantLabel} Mobile Number must be exactly 10 digits!`, '');
+          this.message.error(`${applicantLabel} Mobile Number must start with 6-9 and be exactly 10 digits!`, '');
           validationFailed = true;
           break;
         }
@@ -613,6 +613,37 @@ export class PersonalComponent implements OnInit, OnChanges {
 
       if (validationFailed) {
         personal.next({ code: 400, message: 'Validation failed: Please check mandatory fields.' });
+        personal.complete();
+        return;
+      }
+
+      // Check if customer exists in CBS but user hasn't toggled "Is this a bank customer?" to Yes
+      for (let i = 1; i <= this.basicInfo.NO_OF_APPLICANT; i++) {
+        const existsInCbs = this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + i];
+        const isOldCustomer = this.basicInfo['IS_OLD_CUSTOMER_' + i];
+        const alreadyExistInFco = this.basicInfo['ALREADY_EXIST_IN_FCO_' + i];
+
+        if (alreadyExistInFco) {
+          this.message.error(
+            'This customer already exists in the CBS system. Any updates to customer information must be performed directly in CBS. Existing customers cannot be onboarded through FCO. Only new customers are eligible for onboarding through FCO.',
+            ''
+          );
+          validationFailed = true;
+          break;
+        }
+
+        if (existsInCbs && !isOldCustomer) {
+          this.message.error(
+            'This customer already exists in the CBS system. Any updates to customer information must be performed directly in CBS. Existing customers cannot be onboarded through FCO. Only new customers are eligible for onboarding through FCO.',
+            ''
+          );
+          validationFailed = true;
+          break;
+        }
+      }
+
+      if (validationFailed) {
+        personal.next({ code: 400, message: 'Validation failed: Customer already exists in CBS.' });
         personal.complete();
         return;
       }

@@ -298,6 +298,10 @@ export class ApplicantComponent implements OnInit {
   // }
 
 
+  get isAadhaarVerified(): boolean {
+    return !!this.aadhaarVerify.aadhar_history.IS_VERIFIED;
+  }
+
   getAadhaarData() {
     this.loadAadhaarButton = true;
     let aadhar_data = this.aadhaarVerify.getData();
@@ -309,6 +313,7 @@ export class ApplicantComponent implements OnInit {
           } else {
             this.setAadhaarInBasicInfo(this.aadhaarVerify.aadhar_history.AADHAAR_NUMBER);
           }
+          this.fillFromAadhaar();
           this.Hit(1);
         }
         this.loadAadhaarButton = false;
@@ -317,6 +322,41 @@ export class ApplicantComponent implements OnInit {
         this.loadAadhaarButton = false;
       },
     });
+  }
+
+  fillFromAadhaar() {
+    const fullName: string = this.aadhaarVerify.aadhar_history.APPLICANT_FULL_NAME || '';
+    const parts = fullName.trim().split(/\s+/);
+    const firstName  = parts[0] || '';
+    const lastName   = parts.length > 1 ? parts[parts.length - 1] : '';
+    const middleName = parts.length > 2 ? parts.slice(1, parts.length - 1).join(' ') : '';
+
+    const firstKey  = this.applicantNo === 1 ? 'PRIMARY_APPLICANT_FIRST_NAME'  : 'APPLICANT' + this.applicantNo + '_FIRST_NAME';
+    const middleKey = this.applicantNo === 1 ? 'PRIMARY_APPLICANT_MIDDLE_NAME' : 'APPLICANT' + this.applicantNo + '_MIDDLE_NAME';
+    const lastKey   = this.applicantNo === 1 ? 'PRIMARY_APPLICANT_LAST_NAME'   : 'APPLICANT' + this.applicantNo + '_LAST_NAME';
+
+    this.basicInfo[firstKey]  = firstName;
+    this.basicInfo[middleKey] = middleName;
+    this.basicInfo[lastKey]   = lastName;
+
+    // Fill DOB from Aadhaar (can be YYYY-MM-DD like 2003-07-26 or already DD/MM/YYYY)
+    let dob = this.aadhaarVerify.aadhar_history.DOB || '';
+    if (dob) {
+      dob = dob.trim();
+      if (dob.includes('-') || dob.includes('/')) {
+        const separator = dob.includes('-') ? '-' : '/';
+        const parts = dob.split(separator);
+        if (parts[0].length === 4) {
+          // YYYY-MM-DD or YYYY/MM/DD -> DD/MM/YYYY
+          dob = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        } else {
+          // e.g. DD-MM-YYYY -> DD/MM/YYYY
+          dob = dob.replace(/-/g, '/');
+        }
+      }
+      this.basicInfo['DOB_' + this.applicantNo] = dob;
+      this.calculateAge();
+    }
   }
 
   saveAadhaarData() {
@@ -758,30 +798,21 @@ export class ApplicantComponent implements OnInit {
     if (res?.code === 200) {
       const searchData = res.data;
 
+      // Mark customer as existing in CBS (used at submit time to block/warn)
+      this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = true;
+
+      // If account already exists in FCO, flag it for submit-time blocking but still populate fields
       if (searchData && searchData.ALREADY_EXIST === 'Y') {
-        this.message.error('Account already present.', '');
-        this.kycStatus = '';
-        this.kycStatusClass = '';
-        this.basicInfo['KYC_STATUS_CLASS_' + this.applicantNo] = '';
-        return false;
+        this.basicInfo['ALREADY_EXIST_IN_FCO_' + this.applicantNo] = true;
+      } else {
+        this.basicInfo['ALREADY_EXIST_IN_FCO_' + this.applicantNo] = false;
       }
 
-      this.basicInfo['CUSTOMER_EXISTS_IN_CBS_' + this.applicantNo] = true;
-      if (!this.basicInfo['IS_OLD_CUSTOMER_' + this.applicantNo]) {
-        if (!isBackground) {
-          this.message.error(
-            'Customer already exists in CBS! Save/Submit is blocked.',
-            ''
-          );
-        }
-        this.kycStatus = '';
-        this.kycStatusClass = '';
-        this.basicInfo['KYC_STATUS_CLASS_' + this.applicantNo] = '';
-        return false;
-      } else {
-        if (!isBackground) {
-          this.message.success('Customer details retrieved from CBS successfully.', '');
-        }
+      // Always populate fields from CBS data regardless of IS_OLD_CUSTOMER or ALREADY_EXIST
+      this.populateFieldsFromSearch(searchData);
+
+      if (!isBackground) {
+        this.message.success('Customer details retrieved from CBS successfully.', '');
       }
 
       // Evaluate KYC status from search response
@@ -791,8 +822,6 @@ export class ApplicantComponent implements OnInit {
         this.evaluateKYCStatus(nextValidationDt);
       }
 
-      // ✅ Still allow verification
-      this.populateFieldsFromSearch(searchData);
       return true;
     }
 
