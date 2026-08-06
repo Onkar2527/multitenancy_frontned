@@ -28,10 +28,90 @@ export class ApplicantPersonalComponent implements OnInit, OnChanges {
     this.getMasters()
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes['personalInfo']) {
+      await this.resolveAddressIds();
       this.getAddressDropDowns();
       this.getAadhaarData();
+    }
+  }
+
+  async getLocalIdFromCode(masterId: number, codeValue: any, codeColumnName: string): Promise<number | string> {
+    if (!codeValue) return '';
+    // First check if a master record exists where ID = codeValue
+    let filterById = ` AND ID = ${codeValue}`;
+    try {
+      let resId = await lastValueFrom(this.api.getMasters(masterId, filterById));
+      if (resId['code'] == 200 && resId['data'].length > 0) {
+        // It is already a local ID!
+        return Number(codeValue);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    // Otherwise, check if codeValue matches codeColumnName
+    let filterByCode = ` AND ${codeColumnName} = ${codeValue}`;
+    try {
+      let resCode = await lastValueFrom(this.api.getMasters(masterId, filterByCode));
+      if (resCode['code'] == 200 && resCode['data'].length > 0) {
+        return Number(resCode['data'][0].ID);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    // Fallback for Area where codeColumnName might not match perfectly
+    if (masterId === 17) {
+      let filterByAreaCode = ` AND (AREAID = ${codeValue} OR AREA_ID = ${codeValue} OR ID = ${codeValue})`;
+      try {
+        let resArea = await lastValueFrom(this.api.getMasters(masterId, filterByAreaCode));
+        if (resArea['code'] == 200 && resArea['data'].length > 0) {
+          return Number(resArea['data'][0].ID);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    return codeValue;
+  }
+
+  async resolveAddressIds() {
+    if (!this.personalInfo) return;
+
+    // Resolve current address
+    if (this.personalInfo.CURRENT_STATE) {
+      this.personalInfo.CURRENT_STATE = await this.getLocalIdFromCode(13, this.personalInfo.CURRENT_STATE, 'STATEID');
+    }
+    if (this.personalInfo.CURRENT_DISTRICT) {
+      this.personalInfo.CURRENT_DISTRICT = await this.getLocalIdFromCode(14, this.personalInfo.CURRENT_DISTRICT, 'DISTRICTID');
+    }
+    if (this.personalInfo.CURRENT_TALUKA) {
+      this.personalInfo.CURRENT_TALUKA = await this.getLocalIdFromCode(15, this.personalInfo.CURRENT_TALUKA, 'TALUKAID');
+    }
+    if (this.personalInfo.CURRENT_CITY) {
+      this.personalInfo.CURRENT_CITY = await this.getLocalIdFromCode(16, this.personalInfo.CURRENT_CITY, 'CITYID');
+    }
+    if (this.personalInfo.CURRENT_AREA) {
+      this.personalInfo.CURRENT_AREA = await this.getLocalIdFromCode(17, this.personalInfo.CURRENT_AREA, 'AREAID');
+    }
+
+    // Resolve permanent address
+    if (this.personalInfo.PERMANENT_STATE) {
+      this.personalInfo.PERMANENT_STATE = await this.getLocalIdFromCode(13, this.personalInfo.PERMANENT_STATE, 'STATEID');
+    }
+    if (this.personalInfo.PERMANENT_DISTRICT) {
+      this.personalInfo.PERMANENT_DISTRICT = await this.getLocalIdFromCode(14, this.personalInfo.PERMANENT_DISTRICT, 'DISTRICTID');
+    }
+    if (this.personalInfo.PERMANENT_TALUKA) {
+      this.personalInfo.PERMANENT_TALUKA = await this.getLocalIdFromCode(15, this.personalInfo.PERMANENT_TALUKA, 'TALUKAID');
+    }
+    if (this.personalInfo.PERMANENT_CITY) {
+      this.personalInfo.PERMANENT_CITY = await this.getLocalIdFromCode(16, this.personalInfo.PERMANENT_CITY, 'CITYID');
+    }
+    if (this.personalInfo.PERMANENT_AREA) {
+      this.personalInfo.PERMANENT_AREA = await this.getLocalIdFromCode(17, this.personalInfo.PERMANENT_AREA, 'AREAID');
     }
   }
 
