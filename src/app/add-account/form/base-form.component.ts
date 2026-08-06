@@ -5,7 +5,7 @@ import { NomineeDetails } from 'src/app/models/nominee-details';
 import { BasicInfo } from 'src/app/models/basicInfo';
 import { TermDeposite } from 'src/app/models/term-deposite';
 import { ApiService } from 'src/app/service/api.service';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, rgb } from 'pdf-lib';
 import { PersonalInfo } from 'src/app/models/personal-info';
 import { Financial } from 'src/app/models/financial';
 import { Property } from 'src/app/models/property';
@@ -35,6 +35,8 @@ async function getArrayBufferFromData(dataUrlOrPath: string): Promise<ArrayBuffe
 export abstract class BaseFormComponent implements OnInit {
   @Input() APPLICANT_ID!: number;
   @Output() pdfButtonLoading: EventEmitter<boolean> = new EventEmitter<boolean>();
+
+  pdfFormat: string = 'legal';
 
   basicInfo: BasicInfo = new BasicInfo();
   depositInfo: TermDeposite = new TermDeposite();
@@ -443,16 +445,19 @@ export abstract class BaseFormComponent implements OnInit {
 
       let totalImageArrayLength = pngArray.length + jpegArray.length;
       let embededImageRef = [];
+      let embededImageNames = [];
 
       for (let Pn of pngArray) {
         try {
           const buffer = await getArrayBufferFromData(Pn.IMAGE_DATA);
           embededImageRef.push(await mergedPdfDoc.embedPng(buffer));
+          embededImageNames.push(Pn.DOCUMENT_NAME);
         } catch (e) {
           console.warn("Failed to embed as PNG, attempting JPG fallback:", e);
           try {
             const buffer = await getArrayBufferFromData(Pn.IMAGE_DATA);
             embededImageRef.push(await mergedPdfDoc.embedJpg(buffer));
+            embededImageNames.push(Pn.DOCUMENT_NAME);
           } catch (err) {
             console.error("Failed to embed image completely:", err);
           }
@@ -462,11 +467,13 @@ export abstract class BaseFormComponent implements OnInit {
         try {
           const buffer = await getArrayBufferFromData(Pn.IMAGE_DATA);
           embededImageRef.push(await mergedPdfDoc.embedJpg(buffer));
+          embededImageNames.push(Pn.DOCUMENT_NAME);
         } catch (e) {
           console.warn("Failed to embed as JPG, attempting PNG fallback:", e);
           try {
             const buffer = await getArrayBufferFromData(Pn.IMAGE_DATA);
             embededImageRef.push(await mergedPdfDoc.embedPng(buffer));
+            embededImageNames.push(Pn.DOCUMENT_NAME);
           } catch (err) {
             console.error("Failed to embed image completely:", err);
           }
@@ -484,6 +491,22 @@ export abstract class BaseFormComponent implements OnInit {
             let x = (j % 2 == 0) ? 10 : Math.trunc(page.getWidth() / 2) + 5;
             let y = (j < 2) ? (2 * (Math.trunc(page.getHeight() / 3))) + 5 : (j < 4) ? Math.trunc(page.getHeight() / 3) + 7 : 10;
             page.drawImage(embededImageRef[idx], { x, y, width: imageWidth, height: imageHeight });
+            
+            // Draw a white background rectangle for the document title
+            page.drawRectangle({
+              x: x + 2,
+              y: y + imageHeight - 16,
+              width: imageWidth - 4,
+              height: 14,
+              color: rgb(1, 1, 1)
+            });
+            // Draw the document name text
+            page.drawText(embededImageNames[idx] || 'Uploaded Document', {
+              x: x + 6,
+              y: y + imageHeight - 12,
+              size: 8,
+              color: rgb(0, 0, 0)
+            });
           }
         }
       }
@@ -493,10 +516,32 @@ export abstract class BaseFormComponent implements OnInit {
         try {
           const buffer = await getArrayBufferFromData(Pn.IMAGE_DATA);
           const doc = await PDFDocument.load(buffer);
-          (await pdfDoc.copyPages(doc, doc.getPageIndices())).forEach(p => pdfDoc.addPage(p));
+          const copiedPages = await pdfDoc.copyPages(doc, doc.getPageIndices());
+          copiedPages.forEach((p, index) => {
+            // Draw a background header rectangle on top of each PDF page
+            p.drawRectangle({
+              x: 10,
+              y: p.getHeight() - 35,
+              width: p.getWidth() - 20,
+              height: 25,
+              color: rgb(0.95, 0.95, 0.95)
+            });
+            // Draw the document name text
+            p.drawText(`${Pn.DOCUMENT_NAME || 'Uploaded Document'} (Page ${index + 1})`, {
+              x: 20,
+              y: p.getHeight() - 27,
+              size: 10,
+              color: rgb(0, 0, 0)
+            });
+            pdfDoc.addPage(p);
+          });
         } catch (e) {
           console.error("Failed to load PDF document:", e);
         }
+      }
+
+      if (this.pdfFormat === 'a4') {
+        formHtmlRef.classList.add('kumbhi-pdf-printing');
       }
 
       let options = {
@@ -504,12 +549,18 @@ export abstract class BaseFormComponent implements OnInit {
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 3, scrollX: 0, windowWidth: 740, useCORS: true },
         pagebreak: { mode: ['css', 'legacy'], avoid: ['.ant-row', '[nz-row]', 'tr'] },
-        jsPDF: { unit: "in", format: "legal", orientation: "portrait" }
+        jsPDF: { unit: "in", format: this.pdfFormat, orientation: "portrait" }
       };
 
       let formPdfData = "";
       // इथे आता सुरक्षितपणे formHtmlRef पास होईल
-      await html2pdf().from(formHtmlRef).set(options).outputPdf().then((Pn: any) => formPdfData = btoa(Pn));
+      try {
+        await html2pdf().from(formHtmlRef).set(options).outputPdf().then((Pn: any) => formPdfData = btoa(Pn));
+      } finally {
+        if (this.pdfFormat === 'a4') {
+          formHtmlRef.classList.remove('kumbhi-pdf-printing');
+        }
+      }
 
       let ir = await PDFDocument.load("data:application/pdf;base64," + formPdfData);
       let finalDoc = await PDFDocument.create();

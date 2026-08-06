@@ -543,3 +543,147 @@ strong {
         print-color-adjust: exact !important;
     }
 }
+
+.page-number {
+    position: absolute;
+    bottom: 12px;
+    right: 20px;
+    font-size: 11px;
+    color: #0082c3;
+    font-weight: bold;
+}
+
+/* Styling overrides to fit Kumbhi form perfectly in A4 aspect ratio when downloading PDF */
+.kumbhi-pdf-printing .form-page {
+    height: 1045px !important;
+    padding: 10px 15px !important;
+    border-width: 2px !important;
+}
+
+.kumbhi-pdf-printing .header-section {
+    padding-bottom: 4px !important;
+    margin-bottom: 6px !important;
+}
+
+.kumbhi-pdf-printing .title-section h1 {
+    font-size: 14px !important;
+}
+
+.kumbhi-pdf-printing .title-section h2 {
+    font-size: 10px !important;
+    margin: 1px 0 0 0 !important;
+}
+
+.kumbhi-pdf-printing .title-section h3 {
+    font-size: 11px !important;
+    padding: 1px 12px !important;
+    margin: 3px 0 0 0 !important;
+}
+
+.kumbhi-pdf-printing .risk-table td {
+    padding: 2px 4px !important;
+    font-size: 8px !important;
+}
+
+.kumbhi-pdf-printing .digit-box {
+    width: 16px !important;
+    height: 16px !important;
+    font-size: 9.5px !important;
+}
+
+.kumbhi-pdf-printing .small-box {
+    width: 14px !important;
+    height: 14px !important;
+    font-size: 8px !important;
+}
+
+.kumbhi-pdf-printing .field-row {
+    margin-top: 4px !important;
+    font-size: 10px !important;
+}
+
+.kumbhi-pdf-printing .field-line {
+    min-height: 13px !important;
+}
+
+.kumbhi-pdf-printing .sub-labels {
+    font-size: 7.5px !important;
+}
+
+.kumbhi-pdf-printing .section-header-strip {
+    margin-top: 6px !important;
+    font-size: 9px !important;
+    padding: 2px 6px !important;
+}
+
+.kumbhi-pdf-printing .section-content-box {
+    padding: 6px !important;
+    font-size: 9px !important;
+}
+
+.kumbhi-pdf-printing .nominee-table th {
+    padding: 2px !important;
+    font-size: 8.5px !important;
+}
+
+.kumbhi-pdf-printing .nominee-table td {
+    padding: 2px 4px !important;
+    font-size: 8.5px !important;
+    height: 16px !important;
+}
+
+.kumbhi-pdf-printing .nominee-registered-box {
+    padding: 4px !important;
+    height: 75px !important;
+    font-size: 9px !important;
+}
+
+.kumbhi-pdf-printing .kyc-checklist-container {
+    gap: 8px !important;
+}
+
+.kumbhi-pdf-printing .kyc-checklist-box {
+    padding: 4px !important;
+}
+
+.kumbhi-pdf-printing .office-verification-box {
+    padding: 6px !important;
+    margin-top: 6px !important;
+    font-size: 9px !important;
+}
+
+.kumbhi-pdf-printing .divider {
+    margin: 4px 0 !important;
+}
+
+.kumbhi-pdf-printing .double-divider {
+    margin: 6px 0 !important;
+}
+
+.kumbhi-pdf-printing .footer-note {
+    font-size: 9px !important;
+}
+
+.kumbhi-pdf-printing .page-number {
+    bottom: 8px !important;
+    right: 15px !important;
+    font-size: 9.5px !important;
+}
+
+.kumbhi-pdf-printing .photo-box {
+    width: 80px !important;
+    height: 95px !important;
+}
+
+.kumbhi-pdf-printing .sign-box {
+    width: 90px !important;
+    height: 35px !important;
+}
+
+.kumbhi-pdf-printing [style*="min-height: 140px"] {
+    min-height: 110px !important;
+}
+
+.kumbhi-pdf-printing [style*="min-height: 200px"] {
+    min-height: 150px !important;
+}
