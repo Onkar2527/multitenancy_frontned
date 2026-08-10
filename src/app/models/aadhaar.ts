@@ -202,9 +202,10 @@ export class Aadhaar {
     this.api.Aadhaar_GetOTP(this.meta)
       .subscribe({
         next: (res) => {
-          if (res['statuscode'] == 200) {
-            const RequestedData = res['data']
-            this.meta.client_id = RequestedData["client_id"];
+          if (res['code'] == 200) {
+            const RequestedData = res['data']['result'];
+            console.log("RequestedData", RequestedData)
+            this.meta.client_id = RequestedData["request_id"];
             this.message.success('OTP sent!', 'The unique otp has been sent to user\'s registered mobile number');
             this.showOtp = true;
             this.otpSubject.next(true);
@@ -236,11 +237,11 @@ export class Aadhaar {
       this.api.Aadhaar_GetData(this.meta)
         .subscribe({
           next: (res) => {
-            if (res['statuscode'] == "200") {
+            if (res['code'] == "200") {
               this.aadhar_history.DOB = res['data']['dob'];
               this.aadhar_history.APPLICANT_FULL_NAME = res['data']['full_name'];
               this.aadhar_history.GENDER = this.getGender(res['data']['gender']);
-              this.aadhar_history.PROFILE_IMAGE = "data:image/png;base64," + res['data']['profile_image']
+              this.aadhar_history.PROFILE_IMAGE = res['data']['profile_image']
 
               this.aadhar_history.IS_VERIFIED = true;
 
