@@ -912,26 +912,12 @@ export class ApplicantComponent implements OnInit {
     this.basicInfo[`MARITAL_STATUS_${this.applicantNo}`] = data.MARITAL_STATUS || 'M';
     this.basicInfo[`FATHER_TITLE_${this.applicantNo}`] = data.FATHER_TITLE || 'MR.';
     this.basicInfo[`MOTHER_TITLE_${this.applicantNo}`] = data.MOTHER_TITLE || 'MRS.';
-    this.basicInfo[`CURRENT_ADDRESS_${this.applicantNo}`] = data.CURRENT_ADDRESS || '';
-    this.basicInfo[`CURRENT_PINCODE_${this.applicantNo}`] = data.CURRENT_PINCODE || '';
-    this.basicInfo[`PERMANENT_ADDRESS_${this.applicantNo}`] = data.PERMANENT_ADDRESS || '';
-    this.basicInfo[`PERMANENT_PINCODE_${this.applicantNo}`] = data.PERMANENT_PINCODE || '';
-    this.basicInfo[`CURRENT_CITY_${this.applicantNo}`] = data.CURRENT_CITY || '';
-    this.basicInfo[`CURRENT_TALUKA_${this.applicantNo}`] = data.CURRENT_TALUKA || '';
-    this.basicInfo[`CURRENT_DISTRICT_${this.applicantNo}`] = data.CURRENT_DISTRICT || '';
-    this.basicInfo[`CURRENT_STATE_${this.applicantNo}`] = data.CURRENT_STATE || '';
-    this.basicInfo[`PERMANENT_CITY_${this.applicantNo}`] = data.PERMANENT_CITY || '';
-    this.basicInfo[`PERMANENT_TALUKA_${this.applicantNo}`] = data.PERMANENT_TALUKA || '';
-    this.basicInfo[`PERMANENT_DISTRICT_${this.applicantNo}`] = data.PERMANENT_DISTRICT || '';
-    this.basicInfo[`PERMANENT_STATE_${this.applicantNo}`] = data.PERMANENT_STATE || '';
     this.basicInfo[`WORK_${this.applicantNo}`] = data.OCCUPATION || ' ';
     this.basicInfo[`PROFESSION_${this.applicantNo}`] = data.OCCUPATION || '';
     this.basicInfo[`FATHER_OR_SPOUSE_${this.applicantNo}`] = 'F';
 
     this.basicInfo[`ID_PROOF_${this.applicantNo}`] = data.ID_PROOF || '';
     this.basicInfo[`ID_PROOF_NUMBER_${this.applicantNo}`] = data.ID_PROOF_NUMBER || '';
-    this.basicInfo[`PERMANENT_ADDRESS_PROOF_${this.applicantNo}`] = data.PERMANENT_ADDRESS_PROOF || '';
-    this.basicInfo[`PERMANENT_ADDRESS_PROOF_NUMBER_${this.applicantNo}`] = data.PERMANENT_ADDRESS_PROOF_NUMBER || '';
     this.basicInfo[`ANNUAL_INCOME_${this.applicantNo}`] = data.ANNUAL_INCOME || '';
 
     this.basicInfo[this.applicantNo === 1 ? 'DOCUMENTS_AUTHORITY' : `DOCUMENTS_AUTHORITY_${this.applicantNo}`] = data.ISSUED_DOC_AUTHORITY || 'Government of India';
