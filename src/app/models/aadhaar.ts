@@ -237,7 +237,7 @@ export class Aadhaar {
       this.api.Aadhaar_GetData(this.meta)
         .subscribe({
           next: (res) => {
-            if (res['code'] == "200") {
+            if (res['code'] == "200" || res['code'] == 200) {
               this.aadhar_history.DOB = res['data']['dob'];
               this.aadhar_history.APPLICANT_FULL_NAME = res['data']['full_name'];
               this.aadhar_history.GENDER = this.getGender(res['data']['gender']);
@@ -255,6 +255,7 @@ export class Aadhaar {
               this.aadhar_address.STREET = res['data']['address']['street'];
               this.aadhar_address.LOC = res['data']['address']['loc']
 
+              this.MakeHistory();
               this.message.success('Infomation fetched  successfully', '');
               this.subject.next(true);
             }
@@ -284,10 +285,18 @@ export class Aadhaar {
     this.common.age = this.FindAge(this.aadhar_history.DOB);
     this.common.dob = this.aadhar_history.DOB;
     this.common.profile_image = this.aadhar_history.PROFILE_IMAGE;
-    this.common.gender = this.aadhar_history.GENDER;
-    this.common.address = `${this.aadhar_address.VTC}, ${this.aadhar_address.STREET}, ${this.aadhar_address.LOC}, ${this.aadhar_address.DISTRICT}
-      , ${this.aadhar_address.STATE}, ${this.aadhar_address.COUNTRY}`
-
+    this.common.gender = this.getGender(this.aadhar_history.GENDER);
+    const addrParts = [
+      this.aadhar_address.HOUSE,
+      this.aadhar_address.STREET,
+      this.aadhar_address.LOC,
+      this.aadhar_address.VTC,
+      this.aadhar_address.PO,
+      this.aadhar_address.DISTRICT,
+      this.aadhar_address.STATE,
+      this.aadhar_address.COUNTRY
+    ].filter(part => part && part.trim() !== '');
+    this.common.address = addrParts.join(', ');
   }
 
   verifyPan() {
@@ -416,30 +425,58 @@ export class Aadhaar {
   }
 
   private getGender(genderCode: string): string {
-    if (genderCode == 'MALE') {
+    if (!genderCode) return 'Other';
+    const code = genderCode.toString().trim().toUpperCase();
+    if (code === 'M' || code === 'MALE') {
       return 'Male';
-    }
-    else if (genderCode == 'FEMALE') {
-      return 'Female'
-    }
-    else {
-      return 'Other'
+    } else if (code === 'F' || code === 'FEMALE') {
+      return 'Female';
+    } else if (code === 'T' || code === 'TG' || code === 'TRANSGENDER') {
+      return 'Transgender';
+    } else {
+      return 'Other';
     }
   }
 
   private FindAge(Age: string): number {
     if (Age != undefined && Age != '') {
-      let ageArray = Age.split('-');
-      let year = ~~ageArray[0];
-      let currentDate = new Date();
-      let currentYear = currentDate.getFullYear();
-      return currentYear - year;
-    }
-    else {
-      console.error('Age is undefined of empty in (func : FindAge,class : Aaadhaar,comp : adharkyc');
-      return 0;
+      const trimmed = Age.trim();
+      const parts = trimmed.split(/[-/]/);
+      let year = 0;
+      let month = 0;
+      let day = 1;
+
+      if (parts.length === 3) {
+        if (parts[0].length === 4) {
+          // YYYY-MM-DD or YYYY/MM/DD
+          year = Number(parts[0]);
+          month = Number(parts[1]) - 1;
+          day = Number(parts[2]);
+        } else if (parts[2].length === 4) {
+          // DD-MM-YYYY or DD/MM/YYYY
+          day = Number(parts[0]);
+          month = Number(parts[1]) - 1;
+          year = Number(parts[2]);
+        }
+      } else if (parts.length === 1 && parts[0].length === 4) {
+        // YYYY
+        year = Number(parts[0]);
+      }
+
+      if (year > 0) {
+        const birthDate = new Date(year, month, day);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+          age--;
+        }
+        return age > 0 ? age : 0;
+      }
     }
 
+    console.error('Age is undefined or empty in (func : FindAge, class : Aadhaar)');
+    return 0;
   }
 
   private SplitAadhaarNo(no: string): string {

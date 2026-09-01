@@ -339,23 +339,38 @@ export class ApplicantComponent implements OnInit {
     this.basicInfo[middleKey] = middleName;
     this.basicInfo[lastKey]   = lastName;
 
-    // Fill DOB from Aadhaar (can be YYYY-MM-DD like 2003-07-26 or already DD/MM/YYYY)
+    // Fill DOB from Aadhaar (can be YYYY-MM-DD like 2003-07-26, DD-MM-YYYY like 08-05-2003, or already DD/MM/YYYY)
     let dob = this.aadhaarVerify.aadhar_history.DOB || '';
     if (dob) {
       dob = dob.trim();
       if (dob.includes('-') || dob.includes('/')) {
         const separator = dob.includes('-') ? '-' : '/';
-        const parts = dob.split(separator);
-        if (parts[0].length === 4) {
-          // YYYY-MM-DD or YYYY/MM/DD -> DD/MM/YYYY
-          dob = `${parts[2]}/${parts[1]}/${parts[0]}`;
-        } else {
-          // e.g. DD-MM-YYYY -> DD/MM/YYYY
-          dob = dob.replace(/-/g, '/');
+        const p = dob.split(separator);
+        if (p.length === 3) {
+          if (p[0].length === 4) {
+            // YYYY-MM-DD -> DD/MM/YYYY
+            dob = `${p[2]}/${p[1]}/${p[0]}`;
+          } else if (p[2].length === 4) {
+            // DD-MM-YYYY -> DD/MM/YYYY
+            dob = `${p[0]}/${p[1]}/${p[2]}`;
+          }
         }
       }
       this.basicInfo['DOB_' + this.applicantNo] = dob;
       this.calculateAge();
+    }
+
+    // Fill Gender from Aadhaar
+    const gender = this.aadhaarVerify.aadhar_history.GENDER || '';
+    if (gender) {
+      const g = gender.toString().trim().toUpperCase();
+      if (g === 'MALE' || g === 'M') {
+        this.basicInfo['GENDER_' + this.applicantNo] = 'M';
+      } else if (g === 'FEMALE' || g === 'F') {
+        this.basicInfo['GENDER_' + this.applicantNo] = 'F';
+      } else if (g === 'TRANSGENDER' || g === 'T' || g === 'TG') {
+        this.basicInfo['GENDER_' + this.applicantNo] = 'T';
+      }
     }
   }
 
