@@ -2,6 +2,7 @@ import { ApiService } from "../service/api.service";
 import { PanMeta } from "./pan-meta";
 import { NzNotificationService } from 'ng-zorro-antd/notification'
 import { Subject } from "rxjs";
+import { environment } from "../../environments/environment";
 
 export class Aadhaar_History {
   ID?: number;
@@ -197,6 +198,84 @@ export class Aadhaar {
 
   license_history: License_History = new License_History();
 
+  normalizeProfileImage(image: string): string {
+    if (!image) return '';
+    let clean = image;
+    if (clean.startsWith('data:image/jpeg;base64,')) {
+      clean = clean.replace('data:image/jpeg;base64,', '');
+    }
+    if (clean.startsWith('data:image/png;base64,')) {
+      clean = clean.replace('data:image/png;base64,', '');
+    }
+    if (clean.includes('files/')) {
+      let parts = clean.split('files/');
+      let token = parts[parts.length - 1];
+      if (token.startsWith('/')) {
+        token = token.substring(1);
+      }
+      return "data:image/png;base64," + token;
+    }
+    return "data:image/png;base64," + clean;
+  }
+
+  fetchAndConvertToBase64(url: string, callback: (base64: string) => void) {
+    if (!url) {
+      callback('');
+      return;
+    }
+    if (url.startsWith('data:image/')) {
+      callback(url);
+      return;
+    }
+    if (!url.startsWith('http')) {
+      callback("data:image/png;base64," + url);
+      return;
+    }
+
+    fetch(url)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          callback(reader.result as string);
+        };
+        reader.readAsDataURL(blob);
+      })
+      .catch(err => {
+        console.warn('Direct fetch failed, trying backend proxy URL...', err);
+        if (url.includes('files/')) {
+          let parts = url.split('files/');
+          let token = parts[parts.length - 1];
+          let proxyUrl = environment.baseUrl + 'files/' + token;
+          fetch(proxyUrl)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Proxy response was not ok');
+              }
+              return response.blob();
+            })
+            .then(blob => {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                callback(reader.result as string);
+              };
+              reader.readAsDataURL(blob);
+            })
+            .catch(proxyErr => {
+              console.error('Backend proxy fetch also failed', proxyErr);
+              callback('');
+            });
+        } else {
+          callback('');
+        }
+      });
+  }
+
   getOTP() {
     this.meta.id_number = this.aadhar_history.AADHAAR_NUMBER;
     this.api.Aadhaar_GetOTP(this.meta)
@@ -241,10 +320,6 @@ export class Aadhaar {
               this.aadhar_history.DOB = res['data']['dob'];
               this.aadhar_history.APPLICANT_FULL_NAME = res['data']['full_name'];
               this.aadhar_history.GENDER = this.getGender(res['data']['gender']);
-              this.aadhar_history.PROFILE_IMAGE = res['data']['profile_image']
-
-              this.aadhar_history.IS_VERIFIED = true;
-
               this.aadhar_address.DISTRICT = res['data']['address']['dist'];
               this.aadhar_address.HOUSE = res['data']['address']['house'];
               this.aadhar_address.COUNTRY = res['data']['address']['country'];
@@ -255,8 +330,14 @@ export class Aadhaar {
               this.aadhar_address.STREET = res['data']['address']['street'];
               this.aadhar_address.LOC = res['data']['address']['loc']
 
-              this.message.success('Infomation fetched  successfully', '');
-              this.subject.next(true);
+              this.aadhar_history.IS_VERIFIED = true;
+
+              this.fetchAndConvertToBase64(res['data']['profile_image'], (base64) => {
+                this.aadhar_history.PROFILE_IMAGE = base64;
+                this.common.profile_image = base64;
+                this.message.success('Infomation fetched  successfully', '');
+                this.subject.next(true);
+              });
             }
             else {
               // console.log(res)
@@ -283,7 +364,9 @@ export class Aadhaar {
     this.common.full_name = this.aadhar_history.APPLICANT_FULL_NAME;
     this.common.age = this.FindAge(this.aadhar_history.DOB);
     this.common.dob = this.aadhar_history.DOB;
-    this.common.profile_image = this.aadhar_history.PROFILE_IMAGE;
+    this.fetchAndConvertToBase64(this.aadhar_history.PROFILE_IMAGE, (base64) => {
+      this.common.profile_image = base64;
+    });
     this.common.gender = this.aadhar_history.GENDER;
     this.common.address = `${this.aadhar_address.VTC}, ${this.aadhar_address.STREET}, ${this.aadhar_address.LOC}, ${this.aadhar_address.DISTRICT}
       , ${this.aadhar_address.STATE}, ${this.aadhar_address.COUNTRY}`
@@ -379,7 +462,6 @@ export class Aadhaar {
           this.license_history.CITIZENSHIP = res.data["citizenship"];
           this.license_history.DOB = res.data["dob"];
           this.license_history.BLOOD_GROUP = res.data["blood_group"];
-          this.license_history.PROFILE_IMAGE = res.data["profile_image"];
           this.license_history.PERMANENT_ADDRESS = res.data["permanent_address"];
           this.license_history.PERMANENT_ZIP = res.data["permanent_zip"];
           this.license_history.TEMPORARY_ADDRESS = res.data["temporary_address"];
@@ -395,8 +477,11 @@ export class Aadhaar {
           this.license_history.VEHICLE_CLASSES = res.data["vehicle_classes"] ? JSON.stringify(res.data["vehicle_classes"]) : '[]';
 
           this.license_history.IS_VERIFIED = true;
-          license.next(true);
-          this.message.success("License Verified", `Name on License : ${this.license_history.NAME}`)
+          this.fetchAndConvertToBase64(res.data["profile_image"], (base64) => {
+            this.license_history.PROFILE_IMAGE = base64;
+            license.next(true);
+            this.message.success("License Verified", `Name on License : ${this.license_history.NAME}`)
+          });
         }
         else {
           this.license_history.IS_VERIFIED = false;
@@ -416,21 +501,40 @@ export class Aadhaar {
   }
 
   private getGender(genderCode: string): string {
-    if (genderCode == 'MALE') {
+    if (!genderCode) return 'Other';
+    const code = genderCode.toUpperCase().trim();
+    if (code === 'MALE' || code === 'M') {
       return 'Male';
     }
-    else if (genderCode == 'FEMALE') {
-      return 'Female'
+    else if (code === 'FEMALE' || code === 'F') {
+      return 'Female';
     }
     else {
-      return 'Other'
+      return 'Other';
     }
   }
 
   private FindAge(Age: string): number {
     if (Age != undefined && Age != '') {
-      let ageArray = Age.split('-');
-      let year = ~~ageArray[0];
+      let parts = Age.split(/[-/]/);
+      let year = 0;
+      for (let part of parts) {
+        if (part.length === 4) {
+          year = parseInt(part, 10);
+          break;
+        }
+      }
+      if (year === 0 && parts.length > 0) {
+        let lastPart = parts[parts.length - 1];
+        if (lastPart && lastPart.length === 4) {
+          year = parseInt(lastPart, 10);
+        } else {
+          year = parseInt(parts[0], 10);
+        }
+      }
+      if (isNaN(year) || year === 0) {
+        return 0;
+      }
       let currentDate = new Date();
       let currentYear = currentDate.getFullYear();
       return currentYear - year;
