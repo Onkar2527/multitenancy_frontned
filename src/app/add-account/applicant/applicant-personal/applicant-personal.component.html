@@ -710,7 +710,7 @@
 
                         <div nz-row>
                             <nz-form-item nz-col nzSpan="24">
-                                <nz-form-label nzRequired [nzNoColon]="true">State</nz-form-label>
+                                <nz-form-label [nzNoColon]="true">State</nz-form-label>
                                 <nz-form-control>
                                     <nz-select name="OFFICE_STATE" nzShowSearch [(ngModel)]="personalInfo.OFFICE_STATE"
                                         (ngModelChange)="filterDistrictC()"
@@ -721,7 +721,7 @@
                                 </nz-form-control>
                             </nz-form-item>
                             <nz-form-item nz-col nzSpan="24">
-                                <nz-form-label nzRequired [nzNoColon]="true">District</nz-form-label>
+                                <nz-form-label [nzNoColon]="true">District</nz-form-label>
                                 <nz-form-control>
                                     <nz-select name="OFFICE_DISTRICT" nzShowSearch
                                         [(ngModel)]="personalInfo.OFFICE_DISTRICT" (ngModelChange)="filterTalukaC()"
@@ -732,7 +732,7 @@
                                 </nz-form-control>
                             </nz-form-item>
                             <nz-form-item nz-col nzSpan="24">
-                                <nz-form-label nzRequired [nzNoColon]="true">Taluka</nz-form-label>
+                                <nz-form-label [nzNoColon]="true">Taluka</nz-form-label>
                                 <nz-form-control>
                                     <nz-select name="OFFICE_TALUKA" nzShowSearch
                                         [(ngModel)]="personalInfo.OFFICE_TALUKA" (ngModelChange)="filterCityC()"
@@ -743,7 +743,7 @@
                                 </nz-form-control>
                             </nz-form-item>
                             <nz-form-item nz-col nzSpan="24">
-                                <nz-form-label nzRequired [nzNoColon]="true">City / Village</nz-form-label>
+                                <nz-form-label [nzNoColon]="true">City / Village</nz-form-label>
                                 <nz-form-control>
                                     <nz-select name="OFFICE_CITY" nzShowSearch [(ngModel)]="personalInfo.OFFICE_CITY"
                                         (ngModelChange)="filterAreaC()"
@@ -754,14 +754,14 @@
                                 </nz-form-control>
                             </nz-form-item>
                             <nz-form-item nz-col nzSpan="24">
-                                <nz-form-label nzRequired [nzNoColon]="true">Pincode</nz-form-label>
+                                <nz-form-label [nzNoColon]="true">Pincode</nz-form-label>
                                 <nz-form-control>
                                     <input nz-input name="pinc" [(ngModel)]="personalInfo.OFFICE_PINCODE"
                                         placeholder="Enter Pincode" maxlength="6" pattern="^[0-9]{6}$" />
                                 </nz-form-control>
                             </nz-form-item>
                             <nz-form-item nz-col nzSpan="24">
-                                <nz-form-label nzRequired nzNoColon>Area</nz-form-label>
+                                <nz-form-label nzNoColon>Area</nz-form-label>
                                 <nz-form-control>
                                     <nz-select name="OFFICE_AREA" nzShowSearch nzPlaceHolder="Select Area"
                                         [(ngModel)]="personalInfo.OFFICE_AREA" style="width: 100%;"
@@ -773,7 +773,7 @@
                                 </nz-form-control>
                             </nz-form-item>
                             <nz-form-item nz-col nzSpan="24">
-                                <nz-form-label nzRequired [nzNoColon]="true">Flat No, Name of Building
+                                <nz-form-label [nzNoColon]="true">Flat No, Name of Building
                                 </nz-form-label>
                                 <nz-form-control>
                                     <input nz-input name="adressc" [(ngModel)]="personalInfo.OFFICE_ADDRESS"

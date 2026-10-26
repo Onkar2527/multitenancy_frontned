@@ -5,17 +5,19 @@
             <nz-divider nzText="Personal Info" nzOrientation="left"></nz-divider>
             <nz-form-item>
                 <nz-form-label>Is this applicant a bank customer?</nz-form-label>
-                <nz-switch [(ngModel)]="basicInfo['IS_OLD_CUSTOMER_' + applicantNo]" (ngModelChange)="onCustomerIdChange()" nzCheckedChildren="Yes"
-                    nzUnCheckedChildren="No"></nz-switch>
+                <nz-switch [(ngModel)]="basicInfo['IS_OLD_CUSTOMER_' + applicantNo]"
+                    (ngModelChange)="onCustomerIdChange()" nzCheckedChildren="Yes" nzUnCheckedChildren="No"></nz-switch>
             </nz-form-item>
             <nz-form-item *ngIf="basicInfo['IS_OLD_CUSTOMER_' + applicantNo]">
                 <nz-form-label>Customer ID</nz-form-label>
                 <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton">
-                    <input nz-input [(ngModel)]="basicInfo['CUSTOMER_ID_' + applicantNo]" (ngModelChange)="onCustomerIdChange()"
-                        placeholder="Enter Customer ID" />
+                    <input nz-input [(ngModel)]="basicInfo['CUSTOMER_ID_' + applicantNo]"
+                        (ngModelChange)="onCustomerIdChange()" placeholder="Enter Customer ID" />
                 </nz-input-group>
                 <div *ngIf="kycStatus" [class]="'kyc-status-msg ' + kycStatusClass">
-                    <span nz-icon [nzType]="kycStatusClass === 'kyc-done' ? 'check-circle' : (kycStatusClass === 'kyc-pending' ? 'exclamation-circle' : 'close-circle')" nzTheme="outline"></span>
+                    <span nz-icon
+                        [nzType]="kycStatusClass === 'kyc-done' ? 'check-circle' : (kycStatusClass === 'kyc-pending' ? 'exclamation-circle' : 'close-circle')"
+                        nzTheme="outline"></span>
                     {{ kycStatus }}
                 </div>
                 <ng-template #suffixIconButton>
@@ -38,8 +40,7 @@
                         <nz-form-label nzRequired>First Name</nz-form-label>
                         <input nz-input
                             [(ngModel)]="basicInfo[applicantNo === 1 ? 'PRIMARY_APPLICANT_FIRST_NAME' : 'APPLICANT' + applicantNo + '_FIRST_NAME']"
-                            placeholder="First Name"
-                            [readonly]="isAadhaarVerified"
+                            placeholder="First Name" [readonly]="isAadhaarVerified"
                             [style.background]="isAadhaarVerified ? '#f5f5f5' : ''"
                             [style.cursor]="isAadhaarVerified ? 'not-allowed' : ''" />
                     </nz-form-item>
@@ -51,8 +52,7 @@
                         <nz-form-label>Middle Name</nz-form-label>
                         <input nz-input
                             [(ngModel)]="basicInfo[applicantNo === 1 ? 'PRIMARY_APPLICANT_MIDDLE_NAME' : 'APPLICANT' + applicantNo + '_MIDDLE_NAME']"
-                            placeholder="Middle Name"
-                            [readonly]="isAadhaarVerified"
+                            placeholder="Middle Name" [readonly]="isAadhaarVerified"
                             [style.background]="isAadhaarVerified ? '#f5f5f5' : ''"
                             [style.cursor]="isAadhaarVerified ? 'not-allowed' : ''" />
                     </nz-form-item>
@@ -62,8 +62,7 @@
                         <nz-form-label>Last Name</nz-form-label>
                         <input nz-input
                             [(ngModel)]="basicInfo[applicantNo === 1 ? 'PRIMARY_APPLICANT_LAST_NAME' : 'APPLICANT' + applicantNo + '_LAST_NAME']"
-                            placeholder="Last Name"
-                            [readonly]="isAadhaarVerified"
+                            placeholder="Last Name" [readonly]="isAadhaarVerified"
                             [style.background]="isAadhaarVerified ? '#f5f5f5' : ''"
                             [style.cursor]="isAadhaarVerified ? 'not-allowed' : ''" />
                     </nz-form-item>
@@ -86,9 +85,7 @@
                         <input nz-input [name]="'DATE_OF_BIRTH_' + applicantNo" mask="d0/M0/0000"
                             [leadZeroDateTime]="true" [dropSpecialCharacters]="false"
                             [(ngModel)]="basicInfo['DOB_' + applicantNo]" placeholder="dd/mm/yyyy"
-                            (ngModelChange)="calculateAge()"
-                            [readonly]="isAadhaarVerified"
-                            [style.background]="isAadhaarVerified ? '#f5f5f5' : ''"
+                            (ngModelChange)="calculateAge()" [style.background]="isAadhaarVerified ? '#f5f5f5' : ''"
                             [style.cursor]="isAadhaarVerified ? 'not-allowed' : ''">
                     </nz-form-item>
                 </div>
@@ -111,7 +108,8 @@
                 </nz-form-control>
                 <ng-template #mobileErrorTpl>
                     <ng-container *ngIf="mobileField.errors?.['required']">Mobile Number is mandatory!</ng-container>
-                    <ng-container *ngIf="mobileField.errors?.['pattern']">Mobile Number must start with 6-9 and be exactly 10
+                    <ng-container *ngIf="mobileField.errors?.['pattern']">Mobile Number must start with 6-9 and be
+                        exactly 10
                         digits!</ng-container>
                 </ng-template>
             </nz-form-item>

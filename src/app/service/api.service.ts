@@ -52,6 +52,7 @@ import {
   TableData,
 } from '../admin-panel/masters/dropdown-models/dropdown-models';
 import { environment } from '../../environments/environment';
+import { TOKENS } from '../../environments/tokens';
 
 @Injectable({
   providedIn: 'root',
@@ -661,7 +662,7 @@ export class ApiService implements HttpInterceptor {
   // }
 
   // Aadhaar_GetOTP(data: AadhaarMeta): Observable<any> {
-  //   const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTcxNTY5MjMyNiwianRpIjoiNzcxMzZmYWEtYzM2MC00MDY5LWIzZGUtODMyNWVmZmYwZWEwIiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LnVzZXJuYW1lXzJ2MHBpZGNhdHlpdTJvcjVmbjV5OG96aG9oc0BzdXJlcGFzcy5pbyIsIm5iZiI6MTcxNTY5MjMyNiwiZXhwIjoyMDMxMDUyMzI2LCJlbWFpbCI6InVzZXJuYW1lXzJ2MHBpZGNhdHlpdTJvcjVmbjV5OG96aG9oc0BzdXJlcGFzcy5pbyIsInRlbmFudF9pZCI6Im1haW4iLCJ1c2VyX2NsYWltcyI6eyJzY29wZXMiOlsidXNlciJdfX0.7Mz0n2rBsMQUpu0m6-AYn7ZaSrUkiprnhANo3678wIc';
+  //   const token = TOKENS.surepassToken;
   //   this.httpHeaders = new HttpHeaders({
   //     'Content-Type': 'application/json',
   //     'Authorization': `Bearer ${token}`
@@ -734,8 +735,7 @@ export class ApiService implements HttpInterceptor {
   }
 
 
-  private surepass_token =
-    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTcxNTY5MjMyNiwianRpIjoiNzcxMzZmYWEtYzM2MC00MDY5LWIzZGUtODMyNWVmZmYwZWEwIiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LnVzZXJuYW1lXzJ2MHBpZGNhdHlpdTJvcjVmbjV5OG96aG9oc0BzdXJlcGFzcy5pbyIsIm5iZiI6MTcxNTY5MjMyNiwiZXhwIjoyMDMxMDUyMzI2LCJlbWFpbCI6InVzZXJuYW1lXzJ2MHBpZGNhdHlpdTJvcjVmbjV5OG96aG9oc0BzdXJlcGFzcy5pbyIsInRlbmFudF9pZCI6Im1haW4iLCJ1c2VyX2NsYWltcyI6eyJzY29wZXMiOlsidXNlciJdfX0.7Mz0n2rBsMQUpu0m6-AYn7ZaSrUkiprnhANo3678wIc";
+  private surepass_token = TOKENS.surepassToken;
 
   private surepass_url = "https://kyc-api.surepass.io/";
   Aadhaar_GetStatus(client_id: string) {
@@ -815,27 +815,8 @@ export class ApiService implements HttpInterceptor {
 
 
 
-  // Pan_Verify(data: PanMeta): Observable<any> {
-  //   const token =
-  //     'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTcxNTY5MjMyNiwianRpIjoiNzcxMzZmYWEtYzM2MC00MDY5LWIzZGUtODMyNWVmZmYwZWEwIiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LnVzZXJuYW1lXzJ2MHBpZGNhdHlpdTJvcjVmbjV5OG96aG9oc0BzdXJlcGFzcy5pbyIsIm5iZiI6MTcxNTY5MjMyNiwiZXhwIjoyMDMxMDUyMzI2LCJlbWFpbCI6InVzZXJuYW1lXzJ2MHBpZGNhdHlpdTJvcjVmbjV5OG96aG9oc0BzdXJlcGFzcy5pbyIsInRlbmFudF9pZCI6Im1haW4iLCJ1c2VyX2NsYWltcyI6eyJzY29wZXMiOlsidXNlciJdfX0.7Mz0n2rBsMQUpu0m6-AYn7ZaSrUkiprnhANo3678wIc';
-  //   this.httpHeaders = new HttpHeaders({
-  //     'Content-Type': 'application/json',
-  //     Authorization: `Bearer ${token}`,
-  //   });
-  //   this.options = {
-  //     headers: this.httpHeaders,
-  //   };
-  //   return this.httpClient.post<any>(
-  //     this.verifyPanUrl,
-  //     JSON.stringify(data),
-  //     this.options
-  //   );
-  // }
-
-
   Pan_Verify(data: PanMeta): Observable<any> {
-    const token =
-      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTcxNTY5MjMyNiwianRpIjoiNzcxMzZmYWEtYzM2MC00MDY5LWIzZGUtODMyNWVmZmYwZWEwIiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LnVzZXJuYW1lXzJ2MHBpZGNhdHlpdTJvcjVmbjV5OG96aG9oc0BzdXJlcGFzcy5pbyIsIm5iZiI6MTcxNTY5MjMyNiwiZXhwIjoyMDMxMDUyMzI2LCJlbWFpbCI6InVzZXJuYW1lXzJ2MHBpZGNhdHlpdTJvcjVmbjV5OG96aG9oc0BzdXJlcGFzcy5pbyIsInRlbmFudF9pZCI6Im1haW4iLCJ1c2VyX2NsYWltcyI6eyJzY29wZXMiOlsidXNlciJdfX0.7Mz0n2rBsMQUpu0m6-AYn7ZaSrUkiprnhANo3678wIc";
+    const token = TOKENS.panVerifyToken;
     this.httpHeaders = new HttpHeaders({
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -1092,8 +1073,7 @@ export class ApiService implements HttpInterceptor {
 
   // voter id and License api
 
-  voterID_License_token =
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY5Mzk4MjU0OSwianRpIjoiNjViMmQ1ODAtZTAyMC00NmU2LTgxYmYtZDUxNTEwZWZhOWI4IiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LmtyZWRwb29sQHN1cmVwYXNzLmlvIiwibmJmIjoxNjkzOTgyNTQ5LCJleHAiOjE2OTQ1ODczNDksInVzZXJfY2xhaW1zIjp7InNjb3BlcyI6WyJ1c2VyIl19fQ.Dj97vyCTartwh7MEWIwCb54MJ_AqdyZDLa7c0ykIgA4';
+  voterID_License_token = TOKENS.voterLicenseToken;
   voterID_License_httpHeaders = new HttpHeaders({
     'Content-Type': 'application/json',
     Authorization: `Bearer ${this.voterID_License_token}`,
@@ -1386,7 +1366,7 @@ export class ApiService implements HttpInterceptor {
           console.error("Onboarding Application Error (Developer Details):", res);
           const errMsg = res.message || "Unable to create account";
           const errData = res.error || res.error_data || (res.data ? JSON.stringify(res.data) : '');
-          
+
           let userMsg = errMsg;
           const fullErrStr = `${errMsg} ${errData}`.toLowerCase();
           if (fullErrStr.includes("etimedout") || fullErrStr.includes("timeout") || fullErrStr.includes("econnrefused")) {
@@ -1394,7 +1374,7 @@ export class ApiService implements HttpInterceptor {
           } else if (fullErrStr.includes("403") || fullErrStr.includes("forbidden") || fullErrStr.includes("unauthorized")) {
             userMsg = "Authorization failed. Please check credentials or permissions.";
           }
-          
+
           res.message = userMsg;
         }
         return res;
@@ -1403,7 +1383,7 @@ export class ApiService implements HttpInterceptor {
         console.error("Onboarding HTTP Error (Developer Details):", err);
         const errMsg = err?.error?.message || err?.message || "Request failed";
         const errData = err?.error?.error || err?.error?.error_data || (typeof err?.error === 'object' ? JSON.stringify(err.error) : err?.error) || '';
-        
+
         let userMsg = "Unable to create account. Please try again later.";
         const fullErrStr = `${errMsg} ${errData}`.toLowerCase();
         if (fullErrStr.includes("etimedout") || fullErrStr.includes("timeout") || fullErrStr.includes("econnrefused")) {

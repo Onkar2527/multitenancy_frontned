@@ -357,7 +357,16 @@ export abstract class BaseFormComponent implements OnInit {
     return s;
   }
 
-  getBranchData() { this.api.getUserBranch(Number(this.basicInfo.CREATED_BRANCH_ID)).subscribe(res => { if (res.code == 200) this.branchData = res.data[0]; }); }
+  getBranchData() {
+    this.api.getAllBranch().subscribe(res => {
+      if (res.code == 200 && res.data) {
+        const branch = res.data.find((b: any) => b.ID == Number(this.basicInfo.CREATED_BRANCH_ID));
+        if (branch) {
+          this.branchData = branch;
+        }
+      }
+    });
+  }
   getUserMaker() { this.api.getUser({ user_id: this.basicInfo.MAKER_USER_ID }).subscribe(res => { if (res.code == 200) this.makerUserData = res.data[0]; }); }
   getUserChecker() { if (this.basicInfo.CHACKER_USER_ID) this.api.getUser({ user_id: this.basicInfo.CHACKER_USER_ID }).subscribe(res => { if (res.code == 200) this.checkerUserData = res.data[0]; }); }
 
