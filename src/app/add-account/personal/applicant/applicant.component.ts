@@ -314,6 +314,7 @@ export class ApplicantComponent implements OnInit {
             this.setAadhaarInBasicInfo(this.aadhaarVerify.aadhar_history.AADHAAR_NUMBER);
           }
           this.fillFromAadhaar();
+          this.aadhaarVerify.MakeHistory();
           this.Hit(1);
         }
         this.loadAadhaarButton = false;
@@ -635,6 +636,12 @@ export class ApplicantComponent implements OnInit {
       next: (res) => {
         if (res['code'] == 200 && res['data'].length > 0) {
           this.aadhaarVerify.license_history = res['data'][0];
+          this.aadhaarVerify.fetchAndConvertToBase64(
+            this.aadhaarVerify.license_history.PROFILE_IMAGE,
+            (base64) => {
+              this.aadhaarVerify.license_history.PROFILE_IMAGE = base64;
+            }
+          );
         }
       },
     });
